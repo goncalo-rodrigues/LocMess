@@ -12,7 +12,7 @@ import java.util.List;
 
 import pt.ulisboa.tecnico.locmess.adapters.MessagesAdapter;
 
-public class MainActivity extends ActivityWithDrawer {
+public class MainActivity extends ActivityWithDrawer{
 
     private MessagesAdapter messagesAdapter;
     private List<MessagesAdapter.Message> messages = new ArrayList<>();
@@ -22,7 +22,7 @@ public class MainActivity extends ActivityWithDrawer {
     protected void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.activity_main);
 
-        messages.add(new MessagesAdapter.Message("abcd", "xyz", new Date()));
+        messages.add(new MessagesAdapter.Message("abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd", "xyz", new Date()));
         messages.add(new MessagesAdapter.Message("cba", "xyz", new Date()));
 
         messagesAdapter = new MessagesAdapter(messages);

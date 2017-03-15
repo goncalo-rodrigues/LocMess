@@ -5,14 +5,31 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="16dp"
-    card_view:cardBackgroundColor="@color/colorPrimaryLight">
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="8dp"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp"
+    card_view:cardBackgroundColor="@color/colorPrimaryLight"
+    android:padding="48dp">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/item_message_preview"
-        android:padding="16dp"
-        tools:text="example"/>
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/item_message_preview"
+            android:padding="16dp"
+            tools:text="example"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:text="expanded"
+            android:id="@+id/details"
+            />
+    </LinearLayout>
+
 
 </android.support.v7.widget.CardView>

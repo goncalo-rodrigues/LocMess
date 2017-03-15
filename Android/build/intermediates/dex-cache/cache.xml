@@ -25,7 +25,7 @@
         jumboMode="true"
         optimize="true"
         revision="25.0.2"
-        sha1="5a5299ab7616d0609dd2b6452fe2d3cca13d43ca">
+        sha1="2d2a4b62e5be77c1f3b93a2c42ba69248b9767c2">
         <dex dex="/home/goncalo/LocMess/Android/app/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run-bootstrap_eaebe89a5b79191f13bd9e5d1bdf4a9338e075f5/classes.dex" />
     </item>
     <item
@@ -142,7 +142,7 @@
         jumboMode="true"
         optimize="true"
         revision="25.0.2"
-        sha1="ae20c28c7740c83547f73c2582c3b5120f5d6475">
+        sha1="1bb9e9a255b6a712ade6220a61c8c438b55f21b3">
         <dex dex="/home/goncalo/LocMess/Android/app/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run_2404f85bac34cced0c30949603284db30b7090de/classes.dex" />
     </item>
 
