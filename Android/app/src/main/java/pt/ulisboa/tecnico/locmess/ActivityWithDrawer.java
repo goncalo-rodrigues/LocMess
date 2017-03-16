@@ -35,7 +35,8 @@ public class ActivityWithDrawer extends AppCompatActivity {
         mPlanetTitles = getResources().getStringArray(R.array.drawer_items);
         mDrawerLayout = (DrawerLayout) ((ViewGroup) this
                 .findViewById(android.R.id.content)).getChildAt(0);
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+
+        mDrawerList = (ListView) mDrawerLayout.findViewById(R.id.left_drawer);
 
         // Set the adapter for the list view
         mDrawerList.setAdapter(new ArrayAdapter<String>(this,
