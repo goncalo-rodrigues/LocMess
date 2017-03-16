@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -67,6 +68,14 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
             }
         });
 
+        holder.remove_bt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                data.remove(position);
+                notifyDataSetChanged();
+            }
+        });
+
         if (text.length() > MAX_PREVIEW_LEN && !isExpanded) {
             holder.message_tv.setText(text.substring(0, MAX_PREVIEW_LEN-3) + "...");
         } else {
@@ -85,6 +94,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
+        public Button remove_bt;
         public TextView message_tv;
         public RelativeLayout details_rl;
         public TextView author_tv;
@@ -99,6 +109,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
             author_tv = (TextView) v.findViewById(R.id.main_item_author_tv);
             location_tv = (TextView) v.findViewById(R.id.main_item_location_tv);
             date_tv = (TextView) v.findViewById(R.id.main_item_date_tv);
+            remove_bt = (Button) v.findViewById(R.id.main_item_remove_bt);
         }
     }
 

@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.locmess;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
@@ -107,7 +108,8 @@ public class ActivityWithDrawer extends AppCompatActivity {
         Toast.makeText(this, "Position " + position, Toast.LENGTH_SHORT).show();
         switch(position) {
             case 0:
-                // start Messages
+                Intent intent = new Intent(this, MainActivity.class);
+                startActivity(intent);
                 break;
             case 1:
                 // start Locations

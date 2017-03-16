@@ -64,6 +64,7 @@
             android:layout_gravity="right"
             android:text="@string/remove"
             android:textColor="#AA0000"
+            android:id="@+id/main_item_remove_bt"
             style="@style/Widget.AppCompat.Button.Borderless" />
     </LinearLayout>
 
