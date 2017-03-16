@@ -22,18 +22,20 @@
             android:padding="16dp"
             tools:text="example"/>
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:id="@+id/main_item_details"
-            android:padding="16dp"
-            android:gravity="end">
+            android:id="@+id/main_item_details_rl"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/main_item_author_tv"
-                tools:text="by abc"
+                android:id="@+id/main_item_date_tv"
+                tools:text="1 min ago"
+                android:layout_alignParentLeft="true"
+                android:textStyle="bold"
                 />
             <TextView
                 android:layout_width="wrap_content"
@@ -41,9 +43,28 @@
                 android:id="@+id/main_item_location_tv"
                 tools:text="at arco do cego"
                 android:layout_marginLeft="8dp"
+                android:layout_alignParentRight="true"
+                android:textStyle="bold"
                 />
-        </LinearLayout>
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/main_item_author_tv"
+                tools:text="by abc"
+                android:layout_toLeftOf="@id/main_item_location_tv"
+                android:textStyle="bold"
+                />
+
+        </RelativeLayout>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:text="@string/remove"
+            android:textColor="#AA0000"
+            style="@style/Widget.AppCompat.Button.Borderless" />
     </LinearLayout>
 
 

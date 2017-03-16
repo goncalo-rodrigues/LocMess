@@ -2,4 +2,5 @@
     <string name="app_name">Locmess</string>
     <string name="drawer_open">Drawer open (placeholder)</string>
     <string name="drawer_close">Drawer closed (placeholder)</string>
+    <string name="remove">Remove</string>
 </resources>

@@ -34,6 +34,7 @@ public class MainActivity extends ActivityWithDrawer{
 
         mRecyclerView.setAdapter(messagesAdapter);
 
+
         super.onCreate(savedInstanceState);
     }
 }
