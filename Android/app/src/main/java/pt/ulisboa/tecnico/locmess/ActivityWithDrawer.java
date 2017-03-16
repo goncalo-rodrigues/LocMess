@@ -105,7 +105,7 @@ public class ActivityWithDrawer extends AppCompatActivity {
 
     /** Starts new activity **/
     private void selectItem(int position) {
-        Toast.makeText(this, "Position " + position, Toast.LENGTH_SHORT).show();
+
         switch(position) {
             case 0:
                 Intent intent = new Intent(this, MainActivity.class);

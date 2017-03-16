@@ -3,6 +3,7 @@ package pt.ulisboa.tecnico.locmess.adapters;
 import android.content.Context;
 import android.support.transition.TransitionManager;
 import android.support.v7.widget.RecyclerView;
+import android.telecom.Call;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,9 +28,15 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
     private int MAX_PREVIEW_LEN = 100;
     private List<Message> data;
     private int mExpandedPosition = -1;
+    private Callback callback;
     public MessagesAdapter(List<Message> list) {
         super();
         this.data = list;
+    }
+
+    public MessagesAdapter(List<Message> list, Callback callback) {
+        this(list);
+        this.callback = callback;
     }
 
     @Override
@@ -73,6 +80,9 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
             public void onClick(View v) {
                 data.remove(position);
                 notifyDataSetChanged();
+                if (data.size() == 0 && callback != null)
+                    callback.onEmptyList();
+
             }
         });
 
@@ -125,5 +135,9 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
             this.date = date;
             this.location = location;
         }
+    }
+
+    public interface Callback {
+        void onEmptyList();
     }
 }
