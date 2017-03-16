@@ -9,26 +9,41 @@
     android:layout_marginBottom="8dp"
     android:layout_marginStart="16dp"
     android:layout_marginEnd="16dp"
-    card_view:cardBackgroundColor="@color/colorPrimaryLight"
     android:padding="48dp">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical">
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/item_message_preview"
+            android:id="@+id/main_item_message_tv"
             android:padding="16dp"
             tools:text="example"/>
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:text="expanded"
-            android:id="@+id/details"
-            />
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:id="@+id/main_item_details"
+            android:padding="16dp"
+            android:gravity="end">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/main_item_author_tv"
+                tools:text="by abc"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/main_item_location_tv"
+                tools:text="at arco do cego"
+                android:layout_marginLeft="8dp"
+                />
+        </LinearLayout>
+
     </LinearLayout>
 
 

@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,12 +42,17 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
         String text = data.get(position).messageText;
-
+        String authorText = "by " + data.get(position).author;
+        String locationText = "at " + data.get(position).location;
 
         // expand
         final ViewGroup itemView = (ViewGroup) holder.itemView;
         final boolean isExpanded = position==mExpandedPosition;
-        holder.details_tv.setVisibility(isExpanded?View.VISIBLE:View.GONE);
+
+
+
+
+        holder.details_ll.setVisibility(isExpanded?View.VISIBLE:View.GONE);
         itemView.setActivated(isExpanded);
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,6 +68,10 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
         } else {
             holder.message_tv.setText(text);
         }
+        holder.author_tv.setText(authorText);
+        holder.location_tv.setText(locationText);
+
+
     }
 
     @Override
@@ -69,15 +79,19 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
         return data.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView message_tv;
-        public TextView details_tv;
+        public LinearLayout details_ll;
+        public TextView author_tv;
+        public TextView location_tv;
 
 
         public ViewHolder(View v) {
             super(v);
-            message_tv = (TextView) v.findViewById(R.id.item_message_preview);
-            details_tv = (TextView) v.findViewById(R.id.details);
+            message_tv = (TextView) v.findViewById(R.id.main_item_message_tv);
+            details_ll = (LinearLayout) v.findViewById(R.id.main_item_details);
+            author_tv = (TextView) v.findViewById(R.id.main_item_author_tv);
+            location_tv = (TextView) v.findViewById(R.id.main_item_location_tv);
         }
     }
 
@@ -85,11 +99,13 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
         public String messageText;
         public String author;
         public Date date;
+        public String location; //TODO: location type
 
-        public Message(String messageText, String author, Date date) {
+        public Message(String messageText, String author, Date date, String location) {
             this.messageText = messageText;
             this.author = author;
             this.date = date;
+            this.location = location;
         }
     }
 }
