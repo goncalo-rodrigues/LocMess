@@ -105,10 +105,10 @@ public class ActivityWithDrawer extends AppCompatActivity {
 
     /** Starts new activity **/
     private void selectItem(int position) {
-
+        Intent intent;
         switch(position) {
             case 0:
-                Intent intent = new Intent(this, MainActivity.class);
+                intent = new Intent(this, MainActivity.class);
                 startActivity(intent);
                 break;
             case 1:
@@ -116,6 +116,8 @@ public class ActivityWithDrawer extends AppCompatActivity {
                 break;
             case 2:
                 // start Profile
+                intent = new Intent(this, Profile.class);
+                startActivity(intent);
                 break;
         }
 

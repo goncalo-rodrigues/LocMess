@@ -3,4 +3,8 @@
     <string name="drawer_open">Drawer open (placeholder)</string>
     <string name="drawer_close">Drawer closed (placeholder)</string>
     <string name="remove">Remove</string>
+    <string name="key">Key</string>
+    <string name="value">Value</string>
+    <string name="name">Name:</string>
+    <string name="attributes">Attributes:</string>
 </resources>
