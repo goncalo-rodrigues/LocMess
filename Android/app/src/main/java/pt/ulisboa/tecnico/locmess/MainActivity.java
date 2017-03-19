@@ -68,7 +68,7 @@ public class MainActivity extends ActivityWithDrawer implements BaseMessageFragm
         viewPager.setAdapter(adapter);
 
         //Adding onTabSelectedListener to swipe views
-        tabLayout.setOnTabSelectedListener(this);
+        tabLayout.addOnTabSelectedListener(this);
 
         FloatingActionButton myFab = (FloatingActionButton) findViewById(R.id.fabMain);
         myFab.setOnClickListener(new View.OnClickListener() {
@@ -105,50 +105,5 @@ public class MainActivity extends ActivityWithDrawer implements BaseMessageFragm
     @Override
     public void onRemove(MessagesAdapter.Message message) {
 
-    }
-
-    public static class NewMessagesTab extends Fragment {
-        private MessagesAdapter messagesAdapter;
-        private List<MessagesAdapter.Message> messages = new ArrayList<>();
-        private LinearLayoutManager mLayoutManager;
-        private TextView emptyView;
-        //Overriden method onCreateView
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-            //Returning the layout file after inflating
-            //Change R.layout.tab1 in you classes
-            return inflater.inflate(R.layout.activity_main_tab_new, container, false);
-        }
-
-        @Override
-        public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-            messages.add(new MessagesAdapter.Message("abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd", "xyz", new Date(), "arco do cego"));
-            messages.add(new MessagesAdapter.Message("cba", "xyz", new Date(), "ist"));
-
-            messagesAdapter = new MessagesAdapter(messages);
-
-            RecyclerView mRecyclerView = (RecyclerView) getView().findViewById(R.id.main_list);
-
-            mLayoutManager = new LinearLayoutManager(getContext());
-            mRecyclerView.setLayoutManager(mLayoutManager);
-
-            mRecyclerView.setAdapter(messagesAdapter);
-
-            emptyView = (TextView)  getView().findViewById(R.id.main_empty_tv);
-            super.onActivityCreated(savedInstanceState);
-        }
-    }
-
-    public static class SavedMessagesTab extends Fragment {
-
-        //Overriden method onCreateView
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-            //Returning the layout file after inflating
-            //Change R.layout.tab1 in you classes
-            return inflater.inflate(R.layout.activity_main_tab_new, container, false);
-        }
     }
 }

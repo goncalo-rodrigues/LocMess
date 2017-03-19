@@ -19,7 +19,7 @@
         </activity>
         <activity android:name=".MainActivity" />
         <activity android:name=".PostMessageActivity" />
-        <activity android:name=".Profile" />
+        <activity android:name=".ProfileActivity" />
     </application>
 
 </manifest>

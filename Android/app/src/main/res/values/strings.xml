@@ -3,6 +3,9 @@
     <string name="drawer_open">Drawer open (placeholder)</string>
     <string name="drawer_close">Drawer closed (placeholder)</string>
     <string name="remove">Remove</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="key">Key</string>
     <string name="value">Value</string>
     <string name="name">Name:</string>

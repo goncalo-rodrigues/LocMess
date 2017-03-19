@@ -88,7 +88,7 @@ public class BaseMessageFragment extends Fragment implements MessagesAdapter.Cal
             ((Callback) getActivity()).onRemove(messages.get(position));
         }
         messages.remove(position);
-        messagesAdapter.notifyDataSetChanged();
+        messagesAdapter.notifyItemRemoved(position);
         if (messages.size() == 0)
             emptyView.setVisibility(View.VISIBLE);
     }
