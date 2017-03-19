@@ -9,7 +9,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".LoginActivity"
+            android:name=".InitActivity"
             android:theme="@style/AppTheme.NoTitleBar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -20,6 +20,8 @@
         <activity android:name=".MainActivity" />
         <activity android:name=".PostMessageActivity" />
         <activity android:name=".ProfileActivity" />
+        <activity android:name=".LoginActivity" android:theme="@style/AppTheme.NoTitleBar"/>
+        <activity android:name=".SignupActivity" android:theme="@style/AppTheme.NoTitleBar"/>
     </application>
 
 </manifest>
