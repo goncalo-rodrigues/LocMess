@@ -1,13 +1,10 @@
 package pt.ulisboa.tecnico.locmess;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -115,8 +112,8 @@ public class ActivityWithDrawer extends AppCompatActivity {
                 // start Locations
                 break;
             case 2:
-                // start Profile
-                intent = new Intent(this, Profile.class);
+                // start ProfileActivity
+                intent = new Intent(this, ProfileActivity.class);
                 startActivity(intent);
                 break;
         }

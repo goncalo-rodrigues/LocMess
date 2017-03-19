@@ -66,7 +66,7 @@
                 android:src="@drawable/ic_add_black"
                 style="@style/Base.Widget.AppCompat.Button.Borderless"
                 android:id="@+id/profile_add_keyval_bt"
-                android:background="?android:selectableItemBackground"
+                android:background="?android:selectableItemBackgroundBorderless"
                 />
 
         </LinearLayout>

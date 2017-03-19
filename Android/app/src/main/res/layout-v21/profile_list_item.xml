@@ -34,5 +34,5 @@
         style="@style/Base.Widget.AppCompat.Button.Borderless"
         android:id="@+id/profile_list_item_remove_bt"
         android:contentDescription="@string/remove"
-        android:background="?android:selectableItemBackground"/>
+        android:background="?android:selectableItemBackgroundBorderless"/>
 </LinearLayout>
