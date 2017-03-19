@@ -5,6 +5,7 @@ import android.support.transition.TransitionManager;
 import android.support.v7.widget.RecyclerView;
 import android.telecom.Call;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,7 @@ import pt.ulisboa.tecnico.locmess.R;
  */
 
 public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHolder> {
+    private static final String LOG_TAG = MessagesAdapter.class.getSimpleName();
     private int MAX_PREVIEW_LEN = 100;
     private List<Message> data;
     private int mExpandedPosition = -1;
@@ -50,7 +52,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, final int position) {
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
         String text = data.get(position).messageText;
         String authorText = "by " + data.get(position).author;
         String locationText = "at " + data.get(position).location;
@@ -69,7 +71,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mExpandedPosition = isExpanded ? -1:position;
+                mExpandedPosition = isExpanded ? -1:holder.getAdapterPosition();
                 TransitionManager.beginDelayedTransition(itemView);
                 notifyDataSetChanged();
             }
@@ -78,10 +80,10 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
         holder.remove_bt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                data.remove(position);
-                notifyDataSetChanged();
-                if (data.size() == 0 && callback != null)
-                    callback.onEmptyList();
+                if (callback != null)
+                    callback.onRemoveClicked(holder.getAdapterPosition());
+                else
+                    Log.e(LOG_TAG, "No callback defined for the adapter. Remove did nothing");
 
             }
         });
@@ -138,6 +140,6 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
     }
 
     public interface Callback {
-        void onEmptyList();
+        void onRemoveClicked(int position);
     }
 }

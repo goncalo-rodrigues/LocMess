@@ -11,26 +11,37 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <TextView
+        <android.support.v4.view.ViewPager
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/main_empty_tv"
-            android:text="There are no new messages"
-            android:textSize="24sp"
-            android:gravity="center"
-            android:visibility="gone"/>
+            android:id="@+id/main_view_pager">
 
-        <android.support.v7.widget.RecyclerView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/main_list">
+            <android.support.design.widget.TabLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top"
+                android:id="@+id/main_tab_layout">
 
-        </android.support.v7.widget.RecyclerView>
+                <android.support.design.widget.TabItem
+                    android:layout_height="match_parent"
+                    android:layout_width="wrap_content"
+                    android:text="New"/>
+
+                <android.support.design.widget.TabItem
+                    android:layout_height="match_parent"
+                    android:layout_width="wrap_content"
+                    android:text="Created"/>
+
+
+            </android.support.design.widget.TabLayout>
+
+        </android.support.v4.view.ViewPager>
+
 
         <android.support.design.widget.FloatingActionButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@mipmap/ic_launcher"
+            android:src="@drawable/ic_add_white"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
             android:layout_marginBottom="8dp"

@@ -5,4 +5,9 @@
         <item>Locations</item>
         <item>Profile</item>
     </string-array>
+
+    <string-array name="tab_names">
+        <item>New</item>
+        <item>Created</item>
+    </string-array>
 </resources>
