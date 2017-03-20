@@ -110,6 +110,8 @@ public class ActivityWithDrawer extends AppCompatActivity {
                 break;
             case 1:
                 // start Locations
+                intent = new Intent(this, LocationsActivity.class);
+                startActivity(intent);
                 break;
             case 2:
                 // start ProfileActivity
