@@ -9,4 +9,5 @@
     android:divider="@android:color/transparent"
     android:dividerHeight="0dp"
     android:background="#FFFFFF"
+    android:listSelector="#AAAAAA"
     xmlns:android="http://schemas.android.com/apk/res/android" />

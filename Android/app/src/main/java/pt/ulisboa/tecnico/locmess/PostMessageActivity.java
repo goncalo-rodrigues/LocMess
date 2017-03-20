@@ -177,6 +177,7 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
         TimePicker newFragment = new TimePicker();
         newFragment.setDate(endDate);
         newFragment.show(getSupportFragmentManager(), "timePicker");
+
         endDate = newFragment.getDate();
         String stringDate = DateFormat.getTimeInstance().format(endDate.getTime());
         endTimeButton.setText(stringDate);

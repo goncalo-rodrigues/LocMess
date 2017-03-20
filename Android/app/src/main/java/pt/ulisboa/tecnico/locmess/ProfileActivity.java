@@ -52,6 +52,8 @@ public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapt
         ArrayAdapter adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, keys);
 
         mKeyAtv.setAdapter(adapter);
+
+
         // show dropdown when focused
         mKeyAtv.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override

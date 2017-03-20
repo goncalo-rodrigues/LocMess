@@ -17,28 +17,30 @@ import android.widget.Toast;
  * Created by root on 14-03-2017.
  */
 
-public class ActivityWithDrawer extends AppCompatActivity {
+public abstract class ActivityWithDrawer extends AppCompatActivity {
 
 
-    private String[] mPlanetTitles;
+    private String[] mDrawerTitles;
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
+    private int mDrawerPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_main);
 
-        mPlanetTitles = getResources().getStringArray(R.array.drawer_items);
+        mDrawerTitles = getResources().getStringArray(R.array.drawer_items);
         mDrawerLayout = (DrawerLayout) ((ViewGroup) this
                 .findViewById(android.R.id.content)).getChildAt(0);
 
         mDrawerList = (ListView) mDrawerLayout.findViewById(R.id.left_drawer);
 
         // Set the adapter for the list view
-        mDrawerList.setAdapter(new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, mPlanetTitles));
+        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_list_item_1, mDrawerTitles);
+        mDrawerList.setAdapter(adapter);
         // Set the list's click listener
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
@@ -49,26 +51,30 @@ public class ActivityWithDrawer extends AppCompatActivity {
             @Override
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
-                Toast.makeText(ActivityWithDrawer.this, "abc", Toast.LENGTH_SHORT).show();
+
                 invalidateOptionsMenu();
+
+
             }
 
             @Override
             public void onDrawerClosed(View drawerView) {
                 super.onDrawerClosed(drawerView);
-                Toast.makeText(ActivityWithDrawer.this, "xyz", Toast.LENGTH_SHORT).show();
                 invalidateOptionsMenu();
             }
         };
 
         mDrawerLayout.addDrawerListener(mDrawerToggle);
 
+        mDrawerPosition = getDrawerPosition();
     }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         mDrawerToggle.syncState();
+
+
     }
 
     @Override
@@ -106,7 +112,9 @@ public class ActivityWithDrawer extends AppCompatActivity {
         switch(position) {
             case 0:
                 intent = new Intent(this, MainActivity.class);
+//                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
+                finish();
                 break;
             case 1:
                 // start Locations
@@ -116,12 +124,24 @@ public class ActivityWithDrawer extends AppCompatActivity {
             case 2:
                 // start ProfileActivity
                 intent = new Intent(this, ProfileActivity.class);
+//                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
+                finish();
                 break;
         }
 
         // Highlight the selected item, update the title, and close the drawer
-        mDrawerList.setItemChecked(position, true);
+//        mDrawerList.setItemChecked(position, true);
         mDrawerLayout.closeDrawer(mDrawerList);
+    }
+
+    private int getDrawerPosition() {
+        if (this instanceof MainActivity) {
+            return 0;
+        }
+        if (this instanceof ProfileActivity) {
+            return 2;
+        }
+        return -1;
     }
 }

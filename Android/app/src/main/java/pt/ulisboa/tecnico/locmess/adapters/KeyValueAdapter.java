@@ -24,9 +24,7 @@ import pt.ulisboa.tecnico.locmess.R;
 
 public class KeyValueAdapter extends RecyclerView.Adapter<KeyValueAdapter.ViewHolder> {
     private static final String LOG_TAG = MessagesAdapter.class.getSimpleName();
-    private int MAX_PREVIEW_LEN = 100;
     private List<KeyValue> data;
-    private int mExpandedPosition = -1;
     private Callback callback;
     public KeyValueAdapter(List<KeyValue> list) {
         super();
