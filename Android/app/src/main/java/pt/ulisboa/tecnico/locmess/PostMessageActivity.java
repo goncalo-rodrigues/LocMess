@@ -1,11 +1,8 @@
 package pt.ulisboa.tecnico.locmess;
 
-import android.support.v4.app.DialogFragment;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.Time;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -14,30 +11,30 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Dictionary;
-import java.util.Date;
 
-import pt.ulisboa.tecnico.locmess.adapters.KeyValueAdapter;
+import pt.ulisboa.tecnico.locmess.adapters.FilterAdapter;
 
-public class PostMessageActivity extends ActivityWithDrawer implements KeyValueAdapter.Callback, View.OnClickListener {
+public class PostMessageActivity extends ActivityWithDrawer implements FilterAdapter.Callback, View.OnClickListener {
 
     private static final String LOG_TAG = ProfileActivity.class.getSimpleName();
     private ArrayList<String> locationList = new ArrayList<>();
     private ArrayAdapter<String> locationListAdapter;
 
-    private KeyValueAdapter filtersKeyValueAdapter;
-    private List<KeyValueAdapter.KeyValue> filterList = new ArrayList<>();
+    private FilterAdapter filtersAdapter;
+    private List<FilterAdapter.KeyValue> filterList = new ArrayList<>();
     private List<String> filterKeys = new ArrayList<>();
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;
 
     private AutoCompleteTextView mKeyAtv;
     private TextView mValueTv;
+    private ToggleButton mblacklistedTb;
 
     private String messageToSend;
 
@@ -46,8 +43,8 @@ public class PostMessageActivity extends ActivityWithDrawer implements KeyValueA
     private Button endTimeButton;
     private Button endDateButton;
 
-    Date startDate;
-    Date endDate;
+    Calendar startDate;
+    Calendar endDate;
 
 
 
@@ -74,33 +71,27 @@ public class PostMessageActivity extends ActivityWithDrawer implements KeyValueA
         endTimeButton   = (Button) findViewById(R.id.end_time_button);
         endDateButton   = (Button) findViewById(R.id.end_date_button);
 
-        String stringDate = DateFormat.getTimeInstance().format(startDate);
+        String stringDate = DateFormat.getTimeInstance().format(startDate.getTime());
         startTimeButton.setText(stringDate);
 
-        stringDate = DateFormat.getDateInstance().format(startDate);
+        stringDate = DateFormat.getDateInstance().format(startDate.getTime());
         startDateButton.setText(stringDate);
 
-        stringDate = DateFormat.getTimeInstance().format(endDate);
+        stringDate = DateFormat.getTimeInstance().format(endDate.getTime());
         endTimeButton.setText(stringDate);
 
-        stringDate = DateFormat.getDateInstance().format(endDate);
+        stringDate = DateFormat.getDateInstance().format(endDate.getTime());
         endDateButton.setText(stringDate);
-
-
-
-
-
-
 
 
         //Filters
         getFiltersList();
 
         mRecyclerView = (RecyclerView) findViewById(R.id.send_message_key_value_list);
-        filtersKeyValueAdapter = new KeyValueAdapter(filterList, this);
+        filtersAdapter = new FilterAdapter(filterList, this);
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.setAdapter(filtersKeyValueAdapter);
+        mRecyclerView.setAdapter(filtersAdapter);
 
         mKeyAtv = (AutoCompleteTextView) findViewById(R.id.send_m_new_key_autotv);
         ArrayAdapter adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, filterKeys);
@@ -120,22 +111,37 @@ public class PostMessageActivity extends ActivityWithDrawer implements KeyValueA
 
         ((ImageButton) findViewById(R.id.send_m_add_keyval_bt)).setOnClickListener(this);
 
-
+        mblacklistedTb = (ToggleButton) findViewById(R.id.toggle_Button_Blacklist);
 
         super.onCreate(savedInstanceState);
     }
+
+
 
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.send_m_add_keyval_bt:
                 // TODO: Validate key / value min and max length
-                filterList.add(new KeyValueAdapter.KeyValue(
-                        mKeyAtv.getText().toString(), mValueTv.getText().toString()));
+                filterList.add(new FilterAdapter.KeyValue(
+                        mKeyAtv.getText().toString(), mValueTv.getText().toString(),mblacklistedTb.isChecked()));
                 mKeyAtv.setText(null);
                 mValueTv.setText(null);
 
-                filtersKeyValueAdapter.notifyItemInserted(filterList.size() - 1);;
+                filtersAdapter.notifyItemInserted(filterList.size() - 1);;
                 break;
+        //TODO a partir daqui nao tao a funcionar
+            case R.id.start_time_button:
+                showStartTimePickerDialog(v);
+
+            case R.id.start_date_button:
+                showStartDatePickerDialog(v);
+
+            case R.id.end_time_button:
+                showEndTimePickerDialog(v);
+
+            case R.id.end_date_button:
+                showEndDatePickerDialog(v);
+
             default:
                 Log.w(LOG_TAG, "On click event not yet implemented for this view.");
         }
@@ -144,7 +150,7 @@ public class PostMessageActivity extends ActivityWithDrawer implements KeyValueA
 
     private void getLocations(){
         //TODO this should load locations from database
-        locationList.add("location1");
+        locationList.add("IST");
         locationList.add("location2");
         locationList.add("location3");
         locationList.add("location4");
@@ -158,30 +164,59 @@ public class PostMessageActivity extends ActivityWithDrawer implements KeyValueA
     }
 
 
-    public void showTimePickerDialog(View v) {
-        DialogFragment newFragment = new TimePicker();
+    public void showStartTimePickerDialog(View v) {
+        TimePicker newFragment = new TimePicker();
+        newFragment.setDate(startDate);
         newFragment.show(getSupportFragmentManager(), "timePicker");
+        startDate = newFragment.getDate();
+        String stringDate = DateFormat.getTimeInstance().format(startDate.getTime());
+        startTimeButton.setText(stringDate);
     }
 
-    public void showDatePickerDialog(View v) {
-        DialogFragment newFragment = new DatePicker();
+    public void showEndTimePickerDialog(View v) {
+        TimePicker newFragment = new TimePicker();
+        newFragment.setDate(endDate);
+        newFragment.show(getSupportFragmentManager(), "timePicker");
+        endDate = newFragment.getDate();
+        String stringDate = DateFormat.getTimeInstance().format(endDate.getTime());
+        endTimeButton.setText(stringDate);
+    }
+
+
+    public void showStartDatePickerDialog(View v) {
+        DatePicker newFragment = new DatePicker();
+        newFragment.setDate(startDate);
         newFragment.show(getSupportFragmentManager(), "datePicker");
+        startDate = newFragment.getDate();
+        String stringDate = DateFormat.getDateInstance().format(startDate.getTime());
+        startDateButton.setText(stringDate);
     }
 
-    public void setDate(){}
+    public void showEndDatePickerDialog(View v) {
+        DatePicker newFragment = new DatePicker();
+        newFragment.setDate(endDate);
+        newFragment.show(getSupportFragmentManager(), "datePicker");
+        endDate = newFragment.getDate();
+        String stringDate = DateFormat.getDateInstance().format(endDate.getTime());
+        endDateButton.setText(stringDate);
+    }
 
-    public void setTime(){}
 
     @Override
     public void onRemoveClicked(int position) {
         filterList.remove(position);
-        filtersKeyValueAdapter.notifyItemRemoved(position);
+        filtersAdapter.notifyItemRemoved(position);
+    }
+
+    @Override
+    public void onChangeBlacklist(int Position) {
+        //TODO i dont know yet what to do
     }
 
     private void initTimes(){
-        startDate= new Date();
-        long timePlus1hour = startDate.getTime() + 3600000;
-        endDate = new Date(timePlus1hour);
+        startDate= Calendar.getInstance();
+        endDate = Calendar.getInstance();
+        endDate.add(Calendar.HOUR_OF_DAY,1);
 
     }
 }

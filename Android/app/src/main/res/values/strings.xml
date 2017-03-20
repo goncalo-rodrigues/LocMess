@@ -15,4 +15,12 @@
     <string name="login">Log in</string>
     <string name="sign_up">Sign up</string>
     <string name="reentry_password">Reentry password</string>
+    <string name="witheList">White List</string>
+    <string name="blackList">Black List</string>
+    <string name="message">Message</string>
+    <string name="location">Location</string>
+    <string name="hintInsertMessage">Insert Message</string>
+    <string name="from">From:</string>
+    <string name="to">To:</string>
+    <string name="filters">Filters:</string>
 </resources>
