@@ -1,42 +1,55 @@
 package pt.ulisboa.tecnico.locmess;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import pt.ulisboa.tecnico.locmess.adapters.LocationsAdapter;
+
 /**
  * Created by nca on 20-03-2017.
  */
 
-public class LocationsActivity extends ActivityWithDrawer {
-    private ArrayAdapter arrayAdapter;
-    private ListView mListView;
-    private List<String> locs = new ArrayList<>();
-    private List<String> search_locs = locs;
-    private Context context = this;
+public class LocationsActivity extends ActivityWithDrawer implements LocationsAdapter.Callback {
+    private static final String LOG_TAG = ProfileActivity.class.getSimpleName();
+    private LocationsActivity locAct = this;
+
+    private LocationsAdapter locationsAdapter;
+    private List<LocationsAdapter.LocValue> locList = new ArrayList<>();
+    private List<LocationsAdapter.LocValue> searchList = locList;
+    private RecyclerView mRecyclerView;
+    private LinearLayoutManager mLayoutManager;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.activity_locations);
 
         // TODO: Start removing when done
-        locs.add("eduroam-rnl");
-        locs.add("arco do cego");
-        locs.add("h3-saldanha");
-
-        Collections.sort(search_locs);
+        locList.add(new LocationsAdapter.LocValue("eduroam-rnl"));
+        locList.add(new LocationsAdapter.LocValue("arco do cego"));
+        locList.add(new LocationsAdapter.LocValue("h3-saldanha"));
         // TODO: End of removal
 
-        arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, search_locs);
+        locationsAdapter = new LocationsAdapter(searchList, this);
 
-        mListView = (ListView) findViewById(R.id.locations_list);
-        mListView.setAdapter(arrayAdapter);
+        mRecyclerView = (RecyclerView) findViewById(R.id.locations_list);
+        mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setAdapter(locationsAdapter);
 
         ((SearchView) findViewById(R.id.search)).setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -47,18 +60,18 @@ public class LocationsActivity extends ActivityWithDrawer {
             @Override
             public boolean onQueryTextChange(String newText) {
                 if(!newText.equals("")) {
-                    search_locs = new ArrayList<>();
-                    for(String s : locs) {
-                        if(s.contains(newText))
-                            search_locs.add(s);
+                    searchList = new ArrayList<>();
+                    for(LocationsAdapter.LocValue l : locList) {
+                        if(l.loc.contains(newText))
+                            searchList.add(l);
                     }
                 }
 
                 else
-                    search_locs = locs;
+                    searchList = locList;
 
-                arrayAdapter = new ArrayAdapter(context, android.R.layout.simple_list_item_1, search_locs);
-                mListView.setAdapter(arrayAdapter);
+                locationsAdapter = new LocationsAdapter(searchList, locAct);
+                mRecyclerView.setAdapter(locationsAdapter);
 
                 return true;
             }
@@ -67,5 +80,19 @@ public class LocationsActivity extends ActivityWithDrawer {
         super.onCreate(savedInstanceState);
     }
 
-    // TODO: Add the delete button for each location
+    @Override
+    public void onRemoveClicked(int position) {
+        updateStructures(position);
+        locationsAdapter.notifyItemRemoved(position);
+    }
+
+    private void updateStructures(int position) {
+        locList.remove(position);
+        searchList.remove(position);
+    }
+
+    public void clickNew(View v) {
+        Intent intent = new Intent(this, NewLocationActivity.class);
+        startActivity(intent);
+    }
 }

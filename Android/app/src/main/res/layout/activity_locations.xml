@@ -26,9 +26,10 @@
             android:layout_alignParentRight="true"
             android:layout_marginBottom="8dp"
             android:layout_marginRight="8dp"
-            android:id="@+id/fabMain" />
+            android:id="@+id/fabMain"
+            android:onClick="clickNew"/>
 
-        <ListView
+        <android.support.v7.widget.RecyclerView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/locations_list"
