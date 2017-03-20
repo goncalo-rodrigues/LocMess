@@ -79,13 +79,14 @@
                         android:layout_height="wrap_content"
                         android:text="pick_date"
                         android:onClick="showDatePickerDialog"
-                        android:id="@+id/button" />
+                        android:id="@+id/start_date_button" />
 
                     <Button
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="pick_time"
-                        android:onClick="showTimePickerDialog" />
+                        android:onClick="showTimePickerDialog"
+                        android:id="@+id/start_time_button"/>
 
 
 
@@ -108,13 +109,14 @@
                         android:layout_height="wrap_content"
                         android:text="pick_date"
                         android:onClick="showDatePickerDialog"
-                        android:id="@+id/toDatepicker" />
+                        android:id="@+id/end_date_button" />
 
                     <Button
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="pick_time"
-                        android:onClick="showTimePickerDialog" />
+                        android:onClick="showTimePickerDialog"
+                        android:id="@+id/end_time_button"/>
 
 
 
@@ -129,52 +131,47 @@
                     android:id="@+id/textView4"
                     android:layout_weight="1" />
 
-                <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-                    <TextView
-                        android:text="Filters"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/textView5"
-                        android:layout_weight="1" />
 
-                    <TextView
-                        android:text="Filters"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/textView6"
-                        android:layout_weight="1" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
+                    <AutoCompleteTextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:maxLines="1"
+                        android:id="@+id/send_m_new_key_autotv"
+                        android:completionThreshold="1"
+                        android:hint="@string/key"
+                        />
+
+                    <EditText
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:maxLines="1"
+                        android:id="@+id/send_m_new_value_tv"
+                        android:hint="@string/value"/>
+
+                    <ImageButton
+                        android:layout_width="30dp"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/ic_add_black"
+                        style="@style/Base.Widget.AppCompat.Button.Borderless"
+                        android:id="@+id/send_m_add_keyval_bt"
+                        android:background="?android:selectableItemBackground"
+                        />
 
                 </LinearLayout>
 
-                <LinearLayout
-                    android:orientation="horizontal"
+                <android.support.v7.widget.RecyclerView
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="match_parent"
+                    android:id="@+id/send_message_key_value_list">
 
-                    <Spinner
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/filterKey"
-                        android:entries="@array/drawer_items"
-                        android:background="@android:color/darker_gray" />
-                    <Spinner
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/filterValue"
-                        android:entries="@array/drawer_items"
-                        android:background="@android:color/darker_gray" />
-
-                    <Button
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Add"
-                        android:onClick="showDatePickerDialog"
-                        android:id="@+id/addFilter"
-                        android:layout_weight="1" />
-                </LinearLayout>
+                </android.support.v7.widget.RecyclerView>
 
             </LinearLayout>
         </ScrollView>
