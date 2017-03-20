@@ -23,4 +23,7 @@
     <string name="from">From:</string>
     <string name="to">To:</string>
     <string name="filters">Filters:</string>
+    <string name="bluetooth">Bluetooth</string>
+    <string name="gps">GPS</string>
+    <string name="wifi">WiFi</string>
 </resources>
