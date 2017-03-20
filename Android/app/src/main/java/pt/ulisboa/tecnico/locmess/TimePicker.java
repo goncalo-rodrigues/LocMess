@@ -13,17 +13,25 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.Calendar;
+import java.util.Date;
 
 
 public class TimePicker extends DialogFragment
         implements TimePickerDialog.OnTimeSetListener {
 
+    Calendar myDate;
+
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         //get current time an use it as default
-        final Calendar calendar = Calendar.getInstance();
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        int min = calendar.get(Calendar.MINUTE);
+        if (myDate == null)
+             myDate = Calendar.getInstance();
+        int hour = myDate.get(Calendar.HOUR_OF_DAY);
+        int min = myDate.get(Calendar.MINUTE);
+        //TODO chose one
+
+
 
         //Create a new instance of TimePickerDialog and return it
         return new TimePickerDialog(getActivity(), this, hour, min,
@@ -31,9 +39,18 @@ public class TimePicker extends DialogFragment
     }
 
 
-
     @Override
     public void onTimeSet(android.widget.TimePicker view, int hourOfDay, int minute) {
-
+        myDate.set(Calendar.HOUR_OF_DAY, hourOfDay);
+        myDate.set(Calendar.MINUTE,minute);
     }
+
+    public Calendar getDate(){
+        return myDate;
+    }
+
+    public void setDate(Calendar date){
+        myDate = date;
+    }
+
 }

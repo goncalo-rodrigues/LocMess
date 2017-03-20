@@ -18,23 +18,36 @@ import java.util.Calendar;
 public class DatePicker extends DialogFragment
         implements DatePickerDialog.OnDateSetListener {
 
+    Calendar myDate;
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // get current date
-        final Calendar calendar = Calendar.getInstance();
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-        int month = calendar.get(Calendar.MONTH);
-        int year = calendar.get(Calendar.YEAR);
+        if (myDate == null)
+            myDate = Calendar.getInstance();
+
+        int day = myDate.get(Calendar.DAY_OF_MONTH);
+        int month = myDate.get(Calendar.MONTH);
+        int year = myDate.get(Calendar.YEAR);
 
 
 
         // Create a new instance of DatePickerDialog and return it
         return new DatePickerDialog(getActivity(), this, year, month, day);
+
     }
 
 
     @Override
     public void onDateSet(android.widget.DatePicker view, int year, int month, int dayOfMonth) {
+        myDate.set(year,month,dayOfMonth);
+    }
 
+    public Calendar getDate(){
+        return myDate;
+    }
+
+    public void setDate(Calendar date){
+        myDate = date;
     }
 }

@@ -32,7 +32,7 @@
                 android:id="@+id/linearLayou1" >
 
                 <TextView
-                    android:text="Location"
+                    android:text="@string/location"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/textView" />
@@ -45,7 +45,7 @@
                     android:background="@android:color/darker_gray" />
 
                 <TextView
-                    android:text="message"
+                    android:text="@string/message"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/message" />
@@ -60,11 +60,11 @@
                     android:scrollbars="vertical"
                     android:ems="10"
                     android:id="@+id/editText2"
-                    android:hint="Insert message"
+                    android:hint="@string/hintInsertMessage"
                     android:background="@android:color/darker_gray"/>
 
                 <TextView
-                    android:text="From"
+                    android:text="@string/from"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/textView2" />
@@ -78,14 +78,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="pick_date"
-                        android:onClick="showDatePickerDialog"
+                        android:onClick="showStartDatePickerDialog"
                         android:id="@+id/start_date_button" />
 
                     <Button
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="pick_time"
-                        android:onClick="showTimePickerDialog"
+                        android:onClick="showStartTimePickerDialog"
                         android:id="@+id/start_time_button"/>
 
 
@@ -94,7 +94,7 @@
                 </LinearLayout>
 
                 <TextView
-                    android:text="To"
+                    android:text="@string/to"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/textView3" />
@@ -108,14 +108,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="pick_date"
-                        android:onClick="showDatePickerDialog"
+                        android:onClick="showEndDatePickerDialog"
                         android:id="@+id/end_date_button" />
 
                     <Button
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="pick_time"
-                        android:onClick="showTimePickerDialog"
+                        android:onClick="showEndTimePickerDialog"
                         android:id="@+id/end_time_button"/>
 
 
@@ -125,7 +125,7 @@
 
                 </LinearLayout>
                 <TextView
-                    android:text="Filters"
+                    android:text="@string/filters"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/textView4"
@@ -154,6 +154,16 @@
                         android:maxLines="1"
                         android:id="@+id/send_m_new_value_tv"
                         android:hint="@string/value"/>
+                    <ToggleButton
+                        android:text="ToggleButton"
+                        android:layout_width="60dp"
+                        android:layout_height="match_parent"
+                        android:layout_alignLeft="@+id/send_m_new_value_tv"
+                        android:layout_alignStart="@+id/editText"
+                        android:id="@+id/toggle_Button_Blacklist"
+                        android:textSize="10sp"
+                        android:textOff="@string/witheList"
+                        android:textOn="@string/blackList"/>
 
                     <ImageButton
                         android:layout_width="30dp"
