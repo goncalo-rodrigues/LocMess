@@ -22,6 +22,7 @@
         <activity android:name=".ProfileActivity" />
         <activity android:name=".LoginActivity" android:theme="@style/AppTheme.NoTitleBar"/>
         <activity android:name=".SignupActivity" android:theme="@style/AppTheme.NoTitleBar"/>
+        <activity android:name=".LocationsActivity" />
     </application>
 
 </manifest>
