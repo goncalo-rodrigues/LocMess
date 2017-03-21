@@ -55,15 +55,20 @@
                 android:id="@+id/profile_new_key_autotv"
                 android:completionThreshold="1"
                 android:hint="@string/key"
+                android:imeOptions="actionNext"
+                android:inputType="text"
                 />
 
             <EditText
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:singleLine="true"
                 android:maxLines="1"
                 android:id="@+id/profile_new_value_tv"
-                android:hint="@string/value"/>
+                android:hint="@string/value"
+                android:imeOptions="actionDone"
+                android:inputType="text"/>
 
             <ImageButton
                 android:layout_width="30dp"

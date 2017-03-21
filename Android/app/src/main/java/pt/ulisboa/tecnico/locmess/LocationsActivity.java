@@ -29,6 +29,7 @@ public class LocationsActivity extends ActivityWithDrawer implements LocationsAd
 
     private LocationsAdapter locationsAdapter;
     private List<LocationsAdapter.LocValue> locList = new ArrayList<>();
+    // TODO: assing a value copy instead of the reference
     private List<LocationsAdapter.LocValue> searchList = locList;
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;
