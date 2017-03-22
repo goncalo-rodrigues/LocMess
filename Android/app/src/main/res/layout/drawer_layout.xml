@@ -1,13 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-    <!-- The navigation drawer -->
-<android.support.v7.widget.RecyclerView android:id="@+id/left_drawer"
-    android:layout_width="240dp"
+<LinearLayout android:layout_width="240dp"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/left_drawer"
     android:layout_height="match_parent"
     android:layout_gravity="start"
-    android:choiceMode="singleChoice"
-    android:divider="@android:color/transparent"
-    android:dividerHeight="0dp"
+    android:orientation="vertical"
+    android:paddingBottom="8dp"
     android:background="@color/colorWhite"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
-    xmlns:android="http://schemas.android.com/apk/res/android" />
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="16dp"
+        android:paddingRight="8dp"
+        android:paddingBottom="16dp"
+        android:paddingTop="60dp"
+        android:background="@color/colorPrimaryLight">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Goncalo Rodrigues"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/colorWhite"/>
+    </FrameLayout>
+        <!-- The navigation drawer -->
+    <android.support.v7.widget.RecyclerView android:id="@+id/left_drawer_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_gravity="start"
+        android:choiceMode="singleChoice"
+        android:background="@color/colorWhite"
+
+        xmlns:android="http://schemas.android.com/apk/res/android" />
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:paddingLeft="8dp"
+        android:layout_gravity="bottom"
+        android:background="?android:selectableItemBackground"
+        android:id="@+id/left_drawer_logout_ll"
+        >
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/drawer_list_item_img"
+            android:contentDescription="@string/icon"
+            android:src="@drawable/ic_logout_black"
+            android:layout_marginRight="16dp"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/drawer_list_item_desc"
+            android:text="Log out"
+            android:textSize="16sp"/>
+
+    </LinearLayout>
+</LinearLayout>
