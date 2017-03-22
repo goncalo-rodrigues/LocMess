@@ -52,11 +52,12 @@ public class LocationsActivity extends ActivityWithDrawer implements LocationsAd
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(locationsAdapter);
 
-        ((SearchView) findViewById(R.id.search)).setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        SearchView sv = ((SearchView) findViewById(R.id.search));
+        sv.setIconifiedByDefault(false);
+
+        sv.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
+            public boolean onQueryTextSubmit(String query) { return false; }
 
             @Override
             public boolean onQueryTextChange(String newText) {
