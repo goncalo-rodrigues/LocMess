@@ -29,8 +29,7 @@ public class LocationsActivity extends ActivityWithDrawer implements LocationsAd
 
     private LocationsAdapter locationsAdapter;
     private List<LocationsAdapter.LocValue> locList = new ArrayList<>();
-    // TODO: assing a value copy instead of the reference
-    private List<LocationsAdapter.LocValue> searchList = locList;
+    private List<LocationsAdapter.LocValue> searchList = new ArrayList<>(locList);
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;
 
@@ -40,9 +39,9 @@ public class LocationsActivity extends ActivityWithDrawer implements LocationsAd
         setContentView(R.layout.activity_locations);
 
         // TODO: Start removing when done
-        locList.add(new LocationsAdapter.LocValue("eduroam-rnl"));
-        locList.add(new LocationsAdapter.LocValue("arco do cego"));
-        locList.add(new LocationsAdapter.LocValue("h3-saldanha"));
+        addLoc(new LocationsAdapter.LocValue("eduroam-rnl"));
+        addLoc(new LocationsAdapter.LocValue("arco do cego"));
+        addLoc(new LocationsAdapter.LocValue("h3-saldanha"));
         // TODO: End of removal
 
         locationsAdapter = new LocationsAdapter(searchList, this);
@@ -88,12 +87,19 @@ public class LocationsActivity extends ActivityWithDrawer implements LocationsAd
     }
 
     private void updateStructures(int position) {
-        locList.remove(position);
-        searchList.remove(position);
+        LocationsAdapter.LocValue val = searchList.get(position);
+
+        searchList.remove(val);
+        locList.remove(val);
     }
 
     public void clickNew(View v) {
         Intent intent = new Intent(this, NewLocationActivity.class);
         startActivity(intent);
+    }
+
+    public void addLoc(LocationsAdapter.LocValue val) {
+        searchList.add(val);
+        locList.add(val);
     }
 }
