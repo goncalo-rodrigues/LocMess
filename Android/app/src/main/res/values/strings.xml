@@ -23,8 +23,12 @@
     <string name="from">From:</string>
     <string name="to">To:</string>
     <string name="filters">Filters:</string>
-    <string name="bluetooth">Bluetooth</string>
     <string name="gps">GPS</string>
-    <string name="wifi">WiFi</string>
+    <string name="wifi">WiFi ID</string>
     <string name="icon">icon</string>
+    <string name="latitude">Latitude:</string>
+    <string name="longitude">Longitude:</string>
+    <string name="radius">Radius:</string>
+    <string name="use_my_location">Use my location</string>
+    <string name="choose_from_map">Choose from map</string>
 </resources>
