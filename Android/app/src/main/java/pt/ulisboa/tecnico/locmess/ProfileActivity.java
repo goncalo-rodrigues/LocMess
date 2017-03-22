@@ -4,9 +4,12 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -25,8 +28,10 @@ public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapt
     private AutoCompleteTextView mKeyAtv;
     private TextView mNameTv;
     private AutoCompleteTextView mKeyTv;
-    private TextView mValueTv;
+    private EditText mValueTv;
     private List<String> keys = new ArrayList<>();
+    private ImageButton mAddBt;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)  {
 
@@ -67,9 +72,22 @@ public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapt
 
         mNameTv.setText("Goncalo");
 
-        mValueTv = (TextView) findViewById(R.id.profile_new_value_tv);
+        mValueTv = (EditText) findViewById(R.id.profile_new_value_tv);
 
-        ((ImageButton) findViewById(R.id.profile_add_keyval_bt)).setOnClickListener(this);
+        mAddBt = ((ImageButton) findViewById(R.id.profile_add_keyval_bt));
+        mAddBt.setOnClickListener(this);
+
+        mValueTv.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    onClick(mAddBt);
+                    handled = true;
+                }
+                return handled;
+            }
+        });
 
         super.onCreate(savedInstanceState);
 
