@@ -60,8 +60,118 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/location_opts" />
+            android:visibility="gone"
+            android:id="@+id/chose_gps">
 
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/latitude_bundle" >
+
+                <TextView
+                    android:text="@string/latitude"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/latitude_text" />
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:id="@+id/latitude"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/longitude_bundle" >
+
+                <TextView
+                    android:text="@string/longitude"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/longitude_text" />
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:id="@+id/longitude"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/radius_bundle" >
+
+                <TextView
+                    android:text="@string/radius"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/radius_text" />
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:id="@+id/radius"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:text="@string/use_my_location"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/my_location_bt"
+                    android:layout_weight="1"
+                    style="@style/Widget.AppCompat.Button" />
+
+                <Button
+                    android:text="@string/choose_from_map"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/map_location_bt"
+                    android:layout_weight="1"
+                    style="@style/Widget.AppCompat.Button" />
+
+            </LinearLayout>
+
+            <Button
+                android:text="@string/create"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/accept_gps"
+                style="@style/Widget.AppCompat.Button.Colored" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/chose_wifi"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <ListView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/wifi_ids_list"/>
+
+            <Button
+                android:text="@string/create"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/accept_wifi"
+                style="@style/Widget.AppCompat.Button.Colored" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

@@ -31,4 +31,5 @@
     <string name="radius">Radius:</string>
     <string name="use_my_location">Use my location</string>
     <string name="choose_from_map">Choose from map</string>
+    <string name="create">Create</string>
 </resources>

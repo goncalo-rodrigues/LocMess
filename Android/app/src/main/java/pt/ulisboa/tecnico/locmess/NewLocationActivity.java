@@ -1,7 +1,9 @@
 package pt.ulisboa.tecnico.locmess;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
@@ -22,8 +24,11 @@ public class NewLocationActivity extends ActivityWithDrawer {
         if(!checked)
             return;
 
-        Toast toast = Toast.makeText(this, "GPS", Toast.LENGTH_SHORT);
-        toast.show();
+        LinearLayout l = (LinearLayout) findViewById(R.id.chose_gps);
+        l.setVisibility(View.VISIBLE);
+
+        l = (LinearLayout) findViewById(R.id.chose_wifi);
+        l.setVisibility(View.GONE);
     }
 
     public void wifiClicked(View view) {
@@ -32,7 +37,10 @@ public class NewLocationActivity extends ActivityWithDrawer {
         if(!checked)
             return;
 
-        Toast toast = Toast.makeText(this, "Wifi", Toast.LENGTH_SHORT);
-        toast.show();
+        LinearLayout l = (LinearLayout) findViewById(R.id.chose_gps);
+        l.setVisibility(View.GONE);
+
+        l = (LinearLayout) findViewById(R.id.chose_wifi);
+        l.setVisibility(View.VISIBLE);
     }
 }
