@@ -7,6 +7,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,6 +31,7 @@ import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
 public abstract class ActivityWithDrawer extends AppCompatActivity implements DrawerListAdapter.Callback, View.OnClickListener{
 
 
+    private static final String LOG_TAG = ActivityWithDrawer.class.getSimpleName();
     private String[] mDrawerTitles;
     private DrawerLayout mDrawerLayout;
     private RecyclerView mDrawerList;
@@ -136,7 +138,7 @@ public abstract class ActivityWithDrawer extends AppCompatActivity implements Dr
                 finish();
                 break;
             default:
-                break;
+                Log.w(LOG_TAG, "On click event not yet implemented for this view.");
 
         }
     }
