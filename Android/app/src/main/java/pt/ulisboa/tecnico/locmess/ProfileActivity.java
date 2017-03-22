@@ -112,7 +112,7 @@ public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapt
                 keyValueAdapter.notifyItemInserted(keyValueList.size() - 1);;
                 break;
             default:
-                Log.w(LOG_TAG, "On click event not yet implemented for this view.");
+                super.onClick(v);
         }
     }
 }

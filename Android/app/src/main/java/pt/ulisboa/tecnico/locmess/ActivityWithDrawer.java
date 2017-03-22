@@ -7,12 +7,14 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -26,15 +28,18 @@ import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
  * Created by root on 14-03-2017.
  */
 
-public abstract class ActivityWithDrawer extends AppCompatActivity implements DrawerListAdapter.Callback{
+public abstract class ActivityWithDrawer extends AppCompatActivity implements DrawerListAdapter.Callback, View.OnClickListener{
 
 
+    private static final String LOG_TAG = ActivityWithDrawer.class.getSimpleName();
     private String[] mDrawerTitles;
     private DrawerLayout mDrawerLayout;
     private RecyclerView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
     private int mDrawerPosition;
     private ArrayList<DrawerListAdapter.DrawerItem> mDrawerItems = new ArrayList<>();
+    private LinearLayout mDrawer;
+    private LinearLayout mLogoutBt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +49,10 @@ public abstract class ActivityWithDrawer extends AppCompatActivity implements Dr
         // get views
         mDrawerLayout = (DrawerLayout) ((ViewGroup) this
                 .findViewById(android.R.id.content)).getChildAt(0);
-        mDrawerList = (RecyclerView) mDrawerLayout.findViewById(R.id.left_drawer);
+
+        mDrawer = (LinearLayout)  mDrawerLayout.findViewById(R.id.left_drawer);
+        mDrawerList = (RecyclerView) mDrawerLayout.findViewById(R.id.left_drawer_list);
+        mLogoutBt = (LinearLayout) mDrawerLayout.findViewById(R.id.left_drawer_logout_ll);
 
         // fill variables
         mDrawerPosition = getDrawerPosition();
@@ -84,7 +92,7 @@ public abstract class ActivityWithDrawer extends AppCompatActivity implements Dr
 
         mDrawerLayout.addDrawerListener(mDrawerToggle);
 
-
+        mLogoutBt.setOnClickListener(this);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
     }
@@ -111,11 +119,32 @@ public abstract class ActivityWithDrawer extends AppCompatActivity implements Dr
         return super.onOptionsItemSelected(item);
     }
     // Called when invalidateOptionsMenu() is invoked
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        // If the nav drawer is open, hide action items related to the content view
-        boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
-//        menu.findItem(R.id.action_search).setVisible(!drawerOpen);
-        return super.onPrepareOptionsMenu(menu);
+//    public boolean onPrepareOptionsMenu(Menu menu) {
+//        // If the nav drawer is open, hide action items related to the content view
+//        boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
+////        menu.findItem(R.id.action_search).setVisible(!drawerOpen);
+//        return super.onPrepareOptionsMenu(menu);
+//    }
+
+    @Override
+    public void onClick(View v) {
+        Intent intent;
+        switch (v.getId()) {
+            case R.id.left_drawer_logout_ll:
+                logout();
+                intent = new Intent(this, InitActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                finish();
+                break;
+            default:
+                Log.w(LOG_TAG, "On click event not yet implemented for this view.");
+
+        }
+    }
+
+    public void logout() {
+
     }
 
     /** Starts new activity **/
@@ -151,7 +180,7 @@ public abstract class ActivityWithDrawer extends AppCompatActivity implements Dr
 
         // Highlight the selected item, update the title, and close the drawer
 //        mDrawerList.setItemChecked(position, true);
-        mDrawerLayout.closeDrawer(mDrawerList);
+        mDrawerLayout.closeDrawer(mDrawer);
     }
 
     private int getDrawerPosition() {
