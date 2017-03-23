@@ -58,7 +58,7 @@ public class MainActivity extends ActivityWithDrawer implements BaseMessageFragm
         tabLayout = (TabLayout) findViewById(R.id.main_tab_layout);
         viewPager = (ViewPager) findViewById(R.id.main_view_pager);
 
-        newMessages.add(new MessagesAdapter.Message("abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd", "xyz", new Date(), "arco do cego"));
+        newMessages.add(new MessagesAdapter.Message("Gonçalo, eu estou quase a conseguir as coordenadas GPS. So me falta um danoninho. Se conseguires ajudar, esta no activity_new_location! abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd", "Nuno Bebe", new Date(), "arco do cego"));
         createdMessages.add(new MessagesAdapter.Message("cba", "xyz", new Date(), "ist"));
         //Creating our pager adapter
 

@@ -1,12 +1,16 @@
 package pt.ulisboa.tecnico.locmess;
 
 import android.Manifest;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
@@ -15,6 +19,8 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.Toast;
+
+import java.util.Locale;
 
 /**
  * Created by nca on 20-03-2017.
@@ -32,21 +38,6 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
         super.onCreate(savedInstanceState);
 
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-        boolean permGranted =
-                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                        == PackageManager.PERMISSION_GRANTED;
-
-        if(permGranted) {
-            Toast t = Toast.makeText(this, "Permission was granted", Toast.LENGTH_SHORT);
-            t.show();
-        }
-
-        else {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_LOCATION);
-        }
     }
 
     public void gpsClicked(View view) {
@@ -76,20 +67,35 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
     }
 
     public void getCurrentLocation(View v) {
-        Toast t;
+        boolean permGranted =
+                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                        == PackageManager.PERMISSION_GRANTED;
 
-        if(!(longitude == 200 && latitude == 100)) {
-            EditText et = (EditText) findViewById(R.id.latitude);
-            et.setText(String.valueOf(latitude));
-            et = (EditText) findViewById(R.id.longitude);
-            et.setText(String.valueOf(longitude));
+        // Asks for permission
+        if(!permGranted)
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_LOCATION);
 
-            t = Toast.makeText(this, "Updated coordinates", Toast.LENGTH_SHORT);
-            t.show();
+        // Checks if the GPS is enabled
+        if(!mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            startActivity(intent);
         }
 
-        t = Toast.makeText(this, "Use my location", Toast.LENGTH_SHORT);
-        t.show();
+        // Asks for the current location
+        mLocationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER, 0, 0, this);
+
+        //TODO: This is not getting the gps coordinates!!! Please help Goncalo!!! #easteregg
+    }
+
+    public void getMapLocation(View v) {
+        //TODO
+
+        String uri = "geo:0,0?q=ist"; //TODO: Remove the hardcoded string!!!
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+        startActivity(intent);
     }
 
     /*
@@ -135,14 +141,25 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
 
     @Override
     public void onLocationChanged(Location location) {
+        Toast t = Toast.makeText(this, "Location changed", Toast.LENGTH_SHORT);
+        t.show();
+
         if (location != null) {
             latitude = location.getLatitude();
             longitude = location.getLongitude();
+
+            EditText et = (EditText) findViewById(R.id.latitude);
+            et.setText(String.valueOf(latitude));
+            et = (EditText) findViewById(R.id.longitude);
+            et.setText(String.valueOf(longitude));
         }
     }
 
     @Override
-    public void onStatusChanged(String s, int i, Bundle bundle) { }
+    public void onStatusChanged(String s, int i, Bundle bundle) {
+        Toast t = Toast.makeText(this, "Status", Toast.LENGTH_SHORT);
+        t.show();
+    }
 
     @Override
     public void onProviderEnabled(String s) { }
