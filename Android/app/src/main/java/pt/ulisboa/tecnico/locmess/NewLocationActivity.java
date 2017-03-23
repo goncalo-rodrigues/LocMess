@@ -20,6 +20,7 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -72,10 +73,14 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
                         == PackageManager.PERMISSION_GRANTED;
 
         // Asks for permission
-        if(!permGranted)
+        if(!permGranted) {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     REQUEST_LOCATION);
+            return;
+        }
+
+
 
         // Checks if the GPS is enabled
         if(!mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -113,20 +118,13 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
                     Location location = null;
 
                     try {
-                        location = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                        location = getLastKnownLocation();
+                        onLocationChanged(location);
                     } catch(SecurityException e) {
                         // It should not happen because permission was granted
                         e.printStackTrace();
                     }
-
-                    if(location != null) {
-                        latitude = location.getLatitude();
-                        longitude = location.getLongitude();
-
-                        Toast t = Toast.makeText(this, "Started with new permission", Toast.LENGTH_SHORT);
-                        t.show();
-                    }
-
+                    
                     try {
                         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
                     } catch(SecurityException e) {
@@ -166,4 +164,27 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
 
     @Override
     public void onProviderDisabled(String s) { }
+
+
+    private Location getLastKnownLocation() {
+        mLocationManager = (LocationManager)getApplicationContext().getSystemService(LOCATION_SERVICE);
+        List<String> providers = mLocationManager.getProviders(true);
+        Location bestLocation = null;
+        for (String provider : providers) {
+            try {
+                Location l = mLocationManager.getLastKnownLocation(provider);
+                if (l == null) {
+                    continue;
+                }
+                if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
+                    // Found best last known location: %s", l);
+                    bestLocation = l;
+                }
+            } catch (SecurityException e) {
+                // wont happen
+            }
+
+        }
+        return bestLocation;
+    }
 }
