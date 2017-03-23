@@ -13,14 +13,18 @@
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:descendantFocusability="beforeDescendants"
+        android:focusableInTouchMode="true" >
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/name"
             android:layout_marginBottom="8dp"
-            android:fontFamily="sans-serif-condensed"/>
+            android:fontFamily="sans-serif-condensed"
+            android:focusable="true"
+            android:focusableInTouchMode="true"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -41,7 +45,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="8dp"
+>
             <AutoCompleteTextView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
@@ -50,15 +55,20 @@
                 android:id="@+id/profile_new_key_autotv"
                 android:completionThreshold="1"
                 android:hint="@string/key"
+                android:imeOptions="actionNext"
+                android:inputType="text"
                 />
 
             <EditText
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:singleLine="true"
                 android:maxLines="1"
                 android:id="@+id/profile_new_value_tv"
-                android:hint="@string/value"/>
+                android:hint="@string/value"
+                android:imeOptions="actionDone"
+                android:inputType="text"/>
 
             <ImageButton
                 android:layout_width="30dp"

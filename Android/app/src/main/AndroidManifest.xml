@@ -11,18 +11,25 @@
         <activity
             android:name=".InitActivity"
             android:theme="@style/AppTheme.NoTitleBar" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.MAIN" />-->
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            <!--</intent-filter>-->
         </activity>
-        <activity android:name=".MainActivity" />
+        <activity android:name=".MainActivity" >
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+        </activity>
         <activity android:name=".PostMessageActivity" />
         <activity android:name=".ProfileActivity" />
         <activity android:name=".LoginActivity" android:theme="@style/AppTheme.NoTitleBar"/>
         <activity android:name=".SignupActivity" android:theme="@style/AppTheme.NoTitleBar"/>
         <activity android:name=".LocationsActivity" />
+        <activity android:name=".NewLocationActivity" />
     </application>
 
 </manifest>

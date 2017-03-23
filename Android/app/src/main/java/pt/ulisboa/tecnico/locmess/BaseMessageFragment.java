@@ -93,7 +93,7 @@ public class BaseMessageFragment extends Fragment implements MessagesAdapter.Cal
             emptyView.setVisibility(View.VISIBLE);
     }
 
-    public static interface Callback {
+    public interface Callback {
         void onRemove(MessagesAdapter.Message message);
     }
 }

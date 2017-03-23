@@ -5,8 +5,7 @@
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="pt.ulisboa.tecnico.locmess.LocationsActivity"
-    >
+    tools:context="pt.ulisboa.tecnico.locmess.LocationsActivity" >
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -14,8 +13,8 @@
 
         <android.support.v7.widget.SearchView
             android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:id="@+id/search"/>
+            android:layout_height="wrap_content"
+            android:id="@+id/search" />
 
 
         <android.support.design.widget.FloatingActionButton
@@ -26,9 +25,10 @@
             android:layout_alignParentRight="true"
             android:layout_marginBottom="8dp"
             android:layout_marginRight="8dp"
-            android:id="@+id/fabMain" />
+            android:id="@+id/fabMain"
+            android:onClick="clickNew"/>
 
-        <ListView
+        <android.support.v7.widget.RecyclerView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/locations_list"
