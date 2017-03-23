@@ -128,7 +128,7 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
     }
 
 
-
+    @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.send_m_add_keyval_bt:
