@@ -23,6 +23,8 @@ import android.widget.Toast;
 import java.util.List;
 import java.util.Locale;
 
+import static pt.ulisboa.tecnico.locmess.R.string.location;
+
 /**
  * Created by nca on 20-03-2017.
  */
@@ -82,6 +84,8 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
 
 
 
+
+
         // Checks if the GPS is enabled
         if(!mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
@@ -92,6 +96,8 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
         mLocationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER, 0, 0, this);
 
+        Location location = getLastKnownLocation();
+        onLocationChanged(location);
         //TODO: This is not getting the gps coordinates!!! Please help Goncalo!!! #easteregg
     }
 
@@ -117,14 +123,10 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
 
                     Location location = null;
 
-                    try {
-                        location = getLastKnownLocation();
-                        onLocationChanged(location);
-                    } catch(SecurityException e) {
-                        // It should not happen because permission was granted
-                        e.printStackTrace();
-                    }
-                    
+
+                    location = getLastKnownLocation();
+                    onLocationChanged(location);
+
                     try {
                         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
                     } catch(SecurityException e) {
