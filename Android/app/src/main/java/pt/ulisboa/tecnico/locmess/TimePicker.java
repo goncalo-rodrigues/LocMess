@@ -43,6 +43,12 @@ public class TimePicker extends DialogFragment
     public void onTimeSet(android.widget.TimePicker view, int hourOfDay, int minute) {
         myDate.set(Calendar.HOUR_OF_DAY, hourOfDay);
         myDate.set(Calendar.MINUTE,minute);
+        ((TimePickerCallback)getActivity()).onSetTime(hourOfDay,minute);
+
+    }
+
+    public static interface TimePickerCallback {
+        void onSetTime(int hourOfDay, int minute);
     }
 
     public Calendar getDate(){
