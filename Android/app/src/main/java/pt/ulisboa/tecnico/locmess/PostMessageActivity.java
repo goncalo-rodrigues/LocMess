@@ -23,7 +23,8 @@ import java.util.List;
 
 import pt.ulisboa.tecnico.locmess.adapters.FilterAdapter;
 
-public class PostMessageActivity extends ActivityWithDrawer implements FilterAdapter.Callback, View.OnClickListener {
+public class PostMessageActivity extends ActivityWithDrawer implements FilterAdapter.Callback, View.OnClickListener,
+        TimePicker.TimePickerCallback, DatePicker.DatePickerCallback{
 
     private static final String LOG_TAG = ProfileActivity.class.getSimpleName();
     private ArrayList<String> locationList = new ArrayList<>();
@@ -46,8 +47,10 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
     private Button endTimeButton;
     private Button endDateButton;
 
-    Calendar startDate;
-    Calendar endDate;
+    private Calendar startDate;
+    private Calendar endDate;
+    private boolean start;
+
 
 
 
@@ -76,6 +79,11 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
 
         String stringDate = DateFormat.getTimeInstance().format(startDate.getTime());
         startTimeButton.setText(stringDate);
+        startTimeButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                showStartTimePickerDialog(v);
+            };});
+
 
         stringDate = DateFormat.getDateInstance().format(startDate.getTime());
         startDateButton.setText(stringDate);
@@ -168,41 +176,35 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
 
 
     public void showStartTimePickerDialog(View v) {
+        start =true;
         TimePicker newFragment = new TimePicker();
         newFragment.setDate(startDate);
         newFragment.show(getSupportFragmentManager(), "timePicker");
-        startDate = newFragment.getDate();
-        String stringDate = DateFormat.getTimeInstance().format(startDate.getTime());
-        startTimeButton.setText(stringDate);
     }
 
+
+
     public void showEndTimePickerDialog(View v) {
+        start =false;
         TimePicker newFragment = new TimePicker();
         newFragment.setDate(endDate);
         newFragment.show(getSupportFragmentManager(), "timePicker");
-
-        endDate = newFragment.getDate();
-        String stringDate = DateFormat.getTimeInstance().format(endDate.getTime());
-        endTimeButton.setText(stringDate);
     }
 
 
     public void showStartDatePickerDialog(View v) {
+        start =true;
         DatePicker newFragment = new DatePicker();
         newFragment.setDate(startDate);
         newFragment.show(getSupportFragmentManager(), "datePicker");
-        startDate = newFragment.getDate();
-        String stringDate = DateFormat.getDateInstance().format(startDate.getTime());
-        startDateButton.setText(stringDate);
     }
 
+
     public void showEndDatePickerDialog(View v) {
+        start =false;
         DatePicker newFragment = new DatePicker();
         newFragment.setDate(endDate);
         newFragment.show(getSupportFragmentManager(), "datePicker");
-        endDate = newFragment.getDate();
-        String stringDate = DateFormat.getDateInstance().format(endDate.getTime());
-        endDateButton.setText(stringDate);
     }
 
 
@@ -212,16 +214,47 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
         filtersAdapter.notifyItemRemoved(position);
     }
 
+
     @Override
     public void onChangeBlacklist(int Position) {
         //TODO i dont know yet what to do
     }
 
+
     private void initTimes(){
         startDate= Calendar.getInstance();
         endDate = Calendar.getInstance();
         endDate.add(Calendar.HOUR_OF_DAY,1);
+    }
 
+
+    @Override
+    public void onSetTime(int hourOfDay, int minute) {
+        if(start){
+            startDate.set(Calendar.HOUR_OF_DAY,hourOfDay);
+            startDate.set(Calendar.MINUTE,minute);
+            String stringDate = DateFormat.getTimeInstance().format(startDate.getTime());
+            startTimeButton.setText(stringDate);
+            return;
+        }
+        endDate.set(Calendar.HOUR_OF_DAY,hourOfDay);
+        endDate.set(Calendar.MINUTE,minute);
+        String stringDate = DateFormat.getTimeInstance().format(endDate.getTime());
+        endTimeButton.setText(stringDate);
+
+    }
+
+    @Override
+    public void onSetDate(int year, int month, int dayOfMonth) {
+        if(start){
+            startDate.set(year,month,dayOfMonth);
+            String stringDate = DateFormat.getDateInstance().format(startDate.getTime());
+            startDateButton.setText(stringDate);
+            return;
+        }
+        endDate.set(year,month,dayOfMonth);
+        String stringDate = DateFormat.getDateInstance().format(endDate.getTime());
+        endDateButton.setText(stringDate);
     }
 
     @Override

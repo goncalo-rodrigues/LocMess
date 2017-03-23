@@ -37,10 +37,14 @@ public class DatePicker extends DialogFragment
 
     }
 
+    public static interface DatePickerCallback {
+        void onSetDate(int year, int month, int dayOfMonth);
+    }
 
     @Override
     public void onDateSet(android.widget.DatePicker view, int year, int month, int dayOfMonth) {
         myDate.set(year,month,dayOfMonth);
+        ((DatePickerCallback)getActivity()).onSetDate(year, month, dayOfMonth);
     }
 
     public Calendar getDate(){

@@ -23,6 +23,7 @@
     <string name="from">From:</string>
     <string name="to">To:</string>
     <string name="filters">Filters:</string>
+    <string name="postMessage">Post Message</string>
     <string name="gps">GPS</string>
     <string name="wifi">WiFi ID</string>
     <string name="icon">icon</string>
