@@ -139,7 +139,8 @@
                     android:orientation="vertical"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:backgroundTint="@color/colorLightGray">
+                    android:backgroundTint="@color/colorLightGray"
+                    android:background="@android:color/darker_gray">>
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -166,7 +167,7 @@
 
 
                         <ImageButton
-                            android:layout_width="30dp"
+                            android:layout_width="35dp"
                             android:layout_height="match_parent"
                             android:src="@drawable/ic_add_black"
                             style="@style/Base.Widget.AppCompat.Button.Borderless"
@@ -180,6 +181,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:orientation="horizontal">
+
 
 
                         <RadioButton
