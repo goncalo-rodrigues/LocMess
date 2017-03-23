@@ -39,12 +39,17 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/textView" />
 
-                <Spinner
+
+                <AutoCompleteTextView
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/locationsSpinner"
-                    android:entries="@array/drawer_items"
-                    android:background="@android:color/darker_gray" />
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:maxLines="1"
+                    android:id="@+id/send_m_location"
+                    android:completionThreshold="1"
+                    android:hint="@string/location"
+                    android:background="@android:color/darker_gray"
+                    />
 
                 <TextView
                     android:text="@string/message"

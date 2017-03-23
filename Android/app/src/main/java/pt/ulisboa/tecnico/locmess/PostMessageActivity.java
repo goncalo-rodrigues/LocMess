@@ -37,6 +37,8 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;
 
+    private AutoCompleteTextView mLocationAtv;
+
     private AutoCompleteTextView mKeyAtv;
     private TextView mValueTv;
     private RadioButton mblacklistedRadio;
@@ -66,10 +68,18 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
 
         //Locations
         getLocations();
-        Spinner spinner = (Spinner) findViewById(R.id.locationsSpinner);
-        locationListAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, locationList);
-        locationListAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(locationListAdapter);
+        mLocationAtv = (AutoCompleteTextView) findViewById(R.id.send_m_location);
+        locationListAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, locationList);
+        mLocationAtv.setAdapter(locationListAdapter);
+        // show dropdown when focused
+        mLocationAtv.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    mLocationAtv.showDropDown();
+                }
+            }
+        });
 
         //Date and time selector
         initTimes();
