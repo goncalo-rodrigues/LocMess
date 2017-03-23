@@ -23,4 +23,5 @@
     <string name="from">From:</string>
     <string name="to">To:</string>
     <string name="filters">Filters:</string>
+    <string name="postMessage">Post Message</string>
 </resources>
