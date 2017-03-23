@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="pt.ulisboa.tecnico.locmess">
 
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -28,8 +30,14 @@
         <activity android:name=".ProfileActivity" />
         <activity android:name=".LoginActivity" android:theme="@style/AppTheme.NoTitleBar"/>
         <activity android:name=".SignupActivity" android:theme="@style/AppTheme.NoTitleBar"/>
-        <activity android:name=".LocationsActivity" />
+        <activity android:name=".LocationsActivity" android:windowSoftInputMode="stateAlwaysHidden" />
         <activity android:name=".NewLocationActivity" />
+        <provider
+            android:authorities="pt.ulisboa.tecnico.locmess"
+            android:name="pt.ulisboa.tecnico.locmess.data.LocmessContentProvider"
+            android:exported="false">
+
+        </provider>
     </application>
 
 </manifest>
