@@ -39,12 +39,17 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/textView" />
 
-                <Spinner
+
+                <AutoCompleteTextView
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/locationsSpinner"
-                    android:entries="@array/drawer_items"
-                    android:background="@android:color/darker_gray" />
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:maxLines="1"
+                    android:id="@+id/send_m_location"
+                    android:completionThreshold="1"
+                    android:hint="@string/location"
+                    android:background="@android:color/darker_gray"
+                    />
 
                 <TextView
                     android:text="@string/message"
@@ -80,14 +85,12 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="pick_date"
-                        android:onClick="showStartDatePickerDialog"
                         android:id="@+id/start_date_button" />
 
                     <Button
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="pick_time"
-                        android:onClick="showStartTimePickerDialog"
                         android:id="@+id/start_time_button"/>
 
 
@@ -110,14 +113,12 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="pick_date"
-                        android:onClick="showEndDatePickerDialog"
                         android:id="@+id/end_date_button" />
 
                     <Button
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="pick_time"
-                        android:onClick="showEndTimePickerDialog"
                         android:id="@+id/end_time_button"/>
 
 
@@ -135,46 +136,68 @@
 
 
                 <LinearLayout
+                    android:orientation="vertical"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="8dp">
-                    <AutoCompleteTextView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:maxLines="1"
-                        android:id="@+id/send_m_new_key_autotv"
-                        android:completionThreshold="1"
-                        android:hint="@string/key"
-                        />
+                    android:layout_height="match_parent"
+                    android:backgroundTint="@color/colorLightGray"
+                    android:background="@android:color/darker_gray">>
 
-                    <EditText
-                        android:layout_width="0dp"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:maxLines="1"
-                        android:id="@+id/send_m_new_value_tv"
-                        android:hint="@string/value"/>
-                    <ToggleButton
-                        android:text="ToggleButton"
-                        android:layout_width="60dp"
-                        android:layout_height="match_parent"
-                        android:layout_alignLeft="@+id/send_m_new_value_tv"
-                        android:layout_alignStart="@+id/editText"
-                        android:id="@+id/toggle_Button_Blacklist"
-                        android:textSize="10sp"
-                        android:textOff="@string/witheList"
-                        android:textOn="@string/blackList"/>
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+                        <AutoCompleteTextView
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:maxLines="1"
+                            android:id="@+id/send_m_new_key_autotv"
+                            android:completionThreshold="1"
+                            android:hint="@string/key"
+                            />
 
-                    <ImageButton
-                        android:layout_width="30dp"
+                        <EditText
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:maxLines="1"
+                            android:id="@+id/send_m_new_value_tv"
+                            android:hint="@string/value"/>
+
+
+                        <ImageButton
+                            android:layout_width="35dp"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/ic_add_black"
+                            style="@style/Base.Widget.AppCompat.Button.Borderless"
+                            android:id="@+id/send_m_add_keyval_bt"
+                            android:background="?android:selectableItemBackground"
+                            />
+
+                    </LinearLayout>
+
+                    <RadioGroup
+                        android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:src="@drawable/ic_add_black"
-                        style="@style/Base.Widget.AppCompat.Button.Borderless"
-                        android:id="@+id/send_m_add_keyval_bt"
-                        android:background="?android:selectableItemBackground"
-                        />
+                        android:orientation="horizontal">
+
+
+
+                        <RadioButton
+                            android:text="@string/witheList"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/radio_button_white"
+                            android:layout_weight="1" />
+
+                        <RadioButton
+                            android:text="@string/blackList"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/radio_button_black"
+                            android:layout_weight="1" />
+                    </RadioGroup>
 
                 </LinearLayout>
 

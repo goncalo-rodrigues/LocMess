@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -36,9 +37,12 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;
 
+    private AutoCompleteTextView mLocationAtv;
+
     private AutoCompleteTextView mKeyAtv;
     private TextView mValueTv;
-    private ToggleButton mblacklistedTb;
+    private RadioButton mblacklistedRadio;
+    private RadioButton mWhitelistedRadio;
 
     private String messageToSend;
 
@@ -64,10 +68,18 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
 
         //Locations
         getLocations();
-        Spinner spinner = (Spinner) findViewById(R.id.locationsSpinner);
-        locationListAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, locationList);
-        locationListAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(locationListAdapter);
+        mLocationAtv = (AutoCompleteTextView) findViewById(R.id.send_m_location);
+        locationListAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, locationList);
+        mLocationAtv.setAdapter(locationListAdapter);
+        // show dropdown when focused
+        mLocationAtv.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    mLocationAtv.showDropDown();
+                }
+            }
+        });
 
         //Date and time selector
         initTimes();
@@ -79,20 +91,19 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
 
         String stringDate = DateFormat.getTimeInstance().format(startDate.getTime());
         startTimeButton.setText(stringDate);
-        startTimeButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                showStartTimePickerDialog(v);
-            };});
-
+        startTimeButton.setOnClickListener(this);
 
         stringDate = DateFormat.getDateInstance().format(startDate.getTime());
         startDateButton.setText(stringDate);
+        startDateButton.setOnClickListener(this);
 
         stringDate = DateFormat.getTimeInstance().format(endDate.getTime());
         endTimeButton.setText(stringDate);
+        endTimeButton.setOnClickListener(this);
 
         stringDate = DateFormat.getDateInstance().format(endDate.getTime());
         endDateButton.setText(stringDate);
+        endDateButton.setOnClickListener(this);
 
 
         //Filters
@@ -122,19 +133,21 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
 
         ((ImageButton) findViewById(R.id.send_m_add_keyval_bt)).setOnClickListener(this);
 
-        mblacklistedTb = (ToggleButton) findViewById(R.id.toggle_Button_Blacklist);
+        mblacklistedRadio =(RadioButton) findViewById(R.id.radio_button_black);
+        mWhitelistedRadio = (RadioButton) findViewById(R.id.radio_button_white);
+        mWhitelistedRadio.setChecked(true);
 
         super.onCreate(savedInstanceState);
     }
 
 
-
+    @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.send_m_add_keyval_bt:
                 // TODO: Validate key / value min and max length
                 filterList.add(new FilterAdapter.KeyValue(
-                        mKeyAtv.getText().toString(), mValueTv.getText().toString(),mblacklistedTb.isChecked()));
+                        mKeyAtv.getText().toString(), mValueTv.getText().toString(),mblacklistedRadio.isChecked()));
                 mKeyAtv.setText(null);
                 mValueTv.setText(null);
 
@@ -143,15 +156,19 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
         //TODO a partir daqui nao tao a funcionar
             case R.id.start_time_button:
                 showStartTimePickerDialog(v);
+                break;
 
             case R.id.start_date_button:
                 showStartDatePickerDialog(v);
+                break;
 
             case R.id.end_time_button:
                 showEndTimePickerDialog(v);
+                break;
 
             case R.id.end_date_button:
                 showEndDatePickerDialog(v);
+                break;
 
             default:
                 Log.w(LOG_TAG, "On click event not yet implemented for this view.");
@@ -228,7 +245,7 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
     }
 
 
-    @Override
+    @Override// this method is used from Select Time to make a callback
     public void onSetTime(int hourOfDay, int minute) {
         if(start){
             startDate.set(Calendar.HOUR_OF_DAY,hourOfDay);
@@ -244,7 +261,7 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
 
     }
 
-    @Override
+    @Override// this method is used from Select Date to make a callback
     public void onSetDate(int year, int month, int dayOfMonth) {
         if(start){
             startDate.set(year,month,dayOfMonth);
@@ -274,7 +291,7 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
             default:
                 break;
         }
-        return true;
+        return super.onOptionsItemSelected(item);
     }
 
 }
