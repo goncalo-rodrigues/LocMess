@@ -19,7 +19,12 @@ public class LocmessDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(LocmessContract.SQL_CREATE_ENTRIES);
+
+        db.execSQL(LocmessContract.SQL_CREATE_1);
+        db.execSQL(LocmessContract.SQL_CREATE_2);
+        db.execSQL(LocmessContract.SQL_CREATE_3);
+        db.execSQL(LocmessContract.SQL_CREATE_4);
+        db.execSQL(LocmessContract.SQL_CREATE_5);
     }
 
     @Override

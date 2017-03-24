@@ -24,13 +24,14 @@ import java.util.List;
 
 import pt.ulisboa.tecnico.locmess.adapters.MessagesAdapter;
 import pt.ulisboa.tecnico.locmess.adapters.Pager;
+import pt.ulisboa.tecnico.locmess.data.entities.CreatedMessage;
+import pt.ulisboa.tecnico.locmess.data.entities.Message;
+import pt.ulisboa.tecnico.locmess.data.entities.ReceivedMessage;
 
 public class MainActivity extends ActivityWithDrawer implements BaseMessageFragment.Callback, TabLayout.OnTabSelectedListener{
 
     private MessagesAdapter newMessagesAdapter;
     private MessagesAdapter createdMessagesAdapter;
-    private List<MessagesAdapter.Message> newMessages = new ArrayList<>();
-    private List<MessagesAdapter.Message> createdMessages = new ArrayList<>();
     private Pager adapter;
 //    private LinearLayoutManager mLayoutManager;
 //    private TextView emptyView;
@@ -58,11 +59,11 @@ public class MainActivity extends ActivityWithDrawer implements BaseMessageFragm
         tabLayout = (TabLayout) findViewById(R.id.main_tab_layout);
         viewPager = (ViewPager) findViewById(R.id.main_view_pager);
 
-        newMessages.add(new MessagesAdapter.Message("Gonçalo, eu estou quase a conseguir as coordenadas GPS. So me falta um danoninho. Se conseguires ajudar, esta no activity_new_location! abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd", "Nuno Bebe", new Date(), "arco do cego"));
-        createdMessages.add(new MessagesAdapter.Message("cba", "xyz", new Date(), "ist"));
+//        newMessages.add(new MessagesAdapter.Message("Gonçalo, eu estou quase a conseguir as coordenadas GPS. So me falta um danoninho. Se conseguires ajudar, esta no activity_new_location! abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd", "Nuno Bebe", new Date(), "arco do cego"));
+//        createdMessages.add(new MessagesAdapter.Message("cba", "xyz", new Date(), "ist"));
         //Creating our pager adapter
 
-        adapter = new Pager(getSupportFragmentManager(), tabLayout.getTabCount(), newMessages, createdMessages, this);
+        adapter = new Pager(getSupportFragmentManager(), tabLayout.getTabCount(), this);
 
         //Adding adapter to pager
         viewPager.setAdapter(adapter);
@@ -83,6 +84,10 @@ public class MainActivity extends ActivityWithDrawer implements BaseMessageFragm
     }
 
     protected void sendMessage(View v){
+        ReceivedMessage m = new ReceivedMessage(1, "text", "author", "loc", new Date(), new Date());
+        m.save(this);
+        CreatedMessage m2 = new CreatedMessage(1, "text", "author", "loc", new Date(), new Date());
+        m2.save(this);
         Intent intent = new Intent(this, PostMessageActivity.class);
         startActivity(intent);
     }
@@ -103,7 +108,7 @@ public class MainActivity extends ActivityWithDrawer implements BaseMessageFragm
     }
 
     @Override
-    public void onRemove(MessagesAdapter.Message message) {
+    public void onRemove(Message message) {
 
     }
 }

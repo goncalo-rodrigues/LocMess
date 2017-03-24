@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.locmess.adapters;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -21,20 +22,14 @@ public class Pager extends FragmentStatePagerAdapter {
     private BaseMessageFragment tab1;
     private BaseMessageFragment tab2;
 
-    private List<MessagesAdapter.Message> l1;
-    private List<MessagesAdapter.Message> l2;
-
 
     private String[] tabTitles;
 
     //Constructor to the class
-    public Pager(FragmentManager fm, int tabCount, List<MessagesAdapter.Message> newMsgs,
-                 List<MessagesAdapter.Message> createdMsgs, Context context) {
+    public Pager(FragmentManager fm, int tabCount, Context context) {
         super(fm);
         //Initializing tab count
         this.tabCount = tabCount;
-        l1 = newMsgs;
-        l2 = createdMsgs;
         tabTitles = context.getResources().getStringArray(R.array.tab_names);
     }
 
@@ -42,14 +37,17 @@ public class Pager extends FragmentStatePagerAdapter {
     @Override
     public Fragment getItem(int position) {
         //Returning the current tabs
+        Bundle args = new Bundle();
         switch (position) {
             case 0:
                 tab1 = new BaseMessageFragment();
-                tab1.setMessages(l1);
+                args.putInt("type", 0);
+                tab1.setArguments(args);
                 return tab1;
             case 1:
                 tab2 = new BaseMessageFragment();
-                tab2.setMessages(l2);
+                args.putInt("type", 1);
+                tab2.setArguments(args);
                 return tab2;
             default:
                 return null;

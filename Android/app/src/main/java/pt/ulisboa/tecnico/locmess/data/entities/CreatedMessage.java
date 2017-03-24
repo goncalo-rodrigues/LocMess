@@ -37,9 +37,21 @@ public class CreatedMessage extends Message {
         db.insert(LocmessContract.CreatedMessageTable.TABLE_NAME, null, values);
     }
 
+    @Override
+    public void delete(Context ctx) {
+        LocmessDbHelper helper = new LocmessDbHelper(ctx);
+        SQLiteDatabase db = helper.getWritableDatabase();
+        db.delete(LocmessContract.CreatedMessageTable.TABLE_NAME,
+                LocmessContract.CreatedMessageTable.COLUMN_NAME_ID + " = ?",
+                new String[] {String.valueOf(getId())});
+        db.close();
+    }
+
     public static Cursor getAll(Context ctx) {
         LocmessDbHelper helper = new LocmessDbHelper(ctx);
         SQLiteDatabase db = helper.getReadableDatabase();
-        return db.query(LocmessContract.CreatedMessageTable.TABLE_NAME, null, null, null, null, null, LocmessContract.CreatedMessageTable.COLUMN_NAME_ID);
+        Cursor result = db.query(LocmessContract.CreatedMessageTable.TABLE_NAME, null, null, null, null, null, LocmessContract.CreatedMessageTable.COLUMN_NAME_ID);
+        //db.close();
+        return result;
     }
 }

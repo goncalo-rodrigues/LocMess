@@ -95,4 +95,6 @@ public abstract class Message {
     }
 
     public abstract void save(Context ctx);
+
+    public abstract void delete(Context ctx);
 }

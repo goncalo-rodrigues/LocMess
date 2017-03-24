@@ -35,11 +35,24 @@ public class ReceivedMessage extends Message {
         values.put(LocmessContract.MessageTable.COLUMN_NAME_ENDDATE, getEndDate().toString());
         values.put(LocmessContract.MessageTable.COLUMN_NAME_LOCATION, getLocation());
         db.insert(LocmessContract.MessageTable.TABLE_NAME, null, values);
+        db.close();
+    }
+
+    @Override
+    public void delete(Context ctx) {
+        LocmessDbHelper helper = new LocmessDbHelper(ctx);
+        SQLiteDatabase db = helper.getWritableDatabase();
+        db.delete(LocmessContract.MessageTable.TABLE_NAME,
+                LocmessContract.MessageTable.COLUMN_NAME_ID + " = ?",
+                new String[] {String.valueOf(getId())});
+        db.close();
     }
 
     public static Cursor getAll(Context ctx) {
         LocmessDbHelper helper = new LocmessDbHelper(ctx);
         SQLiteDatabase db = helper.getReadableDatabase();
-        return db.query(LocmessContract.MessageTable.TABLE_NAME, null, null, null, null, null, LocmessContract.MessageTable.COLUMN_NAME_ID);
+        Cursor result =  db.query(LocmessContract.MessageTable.TABLE_NAME, null, null, null, null, null, LocmessContract.MessageTable.COLUMN_NAME_ID);
+        //db.close();
+        return  result;
     }
 }

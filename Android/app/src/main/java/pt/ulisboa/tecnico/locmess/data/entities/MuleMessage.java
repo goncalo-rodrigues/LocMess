@@ -4,7 +4,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.Nullable;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -31,7 +33,25 @@ public class MuleMessage extends Message {
         this.hops = cursor.getInt(hops_idx);
     }
 
-    public List<MuleMessageFilter> getFilters() {
+    public List<MuleMessageFilter> getFilters(@Nullable Context ctx) {
+        if (filters == null) {
+            if (ctx != null) {
+                LocmessDbHelper helper = new LocmessDbHelper(ctx);
+                SQLiteDatabase db = helper.getReadableDatabase();
+                Cursor result =  db.query(LocmessContract.MuleMessageTable.TABLE_NAME, null,
+                        LocmessContract.MessageFilter.COLUMN_NAME_MESSAGEID + " = ?",
+                        new String[] {String.valueOf(getId())}, null, null, null);
+                db.close();
+                filters = new ArrayList<>();
+                for(result.moveToFirst(); !result.isAfterLast(); result.moveToNext()) {
+                    // The Cursor is now set to the right position
+                    filters.add(new MuleMessageFilter(result));
+                }
+            } else {
+                filters = new ArrayList<>();
+            }
+
+        }
         return filters;
     }
 
@@ -60,6 +80,28 @@ public class MuleMessage extends Message {
         values.put(LocmessContract.MuleMessageTable.COLUMN_NAME_LOCATION, getLocation());
         values.put(LocmessContract.MuleMessageTable.COLUMN_NAME_HOPS, getHops());
         db.insert(LocmessContract.MuleMessageTable.TABLE_NAME, null, values);
-        // TODO : save filters
+        for (MuleMessageFilter f : getFilters(null)) {
+            f.save(ctx);
+        }
+        db.close();
+    }
+
+    public static Cursor getAll(Context ctx) {
+        LocmessDbHelper helper = new LocmessDbHelper(ctx);
+        SQLiteDatabase db = helper.getReadableDatabase();
+        Cursor result =  db.query(LocmessContract.MuleMessageTable.TABLE_NAME, null, null, null, null, null, LocmessContract.MessageTable.COLUMN_NAME_ID);
+        //db.close();
+        return  result;
+    }
+
+    @Override
+    public void delete(Context ctx) {
+        LocmessDbHelper helper = new LocmessDbHelper(ctx);
+        SQLiteDatabase db = helper.getWritableDatabase();
+        db.delete(LocmessContract.CreatedMessageTable.TABLE_NAME,
+                LocmessContract.CreatedMessageTable.COLUMN_NAME_ID + " = ?",
+                new String[] {String.valueOf(getId())});
+        // TODO: delete filters
+        db.close();
     }
 }

@@ -53,23 +53,23 @@ public final class LocmessContract {
         public static final String COLUMN_NAME_BLACKLISTED = "isblacklisted";
     }
 
-    public static final String SQL_CREATE_ENTRIES =
+    public static final String SQL_CREATE_1 =
             "CREATE TABLE " + MessageTable.TABLE_NAME + " (" +
                     MessageTable.COLUMN_NAME_ID + " INTEGER PRIMARY KEY," +
                     MessageTable.COLUMN_NAME_CONTENT + " TEXT," +
                     MessageTable.COLUMN_NAME_AUTHOR + " TEXT," +
                     MessageTable.COLUMN_NAME_LOCATION + " TEXT," +
                     MessageTable.COLUMN_NAME_STARTDATE + " TEXT," +
-                    MessageTable.COLUMN_NAME_ENDDATE + " TEXT);"
-            +
-            "CREATE TABLE " + CreatedMessageTable.TABLE_NAME + " (" +
+                    MessageTable.COLUMN_NAME_ENDDATE + " TEXT); ";
+    public static final String SQL_CREATE_2 =
+    "CREATE TABLE " + CreatedMessageTable.TABLE_NAME + " (" +
                     CreatedMessageTable.COLUMN_NAME_ID + " INTEGER PRIMARY KEY," +
                     CreatedMessageTable.COLUMN_NAME_CONTENT + " TEXT," +
                     CreatedMessageTable.COLUMN_NAME_AUTHOR + " TEXT," +
                     CreatedMessageTable.COLUMN_NAME_LOCATION + " TEXT," +
                     CreatedMessageTable.COLUMN_NAME_STARTDATE + " TEXT," +
-                    CreatedMessageTable.COLUMN_NAME_ENDDATE + " TEXT);"
-            +
+                    CreatedMessageTable.COLUMN_NAME_ENDDATE + " TEXT);";
+    public static final String SQL_CREATE_3 =
             "CREATE TABLE " + MuleMessageTable.TABLE_NAME + " (" +
                     MuleMessageTable.COLUMN_NAME_ID + " INTEGER PRIMARY KEY," +
                     MuleMessageTable.COLUMN_NAME_CONTENT + " TEXT," +
@@ -77,18 +77,18 @@ public final class LocmessContract {
                     MuleMessageTable.COLUMN_NAME_LOCATION + " TEXT," +
                     MuleMessageTable.COLUMN_NAME_STARTDATE + " TEXT," +
                     MuleMessageTable.COLUMN_NAME_ENDDATE + " TEXT," +
-                    MuleMessageTable.COLUMN_NAME_HOPS + " INTEGER);"
-            +
+                    MuleMessageTable.COLUMN_NAME_HOPS + " INTEGER);";
+    public static final String SQL_CREATE_4 =
             "CREATE TABLE " + MessageFilter.TABLE_NAME + " (" +
                     MessageFilter.COLUMN_NAME_MESSAGEID + " INTEGER," +
-                    "FOREIGN KEY(" + MessageFilter.COLUMN_NAME_MESSAGEID + ") REFERENCES " +
-                    MessageFilter.TABLE_NAME + "(" + MuleMessageTable.COLUMN_NAME_ID + "), " +
                     MessageFilter.COLUMN_NAME_KEY + " TEXT," +
                     MessageFilter.COLUMN_NAME_VALUE  + " TEXT," +
                     MessageFilter.COLUMN_NAME_BLACKLISTED + " BOOLEAN," +
+                    "FOREIGN KEY(" + MessageFilter.COLUMN_NAME_MESSAGEID + ") REFERENCES " +
+                    MessageFilter.TABLE_NAME + "(" + MuleMessageTable.COLUMN_NAME_ID + "), " +
                     "PRIMARY KEY (" + MessageFilter.COLUMN_NAME_MESSAGEID + ","
-                    + MessageFilter.COLUMN_NAME_KEY + "," + MessageFilter.COLUMN_NAME_VALUE + "));"
-            +
+                    + MessageFilter.COLUMN_NAME_KEY + "," + MessageFilter.COLUMN_NAME_VALUE + "));";
+    public static final String SQL_CREATE_5 =
             "CREATE TABLE " + LocationTable.TABLE_NAME + " (" +
                     LocationTable.COLUMN_NAME_LOCATION + " TEXT PRIMARY KEY);";
 

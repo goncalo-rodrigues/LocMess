@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.locmess.adapters;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.support.transition.TransitionManager;
 import android.support.v7.widget.RecyclerView;
 import android.telecom.Call;
@@ -19,7 +20,12 @@ import android.widget.Toast;
 import java.util.Date;
 import java.util.List;
 
+import pt.ulisboa.tecnico.locmess.BaseMessageFragment;
 import pt.ulisboa.tecnico.locmess.R;
+import pt.ulisboa.tecnico.locmess.data.CustomCursorLoader;
+import pt.ulisboa.tecnico.locmess.data.entities.CreatedMessage;
+import pt.ulisboa.tecnico.locmess.data.entities.Message;
+import pt.ulisboa.tecnico.locmess.data.entities.ReceivedMessage;
 
 /**
  * Created by goncalo on 14-03-2017.
@@ -27,18 +33,16 @@ import pt.ulisboa.tecnico.locmess.R;
 
 public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHolder> {
     private static final String LOG_TAG = MessagesAdapter.class.getSimpleName();
+    private final int mType;
     private int MAX_PREVIEW_LEN = 100;
-    private List<Message> data;
     private int mExpandedPosition = -1;
     private Callback callback;
-    public MessagesAdapter(List<Message> list) {
-        super();
-        this.data = list;
-    }
+    private Cursor mData;
 
-    public MessagesAdapter(List<Message> list, Callback callback) {
-        this(list);
+    public MessagesAdapter(Cursor data,  Callback callback, int type) {
         this.callback = callback;
+        this.mData = data;
+        this.mType = type;
     }
 
     @Override
@@ -53,10 +57,20 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
-        String text = data.get(position).messageText;
-        String authorText = "by " + data.get(position).author;
-        String locationText = "at " + data.get(position).location;
-        String dateText = DateUtils.getRelativeTimeSpanString(data.get(position).date.getTime(),
+        mData.moveToPosition(position);
+        final Message item;
+
+        // MARTELO!
+        if (mType != 0) {
+             item = new CreatedMessage(mData);
+        } else {
+             item = new ReceivedMessage(mData);
+        }
+
+        String text = item.getMessageText();
+        String authorText = "by " + item.getAuthor();
+        String locationText = "at " + item.getLocation();
+        String dateText = DateUtils.getRelativeTimeSpanString(item.getStartDate().getTime(),
                 new Date().getTime(), 0L, DateUtils.FORMAT_ABBREV_ALL).toString();
 
         // expand
@@ -81,7 +95,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
             @Override
             public void onClick(View v) {
                 if (callback != null)
-                    callback.onRemoveClicked(holder.getAdapterPosition());
+                    callback.onRemoveClicked(holder.getAdapterPosition(), item);
                 else
                     Log.e(LOG_TAG, "No callback defined for the adapter. Remove did nothing");
 
@@ -102,7 +116,16 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
 
     @Override
     public int getItemCount() {
-        return data.size();
+        if (mData == null) return 0; else return mData.getCount();
+    }
+
+    public Cursor getData() {
+        return mData;
+    }
+
+    public void setData(Cursor data) {
+        if (mData != null) mData.close();
+        this.mData = data;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -125,21 +148,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
         }
     }
 
-    public static class Message {
-        public String messageText;
-        public String author;
-        public Date date;
-        public String location; //TODO: location type
-
-        public Message(String messageText, String author, Date date, String location) {
-            this.messageText = messageText;
-            this.author = author;
-            this.date = date;
-            this.location = location;
-        }
-    }
-
     public interface Callback {
-        void onRemoveClicked(int position);
+        void onRemoveClicked(int position, Message message);
     }
 }
