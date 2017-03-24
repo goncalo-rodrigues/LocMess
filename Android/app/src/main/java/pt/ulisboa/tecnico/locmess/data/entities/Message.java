@@ -1,12 +1,17 @@
 package pt.ulisboa.tecnico.locmess.data.entities;
 
+import android.content.Context;
+import android.database.Cursor;
+
 import java.util.Date;
+
+import pt.ulisboa.tecnico.locmess.data.LocmessContract;
 
 /**
  * Created by goncalo on 23-03-2017.
  */
 
-public class Message {
+public abstract class Message {
 
     private int id;
     private String messageText;
@@ -15,8 +20,24 @@ public class Message {
     private Date startDate;
     private Date endDate;
 
+    public Message(final Cursor cursor) {
+        int id_idx = cursor.getColumnIndexOrThrow(LocmessContract.MessageTable.COLUMN_NAME_ID);
+        int txt_idx = cursor.getColumnIndexOrThrow(LocmessContract.MessageTable.COLUMN_NAME_CONTENT);
+        int author_idx = cursor.getColumnIndexOrThrow(LocmessContract.MessageTable.COLUMN_NAME_AUTHOR);
+        int location_idx = cursor.getColumnIndexOrThrow(LocmessContract.MessageTable.COLUMN_NAME_LOCATION);
+        int stdate_idx = cursor.getColumnIndexOrThrow(LocmessContract.MessageTable.COLUMN_NAME_STARTDATE);
+        int enddate_idx = cursor.getColumnIndexOrThrow(LocmessContract.MessageTable.COLUMN_NAME_ENDDATE);
+
+        init(cursor.getInt(id_idx), cursor.getString(txt_idx), cursor.getString(author_idx), cursor.getString(location_idx)
+                , new Date(cursor.getString(stdate_idx)), new Date(cursor.getString(enddate_idx)));
+    }
+
 
     public Message(int id, String messageText, String author, String location, Date startDate, Date endDate) {
+        init(id,  messageText, author, location, startDate, endDate);
+    }
+
+    private void init(int id, String messageText, String author, String location, Date startDate, Date endDate) {
         this.id = id;
         this.messageText = messageText;
         this.author = author;
@@ -72,4 +93,6 @@ public class Message {
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
     }
+
+    public abstract void save(Context ctx);
 }
