@@ -25,6 +25,7 @@ public class LocmessDbHelper extends SQLiteOpenHelper {
         db.execSQL(LocmessContract.SQL_CREATE_3);
         db.execSQL(LocmessContract.SQL_CREATE_4);
         db.execSQL(LocmessContract.SQL_CREATE_5);
+        db.execSQL(LocmessContract.SQL_CREATE_6);
     }
 
     @Override

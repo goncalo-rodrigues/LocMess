@@ -40,7 +40,7 @@ public class Location {
         LocmessDbHelper helper = new LocmessDbHelper(ctx);
         SQLiteDatabase db = helper.getReadableDatabase();
         Cursor result =  db.query(LocmessContract.LocationTable.TABLE_NAME, null, null, null, null, null, null);
-        db.close();
+        //db.close();
         return  result;
     }
 

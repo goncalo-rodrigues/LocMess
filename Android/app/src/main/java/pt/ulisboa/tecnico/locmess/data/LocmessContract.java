@@ -53,6 +53,12 @@ public final class LocmessContract {
         public static final String COLUMN_NAME_BLACKLISTED = "isblacklisted";
     }
 
+    public static class ProfileKeyValue implements BaseColumns {
+        public static final String TABLE_NAME = "profilekeyvalue";
+        public static final String COLUMN_NAME_KEY = "key";
+        public static final String COLUMN_NAME_VALUE = "value";
+    }
+
     public static final String SQL_CREATE_1 =
             "CREATE TABLE " + MessageTable.TABLE_NAME + " (" +
                     MessageTable.COLUMN_NAME_ID + " INTEGER PRIMARY KEY," +
@@ -92,6 +98,12 @@ public final class LocmessContract {
             "CREATE TABLE " + LocationTable.TABLE_NAME + " (" +
                     LocationTable.COLUMN_NAME_LOCATION + " TEXT PRIMARY KEY);";
 
+    public static final String SQL_CREATE_6 =
+            "CREATE TABLE " + ProfileKeyValue.TABLE_NAME + " (" +
+                    ProfileKeyValue.COLUMN_NAME_KEY + " TEXT," +
+                    ProfileKeyValue.COLUMN_NAME_VALUE  + " TEXT," +
+                    "PRIMARY KEY ("
+                    + MessageFilter.COLUMN_NAME_KEY + "," + MessageFilter.COLUMN_NAME_VALUE + "));";
 
     public static final String SQL_DELETE_ENTRIES =
             "DROP TABLE IF EXISTS " + MessageTable.TABLE_NAME;

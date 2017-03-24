@@ -1,5 +1,10 @@
 package pt.ulisboa.tecnico.locmess;
 
+import android.support.v4.app.LoaderManager;
+import android.content.Context;
+import android.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,12 +22,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pt.ulisboa.tecnico.locmess.adapters.KeyValueAdapter;
+import pt.ulisboa.tecnico.locmess.data.CustomCursorLoader;
+import pt.ulisboa.tecnico.locmess.data.entities.ProfileKeyValue;
 
-public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapter.Callback, View.OnClickListener {
+public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapter.Callback, View.OnClickListener, LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String LOG_TAG = ProfileActivity.class.getSimpleName();
     private KeyValueAdapter keyValueAdapter;
-    private List<KeyValueAdapter.KeyValue> keyValueList = new ArrayList<>();
+//    private List<KeyValueAdapter.KeyValue> keyValueList = new ArrayList<>();
     private LinearLayoutManager mLayoutManager;
     private RecyclerView mRecyclerView;
     private AutoCompleteTextView mKeyAtv;
@@ -31,19 +38,20 @@ public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapt
     private EditText mValueTv;
     private List<String> keys = new ArrayList<>();
     private ImageButton mAddBt;
+    private Cursor keyValues;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)  {
 
         setContentView(R.layout.activity_profile);
 
-        keyValueList.add(new KeyValueAdapter.KeyValue("keeeey", "valueee"));
-        keyValueList.add(new KeyValueAdapter.KeyValue("keeeey", "valueee"));
-        keyValueList.add(new KeyValueAdapter.KeyValue("keeeey", "valueee"));
+//        keyValueList.add(new KeyValueAdapter.KeyValue("keeeey", "valueee"));
+//        keyValueList.add(new KeyValueAdapter.KeyValue("keeeey", "valueee"));
+//        keyValueList.add(new KeyValueAdapter.KeyValue("keeeey", "valueee"));
         keys.add("keeeey");
         keys.add("keeeeeeey");
 
-        keyValueAdapter = new KeyValueAdapter(keyValueList, this);
+        keyValueAdapter = new KeyValueAdapter(null, this);
 
 
         mRecyclerView = (RecyclerView) findViewById(R.id.profile_key_value_list);
@@ -89,14 +97,18 @@ public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapt
             }
         });
 
+        getSupportLoaderManager().initLoader(0, null, this);
+
         super.onCreate(savedInstanceState);
 
     }
 
     @Override
-    public void onRemoveClicked(int position) {
-        keyValueList.remove(position);
-        keyValueAdapter.notifyItemRemoved(position);
+    public void onRemoveClicked(int position, ProfileKeyValue item) {
+        item.delete(this);
+        getSupportLoaderManager().restartLoader(0, null, this);
+//        keyValueList.remove(position);
+//        keyValueAdapter.notifyItemRemoved(position);
     }
 
     @Override
@@ -104,15 +116,40 @@ public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapt
         switch (v.getId()) {
             case R.id.profile_add_keyval_bt:
                 // TODO: Validate key / value min and max length
-                keyValueList.add(new KeyValueAdapter.KeyValue(
-                        mKeyAtv.getText().toString(), mValueTv.getText().toString()));
+                ProfileKeyValue keyValue = new ProfileKeyValue(mKeyAtv.getText().toString(), mValueTv.getText().toString());
+                keyValue.save(this);
+                getSupportLoaderManager().restartLoader(0, null, this);
                 mKeyAtv.setText(null);
                 mValueTv.setText(null);
 
-                keyValueAdapter.notifyItemInserted(keyValueList.size() - 1);;
+//                keyValueAdapter.notifyItemInserted(keyValueList.size() - 1);;
                 break;
             default:
                 super.onClick(v);
         }
     }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CustomCursorLoader(this, new CustomCursorLoader.Query() {
+            @Override
+            public Cursor query(Context context) {
+                return ProfileKeyValue.getAll(context);
+            }
+        });
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        keyValueAdapter.setData(data);
+        keyValueAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        keyValueAdapter.setData(null);
+        keyValueAdapter.notifyDataSetChanged();
+    }
+
+
 }
