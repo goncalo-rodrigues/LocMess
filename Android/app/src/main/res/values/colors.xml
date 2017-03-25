@@ -1,9 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+<resources>
+    <color name="colorPrimary">#009688</color>
+    <color name="colorPrimaryDark">#00796B</color>
+    <color name="colorAccent">#536DFE</color>
+    <color name="colorPrimaryLight">#B2DFDB</color>
+    <color name="colorPrimaryText">#212121</color>
+    <color name="colorSecondaryText">#757575</color>
+    <color name="icons">#FFFFFF</color>
+    <color name="divider">#BDBDBD</color>
+    <color name="colorWhite">#FFFFFF</color>
+    <color name="colorLightGray">#E6E6E6</color>
+</resources>
+-->
+<!--
 <resources>
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
-    <color name="colorPrimaryLight">#8484EE</color>
+    <color name="colorAccent">#FFC107</color>
+    <color name="colorPrimaryLight">#C5CAE9</color>
+    <color name="colorPrimaryText">#212121</color>
+    <color name="colorSecondaryText">#757575</color>
+    <color name="icons">#FFFFFF</color>
+    <color name="divider">#BDBDBD</color>
     <color name="colorWhite">#FFFFFF</color>
-    <color name="colorLightGray">#e6e6e6</color>
+    <color name="colorLightGray">#E6E6E6</color>
+</resources>
+-->
+<!--
+<resources>
+    <color name="colorPrimary">#FFC107</color>
+    <color name="colorPrimaryDark">#FFA000</color>
+    <color name="colorPrimaryLight">#FFECB3</color>
+    <color name="colorAccent">#536DFE</color>
+    <color name="colorPrimaryText">#212121</color>
+    <color name="colorSecondaryText">#757575</color>
+    <color name="icons">#212121</color>
+    <color name="divider">#BDBDBD</color>
+    <color name="colorWhite">#FFFFFF</color>
+    <color name="colorLightGray">#E6E6E6</color>
+</resources>
+-->
+
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorPrimaryLight">#C5CAE9</color>
+    <color name="colorAccent">#009688</color>
+    <color name="colorPrimaryText">#212121</color>
+    <color name="colorSecondaryText">#757575</color>
+    <color name="icons">#FFFFFF</color>
+    <color name="divider">#BDBDBD</color>
+    <color name="colorWhite">#FFFFFF</color>
+    <color name="colorLightGray">#E6E6E6</color>
 </resources>
