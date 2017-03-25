@@ -48,6 +48,7 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
     private LocationManager mLocationManager;
 
     private WifiManager wifi = null;
+    private WifiReceiver recv = null;
     private List<ScanResult> scanRes;
     private List<String> ssids = null;
     private ArrayAdapter<String> arrayAdapter = null;
@@ -60,6 +61,13 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
 
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+        recv = new WifiReceiver();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(recv);
     }
 
     public void gpsClicked(View view) {
@@ -104,24 +112,7 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
                     REQUEST_WIFI_SCAN);
 
         // Receives WiFi scan results
-        registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context c, Intent intent) {
-                scanRes = wifi.getScanResults();
-
-                if(ssids == null && scanRes.size() > 0) {
-                    ssids = new ArrayList<>();
-
-                    for (ScanResult sc : scanRes)
-                        ssids.add(sc.SSID);
-
-                    Collections.sort(ssids);
-                    ListView lv = (ListView) findViewById(R.id.wifi_ids_list);
-                    arrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, ssids);
-                    lv.setAdapter(arrayAdapter);
-                }
-            }
-        }, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+        registerReceiver(recv, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 
         checkGPSStatus();
         wifi.startScan();
@@ -260,5 +251,25 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
 
         }
         return bestLocation;
+    }
+
+    // Used for discovering the wifi networks
+    private class WifiReceiver extends BroadcastReceiver {
+            @Override
+            public void onReceive(Context c, Intent intent) {
+            scanRes = wifi.getScanResults();
+
+            if(ssids == null && scanRes.size() > 0) {
+                ssids = new ArrayList<>();
+
+                for (ScanResult sc : scanRes)
+                    ssids.add(sc.SSID);
+
+                Collections.sort(ssids);
+                ListView lv = (ListView) findViewById(R.id.wifi_ids_list);
+                arrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, ssids);
+                lv.setAdapter(arrayAdapter);
+            }
+        }
     }
 }
