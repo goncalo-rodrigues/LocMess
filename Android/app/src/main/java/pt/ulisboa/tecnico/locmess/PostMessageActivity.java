@@ -15,11 +15,15 @@ import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
+import pt.ulisboa.tecnico.locmess.data.entities.CreatedMessage;
+import pt.ulisboa.tecnico.locmess.data.entities.Message;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import pt.ulisboa.tecnico.locmess.adapters.FilterAdapter;
@@ -38,6 +42,9 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
     private LinearLayoutManager mLayoutManager;
 
     private AutoCompleteTextView mLocationAtv;
+
+    private RadioButton mCentralizededRadio;
+    private RadioButton mAdOcRadio;
 
     private AutoCompleteTextView mKeyAtv;
     private TextView mValueTv;
@@ -104,6 +111,11 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
         stringDate = DateFormat.getDateInstance().format(endDate.getTime());
         endDateButton.setText(stringDate);
         endDateButton.setOnClickListener(this);
+
+        //Distribution
+        mCentralizededRadio = (RadioButton) findViewById(R.id.radio_button_Centralized);
+        mCentralizededRadio.setChecked(true);
+        mAdOcRadio = (RadioButton) findViewById(R.id.radio_button_adOc);
 
 
         //Filters
@@ -286,7 +298,23 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
         switch (item.getItemId()) {
             // action with ID action_send was selected
             case R.id.action_send:
-               // TODO : send
+                Toast.makeText(this, "Pressed message send message!",Toast.LENGTH_LONG).show();
+                //TODO request id to the server and get author from global variables
+                int id = 0;
+                //id = send request to server
+
+                if(mAdOcRadio.isActivated()){
+                    //AD-OC mode
+
+                }
+
+                else{
+                    //Centralized mod is activated
+                }
+
+
+                CreatedMessage message = new CreatedMessage(id,mValueTv.getText().toString(), "author", mLocationAtv.getText().toString(), startDate.getTime(), endDate.getTime());
+                message.save(this);
                 break;
             default:
                 break;

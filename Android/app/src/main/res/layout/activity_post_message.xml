@@ -122,11 +122,39 @@
                         android:id="@+id/end_time_button"/>
 
 
-
-
-
-
                 </LinearLayout>
+
+                <TextView
+                    android:text="@string/distribution"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/textViewDistribution" />
+
+                <RadioGroup
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:background="@color/colorLightGray">
+
+
+
+                    <RadioButton
+                        android:text="@string/centralized"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/radio_button_Centralized"
+                        android:layout_weight="1" />
+
+                    <RadioButton
+                        android:text="@string/adOc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/radio_button_adOc"
+                        android:layout_weight="1" />
+                </RadioGroup>
+
+
+
                 <TextView
                     android:text="@string/filters"
                     android:layout_width="match_parent"
