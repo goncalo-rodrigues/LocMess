@@ -33,6 +33,7 @@ public class MuleMessage extends Message {
         this.hops = cursor.getInt(hops_idx);
     }
 
+    // if context is not null, this method will retrieve the filters from the DB
     public List<MuleMessageFilter> getFilters(@Nullable Context ctx) {
         if (filters == null) {
             if (ctx != null) {

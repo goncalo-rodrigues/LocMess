@@ -105,6 +105,16 @@ public final class LocmessContract {
                     "PRIMARY KEY ("
                     + MessageFilter.COLUMN_NAME_KEY + "," + MessageFilter.COLUMN_NAME_VALUE + "));";
 
-    public static final String SQL_DELETE_ENTRIES =
+    public static final String SQL_DELETE_1 =
             "DROP TABLE IF EXISTS " + MessageTable.TABLE_NAME;
+    public static final String SQL_DELETE_2 =
+            "DROP TABLE IF EXISTS " + MessageFilter.TABLE_NAME;
+    public static final String SQL_DELETE_3 =
+            "DROP TABLE IF EXISTS " + CreatedMessageTable.TABLE_NAME;
+    public static final String SQL_DELETE_4 =
+            "DROP TABLE IF EXISTS " + MuleMessageTable.TABLE_NAME;
+    public static final String SQL_DELETE_5 =
+            "DROP TABLE IF EXISTS " + LocationTable.TABLE_NAME;
+    public static final String SQL_DELETE_6 =
+            "DROP TABLE IF EXISTS " + ProfileKeyValue.TABLE_NAME;
 }

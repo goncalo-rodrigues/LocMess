@@ -44,15 +44,8 @@ public class BaseMessageFragment extends Fragment implements MessagesAdapter.Cal
 
     //Overriden method onCreateView
 
-    public BaseMessageFragment() {
-        super();
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-        //Returning the layout file after inflating
-        //Change R.layout.tab1 in you classes
         return inflater.inflate(R.layout.activity_main_tab_new, container, false);
     }
 
@@ -60,14 +53,9 @@ public class BaseMessageFragment extends Fragment implements MessagesAdapter.Cal
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         mType = getArguments().getInt(TYPE_ARG);
 
-
         if (messagesAdapter == null) {
-
                 messagesAdapter = new MessagesAdapter(null, this, mType);
         }
-
-
-
 
         mRecyclerView = (RecyclerView) getView().findViewById(R.id.main_list);
 
@@ -100,9 +88,6 @@ public class BaseMessageFragment extends Fragment implements MessagesAdapter.Cal
             ((Callback) getActivity()).onRemove(message);
         }
         message.delete(getContext());
-        //messagesAdapter.notifyItemRemoved(position);
-
-
         getLoaderManager().restartLoader(0, null, this);
     }
 

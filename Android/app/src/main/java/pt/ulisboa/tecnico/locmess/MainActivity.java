@@ -30,11 +30,7 @@ import pt.ulisboa.tecnico.locmess.data.entities.ReceivedMessage;
 
 public class MainActivity extends ActivityWithDrawer implements BaseMessageFragment.Callback, TabLayout.OnTabSelectedListener{
 
-    private MessagesAdapter newMessagesAdapter;
-    private MessagesAdapter createdMessagesAdapter;
     private Pager adapter;
-//    private LinearLayoutManager mLayoutManager;
-//    private TextView emptyView;
     private TabLayout tabLayout;
     private ViewPager viewPager;
 
@@ -42,26 +38,8 @@ public class MainActivity extends ActivityWithDrawer implements BaseMessageFragm
     protected void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.activity_main);
 
-//        messages.add(new MessagesAdapter.Message("abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd", "xyz", new Date(), "arco do cego"));
-//        messages.add(new MessagesAdapter.Message("cba", "xyz", new Date(), "ist"));
-//
-//        messagesAdapter = new MessagesAdapter(messages, this);
-//
-//        RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.main_list);
-//
-//        mLayoutManager = new LinearLayoutManager(this);
-//        mRecyclerView.setLayoutManager(mLayoutManager);
-//
-//        mRecyclerView.setAdapter(messagesAdapter);
-//
-//        emptyView = (TextView) findViewById(R.id.main_empty_tv);
-
         tabLayout = (TabLayout) findViewById(R.id.main_tab_layout);
         viewPager = (ViewPager) findViewById(R.id.main_view_pager);
-
-//        newMessages.add(new MessagesAdapter.Message("Gonçalo, eu estou quase a conseguir as coordenadas GPS. So me falta um danoninho. Se conseguires ajudar, esta no activity_new_location! abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd", "Nuno Bebe", new Date(), "arco do cego"));
-//        createdMessages.add(new MessagesAdapter.Message("cba", "xyz", new Date(), "ist"));
-        //Creating our pager adapter
 
         adapter = new Pager(getSupportFragmentManager(), tabLayout.getTabCount(), this);
 
@@ -71,14 +49,13 @@ public class MainActivity extends ActivityWithDrawer implements BaseMessageFragm
         //Adding onTabSelectedListener to swipe views
         tabLayout.addOnTabSelectedListener(this);
 
+        // Onclick for FAB
         FloatingActionButton myFab = (FloatingActionButton) findViewById(R.id.fabMain);
         myFab.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 sendMessage(v);
             }
         });
-
-
 
         super.onCreate(savedInstanceState);
     }
@@ -101,12 +78,10 @@ public class MainActivity extends ActivityWithDrawer implements BaseMessageFragm
     public void onTabUnselected(TabLayout.Tab tab) {
 
     }
-
     @Override
     public void onTabReselected(TabLayout.Tab tab) {
 
     }
-
     @Override
     public void onRemove(Message message) {
 

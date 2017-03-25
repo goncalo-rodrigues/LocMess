@@ -41,12 +41,12 @@ public class Pager extends FragmentStatePagerAdapter {
         switch (position) {
             case 0:
                 tab1 = new BaseMessageFragment();
-                args.putInt("type", 0);
+                args.putInt(BaseMessageFragment.TYPE_ARG, BaseMessageFragment.TYPE_ARG_RECEIVED);
                 tab1.setArguments(args);
                 return tab1;
             case 1:
                 tab2 = new BaseMessageFragment();
-                args.putInt("type", 1);
+                args.putInt(BaseMessageFragment.TYPE_ARG, BaseMessageFragment.TYPE_ARG_CREATED);
                 tab2.setArguments(args);
                 return tab2;
             default:

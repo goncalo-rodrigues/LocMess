@@ -61,11 +61,13 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
         final Message item;
 
         // MARTELO!
-        if (mType != 0) {
+        if (mType == BaseMessageFragment.TYPE_ARG_CREATED) {
              item = new CreatedMessage(mData);
         } else {
              item = new ReceivedMessage(mData);
         }
+
+        // Populate views
 
         String text = item.getMessageText();
         String authorText = "by " + item.getAuthor();
@@ -77,10 +79,6 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
         final ViewGroup itemView = (ViewGroup) holder.itemView;
         final boolean isExpanded = position==mExpandedPosition;
 
-
-
-
-        //holder.details_ll.setVisibility(isExpanded?View.VISIBLE:View.GONE);
         itemView.setActivated(isExpanded);
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,6 +88,8 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
                 notifyDataSetChanged();
             }
         });
+
+        // On click listener
 
         holder.remove_bt.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -128,16 +128,16 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
         this.mData = data;
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        public Button remove_bt;
-        public TextView message_tv;
-        public RelativeLayout details_rl;
-        public TextView author_tv;
-        public TextView location_tv;
-        public TextView date_tv;
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        Button remove_bt;
+        TextView message_tv;
+        RelativeLayout details_rl;
+        TextView author_tv;
+        TextView location_tv;
+        TextView date_tv;
 
 
-        public ViewHolder(View v) {
+        ViewHolder(View v) {
             super(v);
             message_tv = (TextView) v.findViewById(R.id.main_item_message_tv);
             details_rl = (RelativeLayout) v.findViewById(R.id.main_item_details_rl);
