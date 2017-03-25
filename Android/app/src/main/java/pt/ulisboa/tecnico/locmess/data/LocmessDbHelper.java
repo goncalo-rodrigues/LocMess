@@ -30,7 +30,12 @@ public class LocmessDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL(LocmessContract.SQL_DELETE_ENTRIES);
+        db.execSQL(LocmessContract.SQL_DELETE_1);
+        db.execSQL(LocmessContract.SQL_DELETE_2);
+        db.execSQL(LocmessContract.SQL_DELETE_3);
+        db.execSQL(LocmessContract.SQL_DELETE_4);
+        db.execSQL(LocmessContract.SQL_DELETE_5);
+        db.execSQL(LocmessContract.SQL_DELETE_6);
         onCreate(db);
     }
 
