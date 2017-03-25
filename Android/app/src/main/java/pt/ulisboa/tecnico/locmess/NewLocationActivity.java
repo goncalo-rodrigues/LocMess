@@ -2,6 +2,9 @@ package pt.ulisboa.tecnico.locmess;
 
 import android.Manifest;
 import android.app.PendingIntent;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -47,6 +50,9 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
     private double longitude = 200;
     private LocationManager mLocationManager;
 
+    private BluetoothAdapter bluetoothAdapter = null;
+    private BLECallback bleCallback = null;
+    private List<String> bleSSIDS = null;
     private WifiManager wifi = null;
     private WifiReceiver recv = null;
     private List<ScanResult> scanRes;
@@ -62,6 +68,11 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         recv = new WifiReceiver();
+
+        // BLE is only available from Android 4.3
+        BluetoothManager bm = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        bluetoothAdapter = bm.getAdapter();
+        bleCallback = new BLECallback();
     }
 
     @Override
@@ -95,26 +106,16 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
         l = (LinearLayout) findViewById(R.id.chose_wifi);
         l.setVisibility(View.VISIBLE);
 
-        // Makes sure that WiFi is enabled
-        if (!wifi.isWifiEnabled()) {
-            Intent intent = new Intent(Settings.ACTION_WIFI_SETTINGS);
-            startActivity(intent);
+        checkGPSStatus();
+        checkWifiStatus();
+
+        if(checkBluetoothStatus()) {
+            //TODO: Do not add the BLE listener if it is not available
         }
-
-        boolean permGranted =
-                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_WIFI_STATE)
-                        == PackageManager.PERMISSION_GRANTED;
-
-        // Asks for permission
-        if(!permGranted)
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_WIFI_STATE},
-                    REQUEST_WIFI_SCAN);
 
         // Receives WiFi scan results
         registerReceiver(recv, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 
-        checkGPSStatus();
         wifi.startScan();
     }
 
@@ -150,6 +151,42 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
             Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
             startActivity(intent);
         }
+    }
+
+    private void checkWifiStatus() {
+        // Makes sure that WiFi is enabled
+        if (!wifi.isWifiEnabled()) {
+            Intent intent = new Intent(Settings.ACTION_WIFI_SETTINGS);
+            startActivity(intent);
+        }
+
+        boolean permGranted =
+                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_WIFI_STATE)
+                        == PackageManager.PERMISSION_GRANTED;
+
+        // Asks for permission
+        if(!permGranted)
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_WIFI_STATE},
+                    REQUEST_WIFI_SCAN);
+    }
+
+    // If the device does not support BLE, the result is false
+    private boolean checkBluetoothStatus() {
+        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)
+                || bluetoothAdapter == null)
+            return false;
+
+        if (!bluetoothAdapter.isEnabled()) {
+            Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivity(intent);
+        }
+
+        //TODO: Continue from here!!!!!!!!!!!!!!!!
+
+
+
+        return true;
     }
 
     public void getMapLocation(View v) {
@@ -255,8 +292,8 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
 
     // Used for discovering the wifi networks
     private class WifiReceiver extends BroadcastReceiver {
-            @Override
-            public void onReceive(Context c, Intent intent) {
+        @Override
+        public void onReceive(Context c, Intent intent) {
             scanRes = wifi.getScanResults();
 
             if(ssids == null && scanRes.size() > 0) {
@@ -270,6 +307,23 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
                 arrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, ssids);
                 lv.setAdapter(arrayAdapter);
             }
+        }
+    }
+
+    private class BTReceiver extends BroadcastReceiver {
+        public void onReceive(Context c, Intent t) {
+            //TODO:Check if this is necessary
+        }
+    }
+
+    // It is available from Android 4.3 upwards
+    private class BLECallback implements BluetoothAdapter.LeScanCallback {
+        @Override
+        public void onLeScan(BluetoothDevice bluetoothDevice, int i, byte[] bytes) {
+            if(bleSSIDS == null)
+                bleSSIDS = new ArrayList<>();
+
+            bleSSIDS.add(bluetoothDevice.getName());
         }
     }
 }
