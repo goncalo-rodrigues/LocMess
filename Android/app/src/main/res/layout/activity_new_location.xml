@@ -159,12 +159,14 @@
             android:layout_height="wrap_content"
             android:id="@+id/chose_wifi"
             android:orientation="vertical"
+            android:isScrollContainer="true"
             android:visibility="gone">
 
             <ListView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/wifi_ids_list"/>
+                android:id="@+id/wifi_ids_list"
+                android:layout_weight="5" />
 
             <Button
                 android:text="@string/create"
