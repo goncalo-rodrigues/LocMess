@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.le.ScanCallback;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -71,6 +72,9 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
         BluetoothManager bm = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         bluetoothAdapter = bm.getAdapter();
         bleCallback = new BLECallback();
+
+        // Receives WiFi scan results
+        registerReceiver(recv, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
     }
 
     @Override
@@ -110,8 +114,6 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
         if(checkBluetoothStatus())
             new scanLeDeviceTask().execute(true);
 
-        // Receives WiFi scan results
-        registerReceiver(recv, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
         wifi.startScan();
     }
 
@@ -289,7 +291,8 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
                 finishedWifiSearch = true;
 
                 synchronized (this) {
-                    ssids = new ArrayList<>();
+                    if(ssids == null)
+                        ssids = new ArrayList<>();
 
                     for (ScanResult sc : scanRes)
                         ssids.add(sc.SSID);
