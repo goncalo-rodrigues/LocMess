@@ -34,4 +34,7 @@
     <string name="choose_from_map">Choose from map</string>
     <string name="create">Create</string>
     <string name="send">Send</string>
+    <string name="centralized">Centralized</string>
+    <string name="adOc">ad-oc</string>
+    <string name="distribution">Distribution</string>
 </resources>
