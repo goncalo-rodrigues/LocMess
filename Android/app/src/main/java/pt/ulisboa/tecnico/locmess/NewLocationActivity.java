@@ -16,11 +16,11 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -30,12 +30,8 @@ import android.widget.RadioButton;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
-
-import static pt.ulisboa.tecnico.locmess.R.string.location;
 
 /**
  * Created by nca on 20-03-2017.
@@ -53,12 +49,14 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
     private BluetoothAdapter bluetoothAdapter = null;
     private BLECallback bleCallback = null;
     private List<String> bleSSIDS = null;
+    private boolean btScanning = true;
+
     private WifiManager wifi = null;
     private WifiReceiver recv = null;
     private List<ScanResult> scanRes;
     private List<String> ssids = null;
     private ArrayAdapter<String> arrayAdapter = null;
-
+    private boolean finishedWifiSearch = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,13 +107,11 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
         checkGPSStatus();
         checkWifiStatus();
 
-        if(checkBluetoothStatus()) {
-            //TODO: Do not add the BLE listener if it is not available
-        }
+        if(checkBluetoothStatus())
+            new scanLeDeviceTask().execute(true);
 
         // Receives WiFi scan results
         registerReceiver(recv, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-
         wifi.startScan();
     }
 
@@ -181,10 +177,6 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivity(intent);
         }
-
-        //TODO: Continue from here!!!!!!!!!!!!!!!!
-
-
 
         return true;
     }
@@ -256,10 +248,7 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
     }
 
     @Override
-    public void onStatusChanged(String s, int i, Bundle bundle) {
-        Toast t = Toast.makeText(this, "Status", Toast.LENGTH_SHORT);
-        t.show();
-    }
+    public void onStatusChanged(String s, int i, Bundle bundle) { }
 
     @Override
     public void onProviderEnabled(String s) { }
@@ -296,23 +285,21 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
         public void onReceive(Context c, Intent intent) {
             scanRes = wifi.getScanResults();
 
-            if(ssids == null && scanRes.size() > 0) {
-                ssids = new ArrayList<>();
+            if(!finishedWifiSearch && scanRes.size() > 0) {
+                finishedWifiSearch = true;
 
-                for (ScanResult sc : scanRes)
-                    ssids.add(sc.SSID);
+                synchronized (this) {
+                    ssids = new ArrayList<>();
 
-                Collections.sort(ssids);
-                ListView lv = (ListView) findViewById(R.id.wifi_ids_list);
-                arrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, ssids);
-                lv.setAdapter(arrayAdapter);
+                    for (ScanResult sc : scanRes)
+                        ssids.add(sc.SSID);
+
+                    Collections.sort(ssids);
+                    ListView lv = (ListView) findViewById(R.id.wifi_ids_list);
+                    arrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, ssids);
+                    lv.setAdapter(arrayAdapter);
+                }
             }
-        }
-    }
-
-    private class BTReceiver extends BroadcastReceiver {
-        public void onReceive(Context c, Intent t) {
-            //TODO:Check if this is necessary
         }
     }
 
@@ -324,6 +311,50 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
                 bleSSIDS = new ArrayList<>();
 
             bleSSIDS.add(bluetoothDevice.getName());
+        }
+    }
+
+    // Performs the BLE scanning
+    private class scanLeDeviceTask extends AsyncTask<Boolean, Boolean, List<String>> {
+        private static final int DELAY = 5000; // Measured in milliseconds
+
+        @Override
+        protected List<String> doInBackground(Boolean... enable) {
+            if (enable[0]) {
+                btScanning = true;
+                bluetoothAdapter.startLeScan(bleCallback);
+
+                try {
+                    Thread.sleep(DELAY);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            btScanning = false;
+            bluetoothAdapter.stopLeScan(bleCallback);
+
+            if(!enable[0])
+                return null;
+
+            return bleSSIDS;
+        }
+
+        @Override
+        protected void onPostExecute(List<String> strings) {
+            // And now can add the results to the interface
+            synchronized (this) {
+                if (bleSSIDS != null && bleSSIDS.size() > 0) {
+                    if (ssids == null)
+                        ssids = new ArrayList<>();
+
+                    ssids.addAll(bleSSIDS);
+                    Collections.sort(ssids);
+                    ListView lv = (ListView) findViewById(R.id.wifi_ids_list);
+                    arrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, ssids);
+                    lv.setAdapter(arrayAdapter);
+                }
+            }
         }
     }
 }
