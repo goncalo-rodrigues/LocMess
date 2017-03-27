@@ -58,12 +58,19 @@
         android:textColorHint="@color/colorPrimaryLight"
         android:layout_marginTop="10dp" />
 
+    <TextView
+        android:text="TextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/error_text_view"
+        android:textColor="@android:color/holo_red_dark"
+        android:textAlignment="center" />
+
     <Button
         android:text="@string/sign_up"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/button"
-        android:layout_marginTop="21dp"
-        android:onClick="trySignup"/>
+        android:layout_marginTop="21dp" />
 
 </LinearLayout>

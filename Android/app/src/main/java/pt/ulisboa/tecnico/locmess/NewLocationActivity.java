@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.util.SortedList;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -73,6 +74,10 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
         bluetoothAdapter = bm.getAdapter();
         bleCallback = new BLECallback();
 
+        ssids = new ArrayList<>();
+        ListView lv = (ListView) findViewById(R.id.wifi_ids_list);
+        arrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, ssids);
+        lv.setAdapter(arrayAdapter);
         // Receives WiFi scan results
         registerReceiver(recv, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
     }
@@ -290,18 +295,15 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
             if(!finishedWifiSearch && scanRes.size() > 0) {
                 finishedWifiSearch = true;
 
-                synchronized (this) {
-                    if(ssids == null)
-                        ssids = new ArrayList<>();
+                if(ssids == null)
+                    ssids = new ArrayList<>();
 
-                    for (ScanResult sc : scanRes)
-                        ssids.add(sc.SSID + sc.BSSID);
+                for (ScanResult sc : scanRes)
+                    ssids.add(sc.SSID + sc.BSSID);
 
-                    Collections.sort(ssids);
-                    ListView lv = (ListView) findViewById(R.id.wifi_ids_list);
-                    arrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, ssids);
-                    lv.setAdapter(arrayAdapter);
-                }
+                Collections.sort(ssids);
+                arrayAdapter.notifyDataSetChanged();
+
             }
         }
     }
@@ -313,7 +315,14 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
             if(bleSSIDS == null)
                 bleSSIDS = new ArrayList<>();
 
-            bleSSIDS.add(bluetoothDevice.getName());
+            if (bluetoothDevice.getAddress() != null && !bleSSIDS.contains(bluetoothDevice.getAddress())) {
+                bleSSIDS.add(bluetoothDevice.getAddress());
+                ssids.add(bluetoothDevice.getAddress());
+                Collections.sort(ssids);
+                arrayAdapter.notifyDataSetChanged();
+
+            }
+
         }
     }
 
@@ -327,15 +336,15 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
                 btScanning = true;
                 bluetoothAdapter.startLeScan(bleCallback);
 
-                try {
-                    Thread.sleep(DELAY);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+//                try {
+//                    Thread.sleep(DELAY);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
             }
 
             btScanning = false;
-            bluetoothAdapter.stopLeScan(bleCallback);
+//            bluetoothAdapter.stopLeScan(bleCallback);
 
             if(!enable[0])
                 return null;
@@ -344,20 +353,19 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
         }
 
         @Override
-        protected void onPostExecute(List<String> strings) {
+        protected void onPostExecute(List<String> bleSSIDS) {
             // And now can add the results to the interface
-            synchronized (this) {
-                if (bleSSIDS != null && bleSSIDS.size() > 0) {
-                    if (ssids == null)
-                        ssids = new ArrayList<>();
 
-                    ssids.addAll(bleSSIDS);
-                    Collections.sort(ssids);
-                    ListView lv = (ListView) findViewById(R.id.wifi_ids_list);
-                    arrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, ssids);
-                    lv.setAdapter(arrayAdapter);
-                }
-            }
+//            if (bleSSIDS != null && bleSSIDS.size() > 0) {
+//                if (ssids == null)
+//                    ssids = new ArrayList<>();
+//
+//                ssids.addAll(bleSSIDS);
+//                Collections.sort(ssids);
+//
+//                arrayAdapter.notifyDataSetChanged();
+//            }
+
         }
     }
 }

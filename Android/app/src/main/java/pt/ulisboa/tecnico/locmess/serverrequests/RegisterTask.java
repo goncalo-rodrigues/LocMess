@@ -2,7 +2,9 @@ package pt.ulisboa.tecnico.locmess.serverrequests;
 
 
 import android.os.AsyncTask;
-import android.widget.Toast;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,23 +12,19 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * Created by ant on 26-03-2017.
  */
 
-public class LoginTask extends AsyncTask<String, String,String> {
-    private LoginTaskCallBack callback;
+public class RegisterTask extends AsyncTask<String, String,String> {
+    private RegisteTaskCallBack callback;
     private String result;
     //private static final String URL_SERVER = "http://requestb.in/16z80wa1";
     private static final String URL_SERVER = "http://locmess.duckdns.org";
 
-    public LoginTask(LoginTaskCallBack ltcb){
+    public RegisterTask(RegisteTaskCallBack ltcb){
         callback = ltcb;
     }
 
@@ -35,7 +33,6 @@ public class LoginTask extends AsyncTask<String, String,String> {
         String username = params[0];
         String password = params[1];
         String response = "";
-        int r= 999;
         String id = "";
 
         //make the jason object to send
@@ -49,8 +46,8 @@ public class LoginTask extends AsyncTask<String, String,String> {
         //open the conection to the server and send
         URL url= null;
         try {
-            url = new URL(URL_SERVER+"/login");
-            //url = new URL(URL_SERVER);
+            url = new URL(URL_SERVER);
+            url = new URL(URL_SERVER+"/signup");
         } catch (MalformedURLException e) { e.printStackTrace(); }
 
         try{
@@ -78,6 +75,8 @@ public class LoginTask extends AsyncTask<String, String,String> {
             return "conetionError";
         }
 
+
+        //TODO tAKE THE RESPONSE, EXTRACT THE JSON, GET ID OR ERROR
         try {
             JSONObject data = new JSONObject(response);
             id=data.getString("session_id");
@@ -88,7 +87,9 @@ public class LoginTask extends AsyncTask<String, String,String> {
                 return error;
             }
             return id;
+
         }catch (JSONException e) {e.printStackTrace(); }
+
 
         response = "|"+response+"|";
         return response;
@@ -99,17 +100,18 @@ public class LoginTask extends AsyncTask<String, String,String> {
     protected void onPostExecute(String result) {
         if (result.equals("conetionError"))
             callback.OnNoInternetConnection(result);
-        else if(result.equals("wrongCredentials"))
-            callback.OnWrongCredentials(result);
+        else if(result.equals("alreadyExists"))
+            callback.OnUserAlreadyExists(result);
         else
-        callback.OnLoginComplete(result);
+            callback.OnRegisterComplete(result);
+
         super.onPostExecute(result);
     }
 
 
-    public interface LoginTaskCallBack{
-        void OnLoginComplete(String id);
+    public interface RegisteTaskCallBack{
+        void OnRegisterComplete(String id);
+        void OnUserAlreadyExists(String error);
         void OnNoInternetConnection(String error);
-        void OnWrongCredentials(String error);
     }
 }

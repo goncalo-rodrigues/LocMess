@@ -48,12 +48,20 @@
         android:textColorHint="@color/colorPrimaryLight"
         android:layout_marginTop="20dp" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/error_text_view_login"
+        android:textColor="@android:color/holo_red_dark"
+        android:textAlignment="center"
+        android:text="lalalal" />
+
     <Button
         android:text="@string/login"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/button"
-        android:layout_marginTop="64dp"
+        android:layout_marginTop="40dp"
         android:onClick="tryLogin"/>
 
 </LinearLayout>
