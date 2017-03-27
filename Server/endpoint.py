@@ -33,7 +33,7 @@ def signup():
 
 
 def start_server():
-    app.run(host="0.0.0.0", port=80)
+    app.run(host="0.0.0.0", port=80, threaded=True)
 
 
 # Updates the DNS resolution to the current public ip
