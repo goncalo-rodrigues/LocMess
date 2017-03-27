@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 
 import threading
+import sys
 from urllib2 import urlopen
 from flask import *
 from json import *
+
 
 app = Flask(__name__)
 
@@ -43,4 +45,6 @@ t = threading.Thread(target=start_server)
 t.daemon = True
 t.start()
 
+print("Press any key to stop the server.\n")
+sys.stdout.flush()
 raw_input()

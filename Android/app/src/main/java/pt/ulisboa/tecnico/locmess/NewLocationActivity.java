@@ -295,7 +295,7 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
                         ssids = new ArrayList<>();
 
                     for (ScanResult sc : scanRes)
-                        ssids.add(sc.SSID);
+                        ssids.add(sc.SSID + sc.BSSID);
 
                     Collections.sort(ssids);
                     ListView lv = (ListView) findViewById(R.id.wifi_ids_list);

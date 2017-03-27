@@ -7,3 +7,6 @@ sudo pip install --upgrade virtualenv
 
 echo "Installing flask"
 sudo pip install Flask
+
+echo "Installing MySQL python module"
+sudo apt-get install python-mysqldb
