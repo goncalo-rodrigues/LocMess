@@ -1,19 +1,46 @@
 #!/usr/bin/env python
 
+import threading
 from urllib2 import urlopen
-from flask import Flask
-from json import load
+from flask import *
+from json import *
 
 app = Flask(__name__)
 
-@app.route("/login")
+
+@app.route("/login", methods=['POST'])
 def login():
-    return "Hello World!"
+    req = request.get_json()
 
-if __name__ == "__main__":
+    # TODO: Access the DB
 
-    # Updates the DNS resolution to the current public ip
-    my_ip = load(urlopen('http://jsonip.com'))['ip']
-    urlopen("https://www.duckdns.org/update?domains=locmess&token=f0eccba8-8678-4968-b828-21808fdd1462&ip=" + my_ip)
+    data = {}
+    data['session_id'] = '123456789'
+    return dumps(data)
 
-    app.run(host=my_ip)
+
+@app.route("/signup", methods=['POST'])
+def signup():
+    req = request.get_json()
+
+    # TODO: Access the DB
+
+    data = {}
+    data['session_id'] = '123456789'
+    return dumps(data)
+
+
+def start_server():
+    app.run(host="0.0.0.0", port=80)
+
+
+# Updates the DNS resolution to the current public ip
+my_ip = load(urlopen('http://jsonip.com'))['ip']
+urlopen("https://www.duckdns.org/update?domains=locmess&token=f0eccba8-8678-4968-b828-21808fdd1462&ip=" + my_ip)
+
+# Runs the server on a new thread
+t = threading.Thread(target=start_server)
+t.daemon = True
+t.start()
+
+raw_input()

@@ -1,9 +1,13 @@
 #!/bin/bash
 
-if [ "$#" -ne 1 ]; then
-  echo "The argument must be your student number"
+if [ "$#" -ne 2 ]; then
+  echo "Usage: ./run_sigma.sh <path to AWS server certificate> <AWS machine public IP>"
   exit 1
 fi
 
-# Copy the file sigma
-scp endpoint.py "ist1$1@sigma.ist.utl.pt:."
+cert=$1
+ip=$2
+
+# Copy the file to AWS
+scp -i $cert endpoint.py "ec2-user@$ip:."
+ssh -i $cert -l "ec2-user" $ip "chmod 777 endpoint.py; sudo ./endpoint.py"
