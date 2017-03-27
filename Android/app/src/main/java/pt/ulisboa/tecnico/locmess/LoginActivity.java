@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import pt.ulisboa.tecnico.locmess.serverrequests.LoginTask;
@@ -20,6 +21,7 @@ public class LoginActivity extends AppCompatActivity implements LoginTask.LoginT
     EditText usernameEt;
     EditText passwordEt;
     Button loginBt;
+    TextView errorViewTv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +31,8 @@ public class LoginActivity extends AppCompatActivity implements LoginTask.LoginT
         passwordEt = (EditText) findViewById(R.id.password);
         loginBt = (Button) findViewById(R.id.button);
         loginBt.setOnClickListener(this);
+        errorViewTv = (TextView) findViewById(R.id.error_text_view_login);
+        errorViewTv.setText("");
 
 
 
@@ -47,13 +51,34 @@ public class LoginActivity extends AppCompatActivity implements LoginTask.LoginT
     }
 
     @Override
+    public void OnWrongCredentials(String error){
+        errorViewTv.setText(getString(R.string.wrong_credentials));
+    }
+
+    @Override
+    public void OnNoInternetConnection(String error){
+        errorViewTv.setText(getString(R.string.no_internet));
+    }
+
+    @Override
     public void onClick(View v) {
         //TODO use the real input
         switch (v.getId()) {
             case R.id.button:
-                Toast.makeText(this, "Waiting for server", Toast.LENGTH_LONG).show();
+
+
                 String username =usernameEt.getText().toString();
+                if(username==null || username.length()==0){
+                    errorViewTv.setText(getString(R.string.empty_user));
+                    break;
+                }
+
                 String password = passwordEt.getText().toString();
+                if(password==null || password.length()==0){
+                    errorViewTv.setText(getString(R.string.empty_pass));
+                    break;
+                }
+                Toast.makeText(this, "Waiting for server", Toast.LENGTH_SHORT).show();
                 new LoginTask(this).execute(username,password);
                 break;
             default:
