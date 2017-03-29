@@ -3,16 +3,16 @@ DROP DATABASE IF EXISTS cmu_locmess;
 CREATE DATABASE cmu_locmess;
 USE cmu_locmess;
 
--- TODO: Check if some of the IDs can be autoincremented integers!!!
-
 CREATE TABLE Users (
 	Username CHARACTER(100) NOT NULL PRIMARY KEY,
 	Password CHARACTER(100) NOT NULL
 );
 
+-- This ID should be randomly generated
 CREATE TABLE Sessions (
 	SessionID CHARACTER(128) NOT NULL PRIMARY KEY,
 	Username CHARACTER(100) NOT NULL,
+	EndDate INT NOT NULL,
 	FOREIGN KEY (Username) REFERENCES Users(Username) ON DELETE CASCADE
 );
 
@@ -20,6 +20,7 @@ CREATE TABLE Locations (
 	Name VARCHAR(256) NOT NULL PRIMARY KEY
 );
 
+-- This ID comes from the Android device
 CREATE TABLE WifiIDs (
 	Location VARCHAR(256) NOT NULL,
 	WifiID CHARACTER(100) NOT NULL,
@@ -35,8 +36,9 @@ CREATE TABLE GPS (
 	FOREIGN KEY (Location) REFERENCES Locations(Name) ON DELETE CASCADE
 );
 
+-- This ID is composed by: Username || User counter.
 CREATE TABLE Messages (
-	MessageID CHARACTER(256) NOT NULL PRIMARY KEY,
+	MessageID CHARACTER(255) NOT NULL PRIMARY KEY,
 	Username CHARACTER(100) NOT NULL,
 	Location VARCHAR(256) NOT NULL,
 	StartDate INT NOT NULL,
@@ -46,28 +48,29 @@ CREATE TABLE Messages (
 	FOREIGN KEY (Location) REFERENCES Locations(Name) ON DELETE CASCADE
 );
 
+-- This ID is internal to the Server side
 CREATE TABLE Filters (
-	FilterID CHARACTER(256) NOT NULL PRIMARY KEY,
-	Key VARCHAR(100) NOT NULL,
-	Value VARCHAR(100) NOT NULL,
-	UNIQUE KEY (Key, Value)
+	FilterID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	FilterKey VARCHAR(100) NOT NULL,
+	FilterValue VARCHAR(100) NOT NULL,
+	UNIQUE (FilterKey, FilterValue)
 );
 
 CREATE TABLE MessageFilters (
-	MessageID CHARACTER(256) NOT NULL,
-	FilterID CHARACTER(256) NOT NULL,
+	MessageID CHARACTER(255) NOT NULL,
+	FilterID INT NOT NULL AUTO_INCREMENT,
 	Whitelist BIT(1) NOT NULL,
 	PRIMARY KEY (MessageID, FilterID),
 	FOREIGN KEY (MessageID) REFERENCES Messages(MessageID) ON DELETE CASCADE,
 	FOREIGN KEY (FilterID) REFERENCES Filters(FilterID) ON DELETE CASCADE
 );
 
+CREATE TABLE UserFilters (
+	Username CHARACTER(100) NOT NULL,
+	FilterID INT NOT NULL AUTO_INCREMENT,
+	PRIMARY KEY (Username, FilterID),
+	FOREIGN KEY (Username) REFERENCES Users(Username) ON DELETE CASCADE,
+	FOREIGN KEY (FilterID) REFERENCES Filters(FilterID) ON DELETE CASCADE
+);
+
 CREATE USER 'locmess_account'@'localhost' IDENTIFIED BY 'FDvlalaland129&&';
-
-/* TODO: Check if this is needed for concurrent updates
-GRANT SELECT,INSERT,UPDATE ON  sec_dpm.users TO 'dpm_account'@'localhost';
-GRANT SELECT,INSERT,UPDATE ON  sec_dpm.passwords TO 'dpm_account'@'localhost';
-
--- Will only work on tables with SELECT privilege
-GRANT LOCK TABLES ON * TO 'dpm_account'@'localhost';
-*/
