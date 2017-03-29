@@ -12,17 +12,20 @@ class Database:
             query = "INSERT INTO Users(Username, Password) VALUES (%s, %s)"
             cursor = self.conn.cursor()
             cursor.execute(query, [username, password])
-            query = "INSERT INTO Sessions(SessionID, Username) VALUES (%i, %s)"
+            query = "INSERT INTO Sessions(SessionID, Username) VALUES (%s, %s)"
             class_random = Crypto.Random.random.StrongRandom()
-            random = class_random.getrandbits(128)
-            cursor.execute(query, [random, username])
+
+            lst_rand = [chr(class_random.getrandbits(7)) for _ in range(128)]
+            id = "".join(lst_rand)
+
+            cursor.execute(query, [id, username])
             cursor.close()
             self.conn.commit()
-            return random
+            return id
         except MySQLdb.Error:
             return None
 
-    
+
 """
     def login(self, username, password):
 

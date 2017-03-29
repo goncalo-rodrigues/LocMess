@@ -10,7 +10,7 @@ CREATE TABLE Users (
 
 -- This ID should be randomly generated
 CREATE TABLE Sessions (
-	SessionID INT NOT NULL PRIMARY KEY,
+	SessionID CHARACTER(128) NOT NULL PRIMARY KEY,
 	Username CHARACTER(100) NOT NULL,
 	FOREIGN KEY (Username) REFERENCES Users(Username) ON DELETE CASCADE
 );

@@ -10,3 +10,4 @@ sudo pip install Flask
 
 echo "Installing MySQL python module"
 sudo apt-get install python-mysqldb
+sudo pip install pycrypto
