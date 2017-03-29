@@ -43,4 +43,5 @@
     <string name="no_internet">Couldnt conect to the server</string>
     <string name="user_already_exists">User already exists</string>
     <string name="wrong_credentials">Username or Password incorrect</string>
+    <string name="waiting_for_server">Waiting for Server</string>
 </resources>

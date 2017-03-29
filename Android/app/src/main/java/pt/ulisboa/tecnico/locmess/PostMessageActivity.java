@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.Spinner;
@@ -27,6 +28,9 @@ import java.util.Date;
 import java.util.List;
 
 import pt.ulisboa.tecnico.locmess.adapters.FilterAdapter;
+import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
+
+import static java.lang.Math.random;
 
 public class PostMessageActivity extends ActivityWithDrawer implements FilterAdapter.Callback, View.OnClickListener,
         TimePicker.TimePickerCallback, DatePicker.DatePickerCallback{
@@ -42,6 +46,8 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
     private LinearLayoutManager mLayoutManager;
 
     private AutoCompleteTextView mLocationAtv;
+
+    private EditText messageTextET;
 
     private RadioButton mCentralizededRadio;
     private RadioButton mAdOcRadio;
@@ -61,6 +67,8 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
     private Calendar startDate;
     private Calendar endDate;
     private boolean start;
+
+    NetworkGlobalState globalState;
 
 
 
@@ -87,6 +95,8 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
                 }
             }
         });
+
+        messageTextET = (EditText) findViewById(R.id.messageText);
 
         //Date and time selector
         initTimes();
@@ -148,6 +158,8 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
         mblacklistedRadio =(RadioButton) findViewById(R.id.radio_button_black);
         mWhitelistedRadio = (RadioButton) findViewById(R.id.radio_button_white);
         mWhitelistedRadio.setChecked(true);
+
+        globalState = (NetworkGlobalState) getApplicationContext();
 
         super.onCreate(savedInstanceState);
     }
@@ -300,7 +312,7 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
             case R.id.action_send:
                 Toast.makeText(this, "Pressed message send message!",Toast.LENGTH_LONG).show();
                 //TODO request id to the server and get author from global variables
-                int id = 0;
+                int id =(int) (random()*221313161);
                 //id = send request to server
 
                 if(mAdOcRadio.isActivated()){
@@ -313,8 +325,9 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
                 }
 
 
-                CreatedMessage message = new CreatedMessage(id,mValueTv.getText().toString(), "author", mLocationAtv.getText().toString(), startDate.getTime(), endDate.getTime());
+                CreatedMessage message = new CreatedMessage(id,messageTextET.getText().toString(), globalState.getUsername(), mLocationAtv.getText().toString(), startDate.getTime(), endDate.getTime());
                 message.save(this);
+                finish();
                 break;
             default:
                 break;

@@ -66,7 +66,7 @@
                     android:layout_height="wrap_content"
                     android:scrollbars="vertical"
                     android:ems="10"
-                    android:id="@+id/editText2"
+                    android:id="@+id/messageText"
                     android:hint="@string/hintInsertMessage"
                     android:background="@android:color/darker_gray"/>
 

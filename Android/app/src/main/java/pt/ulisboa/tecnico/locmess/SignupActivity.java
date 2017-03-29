@@ -6,9 +6,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 import pt.ulisboa.tecnico.locmess.serverrequests.RegisterTask;
 
 import static pt.ulisboa.tecnico.locmess.R.layout.activity_signup;
@@ -23,6 +25,8 @@ public class SignupActivity extends AppCompatActivity implements RegisterTask.Re
     EditText retryEt;
     Button registerBt;
     TextView errorViewTv;
+    ProgressBar waitingBallPb;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +40,7 @@ public class SignupActivity extends AppCompatActivity implements RegisterTask.Re
         registerBt.setOnClickListener(this);
         errorViewTv = (TextView) findViewById(R.id.error_text_view);
         errorViewTv.setText("");
+        waitingBallPb = (ProgressBar) findViewById(R.id.waiting_ball);
 
         super.onCreate(savedInstanceState);
     }
@@ -44,18 +49,23 @@ public class SignupActivity extends AppCompatActivity implements RegisterTask.Re
     @Override
     public void OnRegisterComplete(String id) {
         //TODO some logic may be needed here
-
+        waitingBallPb.setVisibility(View.GONE);
+        registerBt.setVisibility(View.VISIBLE);
         Toast.makeText(this, "Registed ,server answer:"+id, Toast.LENGTH_LONG).show();
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
     @Override
     public void OnUserAlreadyExists(String error){
+        waitingBallPb.setVisibility(View.GONE);
+        registerBt.setVisibility(View.VISIBLE);
         errorViewTv.setText(getString(R.string.user_already_exists));
     }
 
     @Override
     public void OnNoInternetConnection(String error){
+        waitingBallPb.setVisibility(View.GONE);
+        registerBt.setVisibility(View.VISIBLE);
         errorViewTv.setText(getString(R.string.no_internet));
     }
 
@@ -86,8 +96,11 @@ public class SignupActivity extends AppCompatActivity implements RegisterTask.Re
                     break;
                 }
 
-                Toast.makeText(this, "Waiting for server", Toast.LENGTH_SHORT).show();
-                new RegisterTask(this).execute(username,password);
+                registerBt.setVisibility(View.GONE);
+                waitingBallPb.setVisibility(View.VISIBLE);
+
+                Toast.makeText(this, getString(R.string.waiting_for_server), Toast.LENGTH_SHORT).show();
+                new RegisterTask(this,this).execute(username,password);
                 break;
             default:
                 break;
