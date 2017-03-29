@@ -6,25 +6,23 @@ class Database:
     def __init__(self, in_user='locmess_account', in_passwd='FDvlalaland129&&', in_host='localhost', in_db='cmu_locmess'):
         self.conn = MySQLdb.connect(user=in_user, passwd=in_passwd, host=in_host, db=in_db)
 
-    def register(self, username, password):
-        query = "INSERT INTO Users(Username, Password) VALUES (%s, %s)"
+    def signup(self, username, password):
+        try:
+            # TODO: Create a specific method with this
+            query = "INSERT INTO Users(Username, Password) VALUES (%s, %s)"
+            cursor = self.conn.cursor()
+            cursor.execute(query, [username, password])
+            query = "INSERT INTO Sessions(SessionID, Username) VALUES (%i, %s)"
+            class_random = Crypto.Random.random.StrongRandom()
+            random = class_random.getrandbits(128)
+            cursor.execute(query, [random, username])
+            cursor.close()
+            self.conn.commit()
+            return random
+        except MySQLdb.Error:
+            return None
 
-        # TODO: Create a specific method with this
-        cursor = self.conn.cursor()
-        cursor.execute(query, [username, password])
-        query = "INSERT INTO Sessions(SessionID, Username, EndDate) VALUES (%s, %s)"
-        class_random = Crypto.Random.random.StrongRandom()
-        random = class_random.getrandbits(128)
-
-
-
-
-
-
-
-
-
-
+    
 """
     def login(self, username, password):
 

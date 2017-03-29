@@ -9,5 +9,5 @@ cert=$1
 ip=$2
 
 # Copy the file to AWS
-scp -i $cert endpoint.py "ec2-user@$ip:."
-ssh -i $cert -l "ec2-user" $ip "chmod 777 endpoint.py; sudo ./endpoint.py"
+scp -i $cert *.py "ec2-user@$ip:."
+ssh -i $cert -l "ec2-user" $ip "chmod 777 *.py; sudo ./endpoint.py"
