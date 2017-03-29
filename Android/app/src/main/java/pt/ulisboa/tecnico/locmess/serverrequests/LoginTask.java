@@ -1,8 +1,8 @@
 package pt.ulisboa.tecnico.locmess.serverrequests;
 
 
+import android.content.Context;
 import android.os.AsyncTask;
-import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,11 +10,12 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 
 /**
  * Created by ant on 26-03-2017.
@@ -25,10 +26,14 @@ public class LoginTask extends AsyncTask<String, String,String> {
     private String result;
     //private static final String URL_SERVER = "http://requestb.in/16z80wa1";
     private static final String URL_SERVER = "http://locmess.duckdns.org";
+    NetworkGlobalState globalState;
 
-    public LoginTask(LoginTaskCallBack ltcb){
+
+    public LoginTask(LoginTaskCallBack ltcb,Context context){
+        globalState = (NetworkGlobalState) context.getApplicationContext();
         callback = ltcb;
     }
+
 
     @Override
     protected String doInBackground(String... params) {
@@ -58,6 +63,8 @@ public class LoginTask extends AsyncTask<String, String,String> {
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("POST");
             urlConnection.setRequestProperty("Content-Type","application/json");
+            urlConnection.setConnectTimeout(10000);
+            urlConnection.setReadTimeout(10000);
             urlConnection.connect();
 
             OutputStreamWriter   out = new   OutputStreamWriter(urlConnection.getOutputStream());
@@ -87,8 +94,10 @@ public class LoginTask extends AsyncTask<String, String,String> {
                 String error = data.getString("error");
                 return error;
             }
+            globalState.setId(id);
             return id;
         }catch (JSONException e) {e.printStackTrace(); }
+
 
         response = "|"+response+"|";
         return response;

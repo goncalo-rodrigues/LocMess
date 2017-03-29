@@ -66,6 +66,15 @@
         android:textColor="@android:color/holo_red_dark"
         android:textAlignment="center" />
 
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="gone"
+        android:layout_marginTop="21dp"
+        android:id="@+id/waiting_ball" />
+
+
     <Button
         android:text="@string/sign_up"
         android:layout_width="wrap_content"

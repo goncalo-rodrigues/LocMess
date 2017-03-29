@@ -56,6 +56,14 @@
         android:textAlignment="center"
         android:text="lalalal" />
 
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="gone"
+        android:layout_marginTop="40dp"
+        android:id="@+id/waiting_ball" />
+
     <Button
         android:text="@string/login"
         android:layout_width="wrap_content"

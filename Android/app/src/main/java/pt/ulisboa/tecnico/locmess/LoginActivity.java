@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,6 +23,8 @@ public class LoginActivity extends AppCompatActivity implements LoginTask.LoginT
     EditText passwordEt;
     Button loginBt;
     TextView errorViewTv;
+    ProgressBar waitingBallPb;
+    Boolean loginResquested = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +36,7 @@ public class LoginActivity extends AppCompatActivity implements LoginTask.LoginT
         loginBt.setOnClickListener(this);
         errorViewTv = (TextView) findViewById(R.id.error_text_view_login);
         errorViewTv.setText("");
+        waitingBallPb = (ProgressBar) findViewById(R.id.waiting_ball);
 
 
 
@@ -43,6 +47,9 @@ public class LoginActivity extends AppCompatActivity implements LoginTask.LoginT
 
     @Override
     public void OnLoginComplete(String id) {
+        waitingBallPb.setVisibility(View.GONE);
+        loginBt.setVisibility(View.VISIBLE);
+        loginResquested = false;
         //TODO some logic may be needed here
         //this is the method that will be caled when the reponse from the server is received
         Toast.makeText(this, "Loged in,server answer:"+id, Toast.LENGTH_LONG).show();
@@ -52,11 +59,17 @@ public class LoginActivity extends AppCompatActivity implements LoginTask.LoginT
 
     @Override
     public void OnWrongCredentials(String error){
+        loginResquested = false;
+        waitingBallPb.setVisibility(View.GONE);
+        loginBt.setVisibility(View.VISIBLE);
         errorViewTv.setText(getString(R.string.wrong_credentials));
     }
 
     @Override
     public void OnNoInternetConnection(String error){
+        loginResquested = false;
+        waitingBallPb.setVisibility(View.GONE);
+        loginBt.setVisibility(View.VISIBLE);
         errorViewTv.setText(getString(R.string.no_internet));
     }
 
@@ -66,6 +79,8 @@ public class LoginActivity extends AppCompatActivity implements LoginTask.LoginT
         switch (v.getId()) {
             case R.id.button:
 
+
+                errorViewTv.setText("");
 
                 String username =usernameEt.getText().toString();
                 if(username==null || username.length()==0){
@@ -78,8 +93,11 @@ public class LoginActivity extends AppCompatActivity implements LoginTask.LoginT
                     errorViewTv.setText(getString(R.string.empty_pass));
                     break;
                 }
-                Toast.makeText(this, "Waiting for server", Toast.LENGTH_SHORT).show();
-                new LoginTask(this).execute(username,password);
+                loginResquested = true;
+                loginBt.setVisibility(View.GONE);
+                waitingBallPb.setVisibility(View.VISIBLE);
+                Toast.makeText(this, getString(R.string.waiting_for_server), Toast.LENGTH_LONG).show();
+                new LoginTask(this,this).execute(username,password);
                 break;
             default:
                 break;

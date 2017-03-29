@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.locmess.serverrequests;
 
 
+import android.content.Context;
 import android.os.AsyncTask;
 
 import org.json.JSONException;
@@ -14,6 +15,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
+
 /**
  * Created by ant on 26-03-2017.
  */
@@ -21,10 +24,13 @@ import java.net.URL;
 public class RegisterTask extends AsyncTask<String, String,String> {
     private RegisteTaskCallBack callback;
     private String result;
+    NetworkGlobalState globalState;
     //private static final String URL_SERVER = "http://requestb.in/16z80wa1";
+
     private static final String URL_SERVER = "http://locmess.duckdns.org";
 
-    public RegisterTask(RegisteTaskCallBack ltcb){
+    public RegisterTask(RegisteTaskCallBack ltcb, Context context){
+        globalState = (NetworkGlobalState) context.getApplicationContext();
         callback = ltcb;
     }
 
@@ -54,6 +60,8 @@ public class RegisterTask extends AsyncTask<String, String,String> {
             HttpURLConnection urlConnection=null;
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("POST");
+            urlConnection.setConnectTimeout(10000);
+            urlConnection.setReadTimeout(10000);
             urlConnection.setRequestProperty("Content-Type","application/json");
             urlConnection.connect();
 
@@ -86,6 +94,7 @@ public class RegisterTask extends AsyncTask<String, String,String> {
                 String error = data.getString("error");
                 return error;
             }
+            globalState.setId(id);
             return id;
 
         }catch (JSONException e) {e.printStackTrace(); }

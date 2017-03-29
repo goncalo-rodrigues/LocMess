@@ -28,6 +28,8 @@ import java.util.List;
 
 import pt.ulisboa.tecnico.locmess.adapters.FilterAdapter;
 
+import static java.lang.Math.random;
+
 public class PostMessageActivity extends ActivityWithDrawer implements FilterAdapter.Callback, View.OnClickListener,
         TimePicker.TimePickerCallback, DatePicker.DatePickerCallback{
 
@@ -300,7 +302,7 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
             case R.id.action_send:
                 Toast.makeText(this, "Pressed message send message!",Toast.LENGTH_LONG).show();
                 //TODO request id to the server and get author from global variables
-                int id = 0;
+                int id =(int) (random()*221313161);
                 //id = send request to server
 
                 if(mAdOcRadio.isActivated()){
@@ -315,6 +317,7 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
 
                 CreatedMessage message = new CreatedMessage(id,mValueTv.getText().toString(), "author", mLocationAtv.getText().toString(), startDate.getTime(), endDate.getTime());
                 message.save(this);
+                finish();
                 break;
             default:
                 break;
