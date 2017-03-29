@@ -13,6 +13,7 @@ import javax.crypto.SecretKey;
 public class NetworkGlobalState extends Application{
     private String id;
     private SecretKey communication_Key;
+    private String username;
 
     public SecretKey getCommunication_Key() {
         return communication_Key;
@@ -31,7 +32,19 @@ public class NetworkGlobalState extends Application{
         this.id = id;
     }
 
+    public String getUsername() {
+        return username;
+    }
 
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void logout(){
+        id = null;
+        communication_Key = null;
+        username = null;
+    }
 
 
 }

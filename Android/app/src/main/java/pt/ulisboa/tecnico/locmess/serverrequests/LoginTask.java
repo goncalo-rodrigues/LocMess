@@ -95,6 +95,7 @@ public class LoginTask extends AsyncTask<String, String,String> {
                 return error;
             }
             globalState.setId(id);
+            globalState.setUsername(username);
             return id;
         }catch (JSONException e) {e.printStackTrace(); }
 

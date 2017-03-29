@@ -10,6 +10,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 import pt.ulisboa.tecnico.locmess.serverrequests.RegisterTask;
 
 import static pt.ulisboa.tecnico.locmess.R.layout.activity_signup;
@@ -25,6 +26,7 @@ public class SignupActivity extends AppCompatActivity implements RegisterTask.Re
     Button registerBt;
     TextView errorViewTv;
     ProgressBar waitingBallPb;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

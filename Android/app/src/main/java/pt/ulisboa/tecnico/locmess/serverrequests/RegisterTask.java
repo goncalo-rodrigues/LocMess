@@ -94,6 +94,7 @@ public class RegisterTask extends AsyncTask<String, String,String> {
                 String error = data.getString("error");
                 return error;
             }
+            globalState.setUsername(username);
             globalState.setId(id);
             return id;
 
