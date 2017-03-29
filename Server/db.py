@@ -1,5 +1,5 @@
 import MySQLdb
-import Crypto.Random
+import Crypto.Random.random
 
 
 class Database:
@@ -13,7 +13,8 @@ class Database:
         cursor = self.conn.cursor()
         cursor.execute(query, [username, password])
         query = "INSERT INTO Sessions(SessionID, Username, EndDate) VALUES (%s, %s)"
-        random = Crypto.Random.get_random_bytes
+        class_random = Crypto.Random.random.StrongRandom()
+        random = class_random.getrandbits(128)
 
 
 
