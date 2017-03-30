@@ -20,17 +20,17 @@ import java.util.ArrayList;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 
 /**
- * Created by ant on 26-03-2017.
+ * Created by ant on 30-03-2017.
  */
 
-public class RequestLocationsTask extends AsyncTask<String, String,ArrayList<String>>{
-    private RequestLocationsTaskCallBack callback;
+public class RequestExistentFiltersTask extends AsyncTask<String, String,ArrayList<String>>{
+    private RequestFiltersTaskCallBack callback;
     //private static final String URL_SERVER = "http://requestb.in/16z80wa1";
     private static final String URL_SERVER = "http://locmess.duckdns.org";
     NetworkGlobalState globalState;
 
 
-    public RequestLocationsTask(RequestLocationsTaskCallBack ltcb, Context context){
+    public RequestExistentFiltersTask(RequestFiltersTaskCallBack ltcb, Context context){
         globalState = (NetworkGlobalState) context.getApplicationContext();
         callback = ltcb;
     }
@@ -53,7 +53,7 @@ public class RequestLocationsTask extends AsyncTask<String, String,ArrayList<Str
         //open the conection to the server and send
         URL url= null;
         try {
-            url = new URL(URL_SERVER+"/request_locations");
+            url = new URL(URL_SERVER+"/get_filters");
         } catch (MalformedURLException e) { e.printStackTrace(); }
 
         try{
@@ -84,7 +84,7 @@ public class RequestLocationsTask extends AsyncTask<String, String,ArrayList<Str
             return response;
         }
 
-        //parse and get json elements, can be an array of locations or a error message
+        //parse and get json elements, can be an array of filters or a error message
         try {
             JSONObject data = new JSONObject(result);
             String error = data.getString("error");
@@ -94,9 +94,9 @@ public class RequestLocationsTask extends AsyncTask<String, String,ArrayList<Str
                 response.add(error);
                 return response;
             }
-            JSONArray locations =data.getJSONArray("locations");
-            for (int j=0;j<locations.length()-1;j++)
-                response.add(locations.getString(j));
+            JSONArray filters =data.getJSONArray("filters");
+            for (int j=0;j<filters.length()-1;j++)
+                response.add(filters.getString(j));
 
             return response;
 
@@ -120,8 +120,8 @@ public class RequestLocationsTask extends AsyncTask<String, String,ArrayList<Str
     }
 
 
-    public interface RequestLocationsTaskCallBack{
-        void OnSearchComplete(ArrayList<String> locations);
+    public interface RequestFiltersTaskCallBack{
+        void OnSearchComplete(ArrayList<String> filters);
         void OnErrorResponse(String error);
     }
 }
