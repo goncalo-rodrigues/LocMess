@@ -97,5 +97,11 @@ class Database:
         self.conn.commit()
         return create_json(["session_id"], [id])
 
+    def request_locations(self, session_id, startswith, range):
+        cursor = self.conn.cursor()
+
+        self.__select(cursor, "Username", ("Sessions"), ["SessionID", session_id])
+        username = str(cursor.fetchone())
+
     def close(self):
         self.conn.close()

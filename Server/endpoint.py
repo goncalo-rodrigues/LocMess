@@ -17,6 +17,9 @@ db = Database()
 def login():
     req = request.get_json()
 
+    print("IN: " + str(req) + "\n")
+    sys.stdout.flush()
+
     if "username" in req and "password" in req:
         return db.login(req["username"], req["password"])
 
@@ -27,8 +30,24 @@ def login():
 def signup():
     req = request.get_json()
 
+    print("IN: " + str(req) + "\n")
+    sys.stdout.flush()
+
     if "username" in req and "password" in req:
         return db.signup(req["username"], req["password"])
+
+    return create_error_json(error_keys_not_in_json)
+
+
+@app.route("/request_locations", methods=['POST'])
+def request_locations():
+    req = request.get_json()
+
+    print("IN: " + str(req) + "\n")
+    sys.stdout.flush()
+
+    if "session_id" in req and "startswith" in req and "range" in req:
+        return db.request_locations(req["session_id"], req["startswith"], req["range"])
 
     return create_error_json(error_keys_not_in_json)
 
@@ -49,3 +68,4 @@ t.start()
 print("Press any key to stop the server.\n")
 sys.stdout.flush()
 raw_input()
+db.close()
