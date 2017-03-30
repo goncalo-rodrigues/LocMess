@@ -1,9 +1,9 @@
 from json import *
 
 
-error_username_exists = "The given username already exists."
-error_username_doesnt_exist = "The given username does not exist."
-error_password_wrong = "The given password is not correct."
+error_username_exists = "alreadyExists"#"The given username already exists."
+error_username_doesnt_exist = "wrongCredentials"#"The given username does not exist."
+error_password_wrong = "wrongCredentials"#"The given password is not correct."
 error_keys_not_in_json = "The desired keys are not in the received json."
 
 
