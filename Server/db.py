@@ -1,5 +1,6 @@
 import MySQLdb
 import Crypto.Random.random
+from error_messages import *
 
 
 class Database:
@@ -44,54 +45,57 @@ class Database:
         lst_rand = [chr(class_random.getrandbits(7)) for _ in range(length)]
         return "".join(lst_rand)
 
-    """
+    def __create_session(self, cursor, username):
+        SESSION_ID_SIZE = 128
+        error = ""
+        id = ""
+
+        while error is not None:
+            error = None
+            id = self.__create_random_str(SESSION_ID_SIZE)
+            try:
+                self.__insert(cursor, "Sessions", ("SessionID", "Username"), [id, username])
+            except MySQLdb.Error, e:
+                error = e
+
+        return id
+
+    """-------------------------------------------------------------------------
         From this point on, the functions correspond to each available service
-    """
+       -------------------------------------------------------------------------"""
 
     def signup(self, username, password):
         cursor = self.conn.cursor()
         try:
             self.__insert(cursor, "Users", ("Username", "Password"), [username, password])
-            id = self.__create_random_str(128)
-            self.__insert(cursor, "Sessions", ("SessionID", "Username"), [id, username])
-            cursor.close()
-            self.conn.commit()
-            return id
-
-        # This will be used to send the error message
         except MySQLdb.Error:
             cursor.close()
-            return None
+            return create_error_json(error_username_exists)
+
+        id = self.__create_session(cursor, username)
+        cursor.close()
+        self.conn.commit()
+        return create_json(["session_id"], [id])
 
     # TODO: Return the filters of the given user
     def login(self, username, password):
         cursor = self.conn.cursor()
 
-        try:
-            self.__select(cursor, "*", ("Users"), ["Username", username, "AND", "Password", password])
-        except MySQLdb:
-            print("Oops!")
+        self.__select(cursor, "*", ("Users"), ["Username", username])
+        if cursor.rowcount == 0:
+            cursor.close()
+            return create_error_json(error_username_doesnt_exist)
 
-        # TODO: Continue from here!!!
+        self.__select(cursor, "*", ("Users"), ["Username", username, "AND", "Password", password])
+        if cursor.rowcount == 0:
+            cursor.close()
+            return create_error_json(error_password_wrong)
 
-        id = self.__create_random_str(128)
-        self.__insert(cursor, "Sessions", ("SessionID", "Username"), [id, username])
+        # The user is authenticated
+        id = self.__create_session(cursor, username)
         cursor.close()
         self.conn.commit()
-        return id
+        return create_json(["session_id"], [id])
 
     def close(self):
         self.conn.close()
-
-
-
-
-"""
-cursor = cnx.cursor()
-query = "SELECT userID FROM passwords"
-cursor.execute(query)
-
-for (user_id) in cursor:
-    print("ID: " + str(user_id))
-
-"""

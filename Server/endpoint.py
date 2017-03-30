@@ -13,32 +13,24 @@ app = Flask(__name__)
 db = Database()
 
 
-# TODO: Send the current user filters (maybe she is connecting from other device)
 @app.route("/login", methods=['POST'])
 def login():
     req = request.get_json()
 
-    # TODO: Access the DB
+    if "username" in req and "password" in req:
+        return db.login(req["username"], req["password"])
 
-    data = {}
-    data['session_id'] = '123456789'
-    return dumps(data)
+    return create_error_json(error_keys_not_in_json)
 
 
 @app.route("/signup", methods=['POST'])
 def signup():
-    res = None
     req = request.get_json()
 
     if "username" in req and "password" in req:
-        res = db.signup(req["username"], req["password"])
+        return db.signup(req["username"], req["password"])
 
-    if res is None:
-        return create_error_json(error_username_exists)
-
-    data = {}
-    data['session_id'] = res
-    return dumps(res)
+    return create_error_json(error_keys_not_in_json)
 
 
 def start_server():
