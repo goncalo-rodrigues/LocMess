@@ -34,6 +34,14 @@ class Database:
 
         cursor.execute(query, wh_right)
 
+    def __delete(self, cursor, tb, wh_left, wh_right):
+        query = "DELETE FROM " + tb + " WHERE"
+
+        for el in wh_left:
+            query += " " + el
+
+        cursor.execute(query, wh_right)
+
     def __create_random_str(self, length):
         class_random = Crypto.Random.random.StrongRandom()
         lst_rand = [chr(class_random.getrandbits(7)) for _ in range(length)]
@@ -90,6 +98,19 @@ class Database:
         cursor.close()
         self.conn.commit()
         return create_json(["session_id"], [id])
+
+    def logout(self, session_id):
+        cursor = self.conn.cursor()
+
+        self.__select(cursor, "*", ["Sessions"], ["SessionID = %s"], [session_id])
+        if cursor.rowcount == 0:
+            cursor.close()
+            return create_error_json(error_session_not_found)
+
+        self.__delete(cursor, "Sessions", ["SessionID = %s"], [session_id])
+        cursor.close()
+        self.conn.commit()
+        return create_json(["resp"], ["ok"])
 
     def request_locations(self, session_id, startswith):
         cursor = self.conn.cursor()

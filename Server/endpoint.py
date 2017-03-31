@@ -38,6 +38,19 @@ def signup():
     return create_error_json(error_keys_not_in_json)
 
 
+@app.route("/logout", methods=['POST'])
+def logout():
+    req = request.get_json()
+
+    print("IN: " + str(req) + "\n")
+    sys.stdout.flush()
+
+    if "session_id" in req:
+        return db.logout(req["session_id"])
+
+    return create_error_json(error_keys_not_in_json)
+
+
 @app.route("/request_locations", methods=['POST'])
 def request_locations():
     req = request.get_json()
@@ -49,6 +62,94 @@ def request_locations():
         return db.request_locations(req["session_id"], req["startswith"])
 
     return create_error_json(error_keys_not_in_json)
+
+
+# TODO
+@app.route("/send_locations", methods=['POST'])
+def send_locations():
+    req = request.get_json()
+
+    print("IN: " + str(req) + "\n")
+    sys.stdout.flush()
+
+    return create_error_json(error_method_not_implemented)
+
+
+# TODO
+@app.route("/create_location", methods=['POST'])
+def create_location():
+    req = request.get_json()
+
+    print("IN: " + str(req) + "\n")
+    sys.stdout.flush()
+
+    return create_error_json(error_method_not_implemented)
+
+
+# TODO
+@app.route("/remove_location", methods=['POST'])
+def remove_location():
+    req = request.get_json()
+
+    print("IN: " + str(req) + "\n")
+    sys.stdout.flush()
+
+    return create_error_json(error_method_not_implemented)
+
+
+# TODO
+@app.route("/set_my_filter", methods=['POST'])
+def set_my_filter():
+    req = request.get_json()
+
+    print("IN: " + str(req) + "\n")
+    sys.stdout.flush()
+
+    return create_error_json(error_method_not_implemented)
+
+
+# TODO: Diogo changed the method interface (check on GitHub)
+@app.route("/get_filters", methods=['POST'])
+def get_filters():
+    req = request.get_json()
+
+    print("IN: " + str(req) + "\n")
+    sys.stdout.flush()
+
+    return create_error_json(error_method_not_implemented)
+
+
+# TODO
+@app.route("/remove_filter", methods=['POST'])
+def remove_filter():
+    req = request.get_json()
+
+    print("IN: " + str(req) + "\n")
+    sys.stdout.flush()
+
+    return create_error_json(error_method_not_implemented)
+
+
+# TODO
+@app.route("/post_message", methods=['POST'])
+def post_message():
+    req = request.get_json()
+
+    print("IN: " + str(req) + "\n")
+    sys.stdout.flush()
+
+    return create_error_json(error_method_not_implemented)
+
+
+# TODO
+@app.route("/delete_message", methods=['POST'])
+def delete_message():
+    req = request.get_json()
+
+    print("IN: " + str(req) + "\n")
+    sys.stdout.flush()
+
+    return create_error_json(error_method_not_implemented)
 
 
 def start_server():
@@ -64,14 +165,14 @@ t = threading.Thread(target=start_server)
 t.daemon = True
 t.start()
 
-# FIXME: Debug stuff
-"""
-signup_res = loads(db.login("a", "a"))
-print "\n" + str(signup_res) + "\n"
-print "\n" + str(db.request_locations(signup_res["session_id"], "do")) + "\n"
-"""
-
 print("Press any key to stop the server.\n")
 sys.stdout.flush()
 raw_input()
 db.close()
+
+# FIXME: Debug stuff
+# signup_res = loads(db.signup("a", "a"))
+# print "\n" + str(signup_res) + "\n"
+# print "\n" + str(db.request_locations(signup_res["session_id"], "do")) + "\n"
+# print "\n" + str(db.logout(signup_res["session_id"])) + "\n"
+
