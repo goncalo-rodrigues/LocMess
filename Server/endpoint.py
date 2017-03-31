@@ -2,7 +2,6 @@
 
 import threading
 import sys
-from error_messages import *
 from db import *
 from urllib2 import urlopen
 from flask import *
@@ -46,8 +45,8 @@ def request_locations():
     print("IN: " + str(req) + "\n")
     sys.stdout.flush()
 
-    if "session_id" in req and "startswith" in req and "range" in req:
-        return db.request_locations(req["session_id"], req["startswith"], req["range"])
+    if "session_id" in req and "startswith" in req:
+        return db.request_locations(req["session_id"], req["startswith"])
 
     return create_error_json(error_keys_not_in_json)
 
@@ -64,6 +63,13 @@ urlopen("https://www.duckdns.org/update?domains=locmess&token=f0eccba8-8678-4968
 t = threading.Thread(target=start_server)
 t.daemon = True
 t.start()
+
+# FIXME: Debug stuff
+"""
+signup_res = loads(db.login("a", "a"))
+print "\n" + str(signup_res) + "\n"
+print "\n" + str(db.request_locations(signup_res["session_id"], "do")) + "\n"
+"""
 
 print("Press any key to stop the server.\n")
 sys.stdout.flush()

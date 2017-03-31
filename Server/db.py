@@ -19,26 +19,20 @@ class Database:
         query += ") VALUES (" + val_refs + ")"
         cursor.execute(query, vals)
 
-    def __select(self, cursor, col, tb, wh):
+    # The wh_left must contain the %s, in order to use this with LIKE
+    def __select(self, cursor, col, tb, wh_left, wh_right):
         query = "SELECT " + col + " FROM " + tb[0]
 
         rem_tbs = tb[1:]
         for t in rem_tbs:
             query += "," + t
 
-        query += " WHERE "
+        query += " WHERE"
 
-        eq_pos = 0
-        wh_len = len(wh)
-        for i in range(wh_len):
-            query += "%s "
+        for el in wh_left:
+            query += " " + el
 
-            if(eq_pos == 0):
-                query += "= "
-
-            eq_pos = (eq_pos + 1) % 3
-
-        cursor.execute(query, wh)
+        cursor.execute(query, wh_right)
 
     def __create_random_str(self, length):
         class_random = Crypto.Random.random.StrongRandom()
@@ -81,13 +75,13 @@ class Database:
     def login(self, username, password):
         cursor = self.conn.cursor()
 
-        self.__select(cursor, "*", ("Users"), ["Username", username])
+        self.__select(cursor, "Password", ["Users"], ["Username = %s"], [username])
         if cursor.rowcount == 0:
             cursor.close()
             return create_error_json(error_username_doesnt_exist)
 
-        self.__select(cursor, "*", ("Users"), ["Username", username, "AND", "Password", password])
-        if cursor.rowcount == 0:
+        q_res = cursor.fetchone()
+        if q_res == password:
             cursor.close()
             return create_error_json(error_password_wrong)
 
@@ -97,11 +91,22 @@ class Database:
         self.conn.commit()
         return create_json(["session_id"], [id])
 
-    def request_locations(self, session_id, startswith, range):
+    def request_locations(self, session_id, startswith):
         cursor = self.conn.cursor()
 
-        self.__select(cursor, "Username", ("Sessions"), ["SessionID", session_id])
-        username = str(cursor.fetchone())
+        self.__select(cursor, "*", ["Sessions"], ["SessionID = %s"], [session_id])
+        if cursor.rowcount == 0:
+            cursor.close()
+            return create_error_json(error_session_not_found)
+
+        self.__select(cursor, "Name", ["Locations"], ["Name LIKE %s"], ["%" + startswith + "%"])
+        all_locs = []
+        if(cursor.rowcount != 0):
+            all_locs = [item[0] for item in cursor.fetchall()]
+
+        cursor.close()
+        self.conn.commit()
+        return create_json(["locations"], [all_locs])
 
     def close(self):
         self.conn.close()

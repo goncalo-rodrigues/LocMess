@@ -5,6 +5,7 @@ error_username_exists = "alreadyExists"#"The given username already exists."
 error_username_doesnt_exist = "wrongCredentials"#"The given username does not exist."
 error_password_wrong = "wrongCredentials"#"The given password is not correct."
 error_keys_not_in_json = "The desired keys are not in the received json."
+error_session_not_found = "The given session was not found."
 
 
 def create_json(keys, vals):
