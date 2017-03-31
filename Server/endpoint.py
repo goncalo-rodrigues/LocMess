@@ -75,7 +75,6 @@ def send_locations():
     return create_error_json(error_method_not_implemented)
 
 
-# TODO
 @app.route("/create_location", methods=['POST'])
 def create_location():
     req = request.get_json()
@@ -83,7 +82,13 @@ def create_location():
     print("IN: " + str(req) + "\n")
     sys.stdout.flush()
 
-    return create_error_json(error_method_not_implemented)
+    if "session_id" in req and "name" in req:
+        if "gps" in req:
+            return db.create_gps_location(req["session_id"], req["name"], req["gps"])
+        elif "ssids" in req:
+            return db.create_ssids_location(req["session_id"], req["name"], req["ssids"])
+
+    return create_error_json(error_keys_not_in_json)
 
 
 # TODO
@@ -174,5 +179,8 @@ db.close()
 # signup_res = loads(db.signup("a", "a"))
 # print "\n" + str(signup_res) + "\n"
 # print "\n" + str(db.request_locations(signup_res["session_id"], "do")) + "\n"
+#
 # print "\n" + str(db.logout(signup_res["session_id"])) + "\n"
+
+# TODO: Test the creation of both coordinate types.
 

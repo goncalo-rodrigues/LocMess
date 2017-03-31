@@ -129,5 +129,45 @@ class Database:
         self.conn.commit()
         return create_json(["locations"], [all_locs])
 
+    def create_gps_location(self, session_id, name, gps):
+        cursor = self.conn.cursor()
+
+        self.__select(cursor, "*", ["Sessions"], ["SessionID = %s"], [session_id])
+        if cursor.rowcount == 0:
+            cursor.close()
+            return create_error_json(error_session_not_found)
+
+        try:
+            self.__insert(cursor, "Locations", ["Name"], [name])
+            self.__insert(cursor, "GPS", ["Location", "Latitude", "Longitude", "Radius"],
+                          [name, gps["lat"], gps["long"], gps["radius"]])
+        except MySQLdb.Error:
+            cursor.close()
+            return create_error_json(error_location_exists)
+
+        cursor.close()
+        self.conn.commit()
+        return create_json(["resp"], ["ok"])
+
+    def create_ssids_location(self, session_id, name, ssids):
+        cursor = self.conn.cursor()
+
+        self.__select(cursor, "*", ["Sessions"], ["SessionID = %s"], [session_id])
+        if cursor.rowcount == 0:
+            cursor.close()
+            return create_error_json(error_session_not_found)
+
+        try:
+            self.__insert(cursor, "Locations", ["Name"], [name])
+            for el in ssids:
+                self.__insert(cursor, "WifiIDs", ["Location", "WifiID"], [name, el])
+        except MySQLdb.Error:
+            cursor.close()
+            return create_error_json(error_location_exists)
+
+        cursor.close()
+        self.conn.commit()
+        return create_json(["resp"], ["ok"])
+
     def close(self):
         self.conn.close()
