@@ -170,17 +170,19 @@ t = threading.Thread(target=start_server)
 t.daemon = True
 t.start()
 
-print("Press any key to stop the server.\n")
+print("Press <enter> to stop the server.\n")
 sys.stdout.flush()
 raw_input()
 db.close()
 
 # FIXME: Debug stuff
-# signup_res = loads(db.signup("a", "a"))
-# print "\n" + str(signup_res) + "\n"
-# print "\n" + str(db.request_locations(signup_res["session_id"], "do")) + "\n"
+# search_for = "barc"
+# signup_res = loads(db.login("a", "a"))
+# print "Session ID: " + str(signup_res)
+# print "Created GPS: " + str(db.create_gps_location(signup_res["session_id"], "Barco", {"lat": 12, "long": 13, "radius": 14}))
+# print "Created WifiIDs: " + str(db.create_ssids_location(signup_res["session_id"], "Barca", ["eduroam", "h3", "bananas"]))
+# print "Requested locations result for " + search_for + ": " + str(db.request_locations(signup_res["session_id"], search_for))
 #
-# print "\n" + str(db.logout(signup_res["session_id"])) + "\n"
-
-# TODO: Test the creation of both coordinate types.
-
+# # TODO: Put here the new created methods
+#
+# print "Logout result: " + str(db.logout(signup_res["session_id"]))
