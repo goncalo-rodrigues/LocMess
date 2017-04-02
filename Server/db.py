@@ -244,5 +244,25 @@ class Database:
 
         return create_json(["filters"], [result])
 
+    def remove_filter(self, session_id, filter):
+        cursor = self.conn.cursor()
+        key = filter["key"]
+        val = filter["value"]
+
+        self.__select(cursor, "Username", ["Sessions"], ["SessionID = %s"], [session_id])
+        if cursor.rowcount == 0:
+            cursor.close()
+            return create_error_json(error_session_not_found)
+
+        self.__select(cursor, "*", ["Filters"], ["FilterKey = %s AND FilterValue = %s"], [key, val])
+        if cursor.rowcount == 0:
+            cursor.close()
+            return create_error_json(error_filter_not_found)
+
+        self.__delete(cursor, "Filters", ["FilterKey = %s AND FilterValue = %s"], [key, val])
+        cursor.close()
+        self.conn.commit()
+        return create_json(["resp"], ["ok"])
+
     def close(self):
         self.conn.close()

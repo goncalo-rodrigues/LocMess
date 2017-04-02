@@ -130,7 +130,6 @@ def get_filters():
     return create_error_json(error_keys_not_in_json)
 
 
-# TODO
 @app.route("/remove_filter", methods=['POST'])
 def remove_filter():
     req = request.get_json()
@@ -138,7 +137,10 @@ def remove_filter():
     print("IN: " + str(req) + "\n")
     sys.stdout.flush()
 
-    return create_error_json(error_method_not_implemented)
+    if "session_id" in req and "filter" in req and "key" in req["filter"] and "value" in req["filter"]:
+        return db.remove_filters(req["session_id"], req["filter"])
+
+    return create_error_json(error_keys_not_in_json)
 
 
 # TODO
@@ -200,6 +202,7 @@ db.close()
 # print "Filter creation result: " + str(db.set_my_filter(signup_res["session_id"], {"key": "TestKey", "value": "TestValue"}))
 # print "Second filter creation result: " + str(db.set_my_filter(signup_res2["session_id"], {"key": "TestKey", "value": "TestValue"}))
 # print "Getting filters: " + str(db.get_filters(signup_res["session_id"]))
+# print "Filter removal result: " + str(db.remove_filter(signup_res["session_id"], {"key": "TestKey", "value": "TestValue"}))
 # print "\n======================================\n"
 #
 # # Ends the test

@@ -10,6 +10,7 @@ error_location_exists = "The provided location already exists."
 error_location_not_found = "The provided location was not found."
 error_method_not_implemented = "This is not implemented."
 error_cannot_assign_filter = "The given filter cannot be assigned to the given user."
+error_filter_not_found = "The provided key-value pair was not found."
 
 
 def create_json(keys, vals):
