@@ -138,7 +138,7 @@ def remove_filter():
     sys.stdout.flush()
 
     if "session_id" in req and "filter" in req and "key" in req["filter"] and "value" in req["filter"]:
-        return db.remove_filters(req["session_id"], req["filter"])
+        return db.remove_filter(req["session_id"], req["filter"])
 
     return create_error_json(error_keys_not_in_json)
 
