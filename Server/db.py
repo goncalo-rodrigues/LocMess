@@ -169,5 +169,23 @@ class Database:
         self.conn.commit()
         return create_json(["resp"], ["ok"])
 
+    def remove_location(self, session_id, name):
+        cursor = self.conn.cursor()
+
+        self.__select(cursor, "*", ["Sessions"], ["SessionID = %s"], [session_id])
+        if cursor.rowcount == 0:
+            cursor.close()
+            return create_error_json(error_session_not_found)
+
+        self.__select(cursor, "*", ["Locations"], ["Name = %s"], [name])
+        if cursor.rowcount == 0:
+            cursor.close()
+            return create_error_json(error_location_not_found)
+
+        self.__delete(cursor, "Locations", ["Name = %s"], [name])
+        cursor.close()
+        self.conn.commit()
+        return create_json(["resp"], ["ok"])
+
     def close(self):
         self.conn.close()

@@ -91,7 +91,6 @@ def create_location():
     return create_error_json(error_keys_not_in_json)
 
 
-# TODO
 @app.route("/remove_location", methods=['POST'])
 def remove_location():
     req = request.get_json()
@@ -99,7 +98,10 @@ def remove_location():
     print("IN: " + str(req) + "\n")
     sys.stdout.flush()
 
-    return create_error_json(error_method_not_implemented)
+    if "session_id" in req and "name" in req:
+        return db.remove_location(req["session_id"], req["name"])
+
+    return create_error_json(error_keys_not_in_json)
 
 
 # TODO
@@ -162,27 +164,28 @@ def start_server():
 
 
 # Updates the DNS resolution to the current public ip
-my_ip = load(urlopen('http://jsonip.com'))['ip']
-urlopen("https://www.duckdns.org/update?domains=locmess&token=f0eccba8-8678-4968-b828-21808fdd1462&ip=" + my_ip)
-
-# Runs the server on a new thread
-t = threading.Thread(target=start_server)
-t.daemon = True
-t.start()
-
-print("Press <enter> to stop the server.\n")
-sys.stdout.flush()
-raw_input()
-db.close()
+# my_ip = load(urlopen('http://jsonip.com'))['ip']
+# urlopen("https://www.duckdns.org/update?domains=locmess&token=f0eccba8-8678-4968-b828-21808fdd1462&ip=" + my_ip)
+#
+# # Runs the server on a new thread
+# t = threading.Thread(target=start_server)
+# t.daemon = True
+# t.start()
+#
+# print("Press <enter> to stop the server.\n")
+# sys.stdout.flush()
+# raw_input()
+# db.close()
 
 # FIXME: Debug stuff
-# search_for = "barc"
-# signup_res = loads(db.login("a", "a"))
-# print "Session ID: " + str(signup_res)
-# print "Created GPS: " + str(db.create_gps_location(signup_res["session_id"], "Barco", {"lat": 12, "long": 13, "radius": 14}))
-# print "Created WifiIDs: " + str(db.create_ssids_location(signup_res["session_id"], "Barca", ["eduroam", "h3", "bananas"]))
-# print "Requested locations result for " + search_for + ": " + str(db.request_locations(signup_res["session_id"], search_for))
-#
-# # TODO: Put here the new created methods
-#
-# print "Logout result: " + str(db.logout(signup_res["session_id"]))
+search_for = "barc"
+signup_res = loads(db.login("a", "a"))
+print "Session ID: " + str(signup_res)
+print "Created GPS: " + str(db.create_gps_location(signup_res["session_id"], "Barco", {"lat": 12, "long": 13, "radius": 14}))
+print "Created WifiIDs: " + str(db.create_ssids_location(signup_res["session_id"], "Barca", ["eduroam", "h3", "bananas"]))
+print "Requested locations result for " + search_for + ": " + str(db.request_locations(signup_res["session_id"], search_for))
+print "Deletion result: " + str(db.remove_location(signup_res["session_id"], "Barca"))
+
+# TODO: Put here the new created methods
+
+print "Logout result: " + str(db.logout(signup_res["session_id"]))
