@@ -117,7 +117,6 @@ def set_my_filter():
     return create_error_json(error_keys_not_in_json)
 
 
-# TODO: Diogo changed the method interface (check on GitHub)
 @app.route("/get_filters", methods=['POST'])
 def get_filters():
     req = request.get_json()
@@ -125,7 +124,10 @@ def get_filters():
     print("IN: " + str(req) + "\n")
     sys.stdout.flush()
 
-    return create_error_json(error_method_not_implemented)
+    if "session_id" in req:
+        return db.get_filters(req["session_id"])
+
+    return create_error_json(error_keys_not_in_json)
 
 
 # TODO
@@ -197,6 +199,7 @@ db.close()
 # # Filters tests
 # print "Filter creation result: " + str(db.set_my_filter(signup_res["session_id"], {"key": "TestKey", "value": "TestValue"}))
 # print "Second filter creation result: " + str(db.set_my_filter(signup_res2["session_id"], {"key": "TestKey", "value": "TestValue"}))
+# print "Getting filters: " + str(db.get_filters(signup_res["session_id"]))
 # print "\n======================================\n"
 #
 # # Ends the test
