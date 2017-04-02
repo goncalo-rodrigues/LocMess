@@ -187,5 +187,40 @@ class Database:
         self.conn.commit()
         return create_json(["resp"], ["ok"])
 
+    def set_my_filter(self, session_id, filter):
+        cursor = self.conn.cursor()
+        key = filter["key"]
+        val = filter["value"]
+
+        self.__select(cursor, "Username", ["Sessions"], ["SessionID = %s"], [session_id])
+        if cursor.rowcount == 0:
+            cursor.close()
+            return create_error_json(error_session_not_found)
+
+        user = cursor.fetchone()
+
+        self.__select(cursor, "FilterID", ["Filters"], ["FilterKey = %s AND FilterValue = %s"], [key, val])
+
+        # There is no filter with this specification
+        if cursor.rowcount == 0:
+            try:
+                self.__insert(cursor, "Filters", ["FilterKey", "FilterValue"], [key, val])
+            except MySQLdb.Error:
+                print "Ignoring error when creating filter..."
+
+            self.__select(cursor, "FilterID", ["Filters"], ["FilterKey = %s AND FilterValue = %s"], [key, val])
+
+        filter_id = cursor.fetchone()
+
+        try:
+            self.__insert(cursor, "UserFilters", ["Username", "FilterID"], [user, filter_id])
+        except MySQLdb.Error:
+            cursor.close()
+            return create_error_json(error_cannot_assign_filter)
+
+        cursor.close()
+        self.conn.commit()
+        return create_json(["resp"], ["ok"])
+
     def close(self):
         self.conn.close()
