@@ -9,4 +9,6 @@ ip=$1
 
 ssh -l "pi" $ip "mkdir locmess"
 scp *.py "pi@$ip:./locmess"
-ssh -l "pi" $ip "cd locmess; chmod 777 *.py; rm server.log; sudo ./endpoint.py > >(tee -a server.log) 2> >(tee -a server.log >&2)"
+tm=$(date +"%y-%m-%d_%H:%M:%S")
+log="server$tm.log"
+ssh -l "pi" $ip "cd locmess; chmod 777 *.py; sudo ./endpoint.py > >(tee -a $log) 2> >(tee -a $log >&2)"
