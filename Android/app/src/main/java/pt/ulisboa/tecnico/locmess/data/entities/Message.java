@@ -13,7 +13,7 @@ import pt.ulisboa.tecnico.locmess.data.LocmessContract;
 
 public abstract class Message {
 
-    private int id;
+    private String id;
     private String messageText;
     private String author;
     private String location;
@@ -28,16 +28,16 @@ public abstract class Message {
         int stdate_idx = cursor.getColumnIndexOrThrow(LocmessContract.MessageTable.COLUMN_NAME_STARTDATE);
         int enddate_idx = cursor.getColumnIndexOrThrow(LocmessContract.MessageTable.COLUMN_NAME_ENDDATE);
 
-        init(cursor.getInt(id_idx), cursor.getString(txt_idx), cursor.getString(author_idx), cursor.getString(location_idx)
+        init(cursor.getString(id_idx), cursor.getString(txt_idx), cursor.getString(author_idx), cursor.getString(location_idx)
                 , new Date(cursor.getString(stdate_idx)), new Date(cursor.getString(enddate_idx)));
     }
 
 
-    public Message(int id, String messageText, String author, String location, Date startDate, Date endDate) {
+    public Message(String id, String messageText, String author, String location, Date startDate, Date endDate) {
         init(id,  messageText, author, location, startDate, endDate);
     }
 
-    private void init(int id, String messageText, String author, String location, Date startDate, Date endDate) {
+    private void init(String id, String messageText, String author, String location, Date startDate, Date endDate) {
         this.id = id;
         this.messageText = messageText;
         this.author = author;
@@ -46,11 +46,11 @@ public abstract class Message {
         this.endDate = endDate;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

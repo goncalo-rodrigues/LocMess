@@ -13,12 +13,12 @@ import pt.ulisboa.tecnico.locmess.data.LocmessDbHelper;
  */
 
 public class MuleMessageFilter {
-    private int messageId;
+    private String messageId;
     private String key;
     private String value;
     private boolean blackList;
 
-    public MuleMessageFilter(int messageId, String key, String value, boolean blackList) {
+    public MuleMessageFilter(String messageId, String key, String value, boolean blackList) {
         init(messageId, key, value, blackList);
     }
 
@@ -27,21 +27,21 @@ public class MuleMessageFilter {
         int key_idx = cursor.getColumnIndexOrThrow(LocmessContract.MessageFilter.COLUMN_NAME_KEY);
         int val_idx = cursor.getColumnIndexOrThrow(LocmessContract.MessageFilter.COLUMN_NAME_VALUE);
         int black_idx = cursor.getColumnIndexOrThrow(LocmessContract.MessageFilter.COLUMN_NAME_BLACKLISTED);
-        init(cursor.getInt(id_idx), cursor.getString(key_idx), cursor.getString(val_idx), cursor.getInt(black_idx) > 0);
+        init(cursor.getString(id_idx), cursor.getString(key_idx), cursor.getString(val_idx), cursor.getInt(black_idx) > 0);
     }
 
-    private void init(int messageId, String key, String value, boolean blackList) {
+    private void init(String messageId, String key, String value, boolean blackList) {
         this.messageId = messageId;
         this.key = key;
         this.value = value;
         this.blackList = blackList;
     }
 
-    public int getMessageId() {
+    public String getMessageId() {
         return messageId;
     }
 
-    public void setMessageId(int messageId) {
+    public void setMessageId(String messageId) {
         this.messageId = messageId;
     }
 

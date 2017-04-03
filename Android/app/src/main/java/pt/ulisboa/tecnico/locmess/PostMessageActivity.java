@@ -312,7 +312,7 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
             case R.id.action_send:
                 Toast.makeText(this, "Pressed message send message!",Toast.LENGTH_LONG).show();
                 //TODO request id to the server and get author from global variables
-                int id =(int) (random()*221313161);
+                String id = String.valueOf((int) (random()*221313161));
                 //id = send request to server
 
                 if(mAdOcRadio.isActivated()){
