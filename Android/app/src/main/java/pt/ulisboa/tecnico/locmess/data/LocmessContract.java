@@ -61,7 +61,7 @@ public final class LocmessContract {
 
     public static final String SQL_CREATE_1 =
             "CREATE TABLE " + MessageTable.TABLE_NAME + " (" +
-                    MessageTable.COLUMN_NAME_ID + " INTEGER PRIMARY KEY," +
+                    MessageTable.COLUMN_NAME_ID + " TEXT PRIMARY KEY," +
                     MessageTable.COLUMN_NAME_CONTENT + " TEXT," +
                     MessageTable.COLUMN_NAME_AUTHOR + " TEXT," +
                     MessageTable.COLUMN_NAME_LOCATION + " TEXT," +
@@ -69,7 +69,7 @@ public final class LocmessContract {
                     MessageTable.COLUMN_NAME_ENDDATE + " TEXT); ";
     public static final String SQL_CREATE_2 =
     "CREATE TABLE " + CreatedMessageTable.TABLE_NAME + " (" +
-                    CreatedMessageTable.COLUMN_NAME_ID + " INTEGER PRIMARY KEY," +
+                    CreatedMessageTable.COLUMN_NAME_ID + " TEXT PRIMARY KEY," +
                     CreatedMessageTable.COLUMN_NAME_CONTENT + " TEXT," +
                     CreatedMessageTable.COLUMN_NAME_AUTHOR + " TEXT," +
                     CreatedMessageTable.COLUMN_NAME_LOCATION + " TEXT," +
@@ -77,7 +77,7 @@ public final class LocmessContract {
                     CreatedMessageTable.COLUMN_NAME_ENDDATE + " TEXT);";
     public static final String SQL_CREATE_3 =
             "CREATE TABLE " + MuleMessageTable.TABLE_NAME + " (" +
-                    MuleMessageTable.COLUMN_NAME_ID + " INTEGER PRIMARY KEY," +
+                    MuleMessageTable.COLUMN_NAME_ID + " TEXT PRIMARY KEY," +
                     MuleMessageTable.COLUMN_NAME_CONTENT + " TEXT," +
                     MuleMessageTable.COLUMN_NAME_AUTHOR + " TEXT," +
                     MuleMessageTable.COLUMN_NAME_LOCATION + " TEXT," +
@@ -86,7 +86,7 @@ public final class LocmessContract {
                     MuleMessageTable.COLUMN_NAME_HOPS + " INTEGER);";
     public static final String SQL_CREATE_4 =
             "CREATE TABLE " + MessageFilter.TABLE_NAME + " (" +
-                    MessageFilter.COLUMN_NAME_MESSAGEID + " INTEGER," +
+                    MessageFilter.COLUMN_NAME_MESSAGEID + " TEXT," +
                     MessageFilter.COLUMN_NAME_KEY + " TEXT," +
                     MessageFilter.COLUMN_NAME_VALUE  + " TEXT," +
                     MessageFilter.COLUMN_NAME_BLACKLISTED + " BOOLEAN," +

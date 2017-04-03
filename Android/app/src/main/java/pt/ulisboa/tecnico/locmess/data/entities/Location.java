@@ -49,7 +49,7 @@ public class Location {
         SQLiteDatabase db = helper.getWritableDatabase();
         db.delete(LocmessContract.LocationTable.TABLE_NAME,
                 LocmessContract.LocationTable.COLUMN_NAME_LOCATION + " = ?",
-                new String[] {String.valueOf(getLocation())});
+                new String[] {getLocation()});
         db.close();
     }
 }
