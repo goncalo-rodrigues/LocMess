@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.locmess;
 
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -22,6 +23,8 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 import pt.ulisboa.tecnico.locmess.adapters.DrawerListAdapter;
+import pt.ulisboa.tecnico.locmess.data.LocmessContract;
+import pt.ulisboa.tecnico.locmess.data.LocmessDbHelper;
 import pt.ulisboa.tecnico.locmess.serverrequests.LogoutTask;
 
 import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
@@ -133,7 +136,7 @@ public abstract class ActivityWithDrawer extends AppCompatActivity implements Dr
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.left_drawer_logout_ll:
-                logout();
+                new LogoutTask(this,this).execute();
                 break;
             default:
                 Log.w(LOG_TAG, "On click event not yet implemented for this view.");
@@ -141,33 +144,49 @@ public abstract class ActivityWithDrawer extends AppCompatActivity implements Dr
         }
     }
 
-    public void logout() {
-        //TODO check what else is needed
-        new LogoutTask(this,this).execute();
-
-    }
 
     @Override
     public void logoutComplete(){
+        Toast.makeText(this, "logout Completed", Toast.LENGTH_LONG).show();
         logoutClear();
     }
 
     @Override
     public void logoutErrorResponse(){
+        Toast.makeText(this, "logout Error Response", Toast.LENGTH_LONG).show();
         logoutClear();
     }
 
     @Override
     public void OnNoInternetConnection(){
+        Toast.makeText(this, "logout No Internet Connection", Toast.LENGTH_LONG).show();
         logoutClear();
     }
 
     private void logoutClear(){
+        clearDatabase();
         Intent intent;
         intent = new Intent(this, InitActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();
+
+    }
+
+    private void clearDatabase(){
+        LocmessDbHelper helper = new LocmessDbHelper(this);
+        SQLiteDatabase db = helper.getWritableDatabase();
+        db.execSQL(LocmessContract.SQL_DELETE_1);
+        db.execSQL(LocmessContract.SQL_DELETE_2);
+        db.execSQL(LocmessContract.SQL_DELETE_3);
+        db.execSQL(LocmessContract.SQL_DELETE_5);
+        db.execSQL(LocmessContract.SQL_DELETE_6);
+
+        db.execSQL(LocmessContract.SQL_CREATE_1);
+        db.execSQL(LocmessContract.SQL_CREATE_2);
+        db.execSQL(LocmessContract.SQL_CREATE_4);
+        db.execSQL(LocmessContract.SQL_CREATE_5);
+        db.execSQL(LocmessContract.SQL_CREATE_6);
 
     }
 
