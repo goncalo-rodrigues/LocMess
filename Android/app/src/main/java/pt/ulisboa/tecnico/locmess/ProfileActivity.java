@@ -17,6 +17,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,8 +25,9 @@ import java.util.List;
 import pt.ulisboa.tecnico.locmess.adapters.KeyValueAdapter;
 import pt.ulisboa.tecnico.locmess.data.CustomCursorLoader;
 import pt.ulisboa.tecnico.locmess.data.entities.ProfileKeyValue;
+import pt.ulisboa.tecnico.locmess.serverrequests.RequestExistentFiltersTask;
 
-public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapter.Callback, View.OnClickListener, LoaderManager.LoaderCallbacks<Cursor> {
+public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapter.Callback, View.OnClickListener, LoaderManager.LoaderCallbacks<Cursor>,RequestExistentFiltersTask.RequestFiltersTaskCallBack {
 
     private static final String LOG_TAG = ProfileActivity.class.getSimpleName();
     private KeyValueAdapter keyValueAdapter;
@@ -50,6 +52,9 @@ public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapt
 //        keyValueList.add(new KeyValueAdapter.KeyValue("keeeey", "valueee"));
         keys.add("keeeey");
         keys.add("keeeeeeey");
+        RequestExistentFiltersTask reft = new RequestExistentFiltersTask(this,this);
+        reft.execute("");
+
 
         keyValueAdapter = new KeyValueAdapter(null, this);
 
@@ -152,4 +157,15 @@ public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapt
     }
 
 
+    @Override
+    public void OnSearchComplete(ArrayList<String> filters) {
+        keys = filters;
+
+        Toast.makeText(this, "Received filters"+filters, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void OnNoInternetConnection() {
+        Toast.makeText(this, "No internet conection", Toast.LENGTH_SHORT);
+    }
 }
