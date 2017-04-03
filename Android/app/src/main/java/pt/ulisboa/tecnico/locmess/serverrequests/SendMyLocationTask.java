@@ -150,7 +150,7 @@ public class SendMyLocationTask extends AsyncTask<Void, String,ArrayList<Receive
                 end_date = new Date(message.getLong("end_date"));
                 content = message.getString("content");
                 //TODO decoment when db ready
-                // result.add(new ReceivedMessage(id, content, username, location, start_date, end_date));
+                result.add(new ReceivedMessage(id, content, username, location, start_date, end_date));
             }
 
         return result;
