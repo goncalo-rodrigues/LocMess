@@ -11,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
+import pt.ulisboa.tecnico.locmess.serverrequests.LogoutTask;
 import pt.ulisboa.tecnico.locmess.serverrequests.RegisterTask;
 
 import static pt.ulisboa.tecnico.locmess.R.layout.activity_signup;
@@ -19,7 +20,7 @@ import static pt.ulisboa.tecnico.locmess.R.layout.activity_signup;
  * Created by nca on 19-03-2017.
  */
 
-public class SignupActivity extends AppCompatActivity implements RegisterTask.RegisteTaskCallBack ,View.OnClickListener{
+public class SignupActivity extends AppCompatActivity implements RegisterTask.RegisteTaskCallBack ,View.OnClickListener, LogoutTask.LogoutCallBack {
     EditText usernameEt;
     EditText passwordEt;
     EditText retryEt;
@@ -63,7 +64,7 @@ public class SignupActivity extends AppCompatActivity implements RegisterTask.Re
     }
 
     @Override
-    public void OnNoInternetConnection(String error){
+    public void OnNoInternetConnection(){
         waitingBallPb.setVisibility(View.GONE);
         registerBt.setVisibility(View.VISIBLE);
         errorViewTv.setText(getString(R.string.no_internet));
@@ -99,11 +100,30 @@ public class SignupActivity extends AppCompatActivity implements RegisterTask.Re
                 registerBt.setVisibility(View.GONE);
                 waitingBallPb.setVisibility(View.VISIBLE);
 
-                Toast.makeText(this, getString(R.string.waiting_for_server), Toast.LENGTH_SHORT).show();
-                new RegisterTask(this,this).execute(username,password);
+                NetworkGlobalState globalState = (NetworkGlobalState) this.getApplicationContext();
+                if(globalState.getId()!=null && globalState.getUsername()==null)
+                    new LogoutTask(this,this).execute();
+
+                else
+                    new RegisterTask(this,this).execute(username,password);
                 break;
             default:
                 break;
         }
     }
+
+    @Override
+    public void logoutComplete() {
+        String username =usernameEt.getText().toString();
+        String password = passwordEt.getText().toString();
+        new RegisterTask(this,this).execute(username,password);
+    }
+
+    @Override
+    public void logoutErrorResponse() {
+        waitingBallPb.setVisibility(View.GONE);
+        registerBt.setVisibility(View.VISIBLE);
+        errorViewTv.setText(getString(R.string.no_internet));
+    }
+
 }

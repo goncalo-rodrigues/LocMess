@@ -46,59 +46,34 @@ public class RegisterTask extends AsyncTask<String, String,String> {
         try {
             jsoninputs.put("username", username);
             jsoninputs.put("password", password);
-        } catch (JSONException e) {
-            e.printStackTrace();}//TODO make someting
 
         //open the conection to the server and send
         URL url= null;
-        try {
-            url = new URL(URL_SERVER);
+
             url = new URL(URL_SERVER+"/signup");
-        } catch (MalformedURLException e) { e.printStackTrace(); }
 
-        try{
-            HttpURLConnection urlConnection=null;
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("POST");
-            urlConnection.setConnectTimeout(10000);
-            urlConnection.setReadTimeout(10000);
-            urlConnection.setRequestProperty("Content-Type","application/json");
-            urlConnection.connect();
+            response=makeHTTPResquest(url,jsoninputs);
 
-            OutputStreamWriter   out = new   OutputStreamWriter(urlConnection.getOutputStream());
-            out.write(jsoninputs.toString());
-            out.flush();
-            out.close();
-
-
-            BufferedReader buffer = new BufferedReader( new InputStreamReader(urlConnection.getInputStream(),"utf-8"));
-            String line ="";
-            while((line=buffer.readLine())!=null){
-                response+=line;// +"\n";
-            }
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "conetionError";
-        }
-
-
-        //TODO tAKE THE RESPONSE, EXTRACT THE JSON, GET ID OR ERROR
-        try {
             JSONObject data = new JSONObject(response);
-            id=data.getString("session_id");
-            if(id==null||id.length()==0)
-                return "conetionError";
-            if(id.equals("error")){
-                String error = data.getString("error");
-                return error;
+
+            if (data.opt("error") != null) {
+                return  data.getString("error");
             }
+
+            if (data.opt("session_id") == null)
+                return "conetionError";
+
+            id=data.getString("session_id");
+
             globalState.setUsername(username);
             globalState.setId(id);
             return id;
 
-        }catch (JSONException e) {e.printStackTrace(); }
+        }catch (JSONException e) {e.printStackTrace();
+        }catch (IOException e) {
+            e.printStackTrace();
+            return "conetionError";
+        }
 
 
         response = "|"+response+"|";
@@ -109,7 +84,7 @@ public class RegisterTask extends AsyncTask<String, String,String> {
     @Override
     protected void onPostExecute(String result) {
         if (result.equals("conetionError"))
-            callback.OnNoInternetConnection(result);
+            callback.OnNoInternetConnection();
         else if(result.equals("alreadyExists"))
             callback.OnUserAlreadyExists(result);
         else
@@ -122,6 +97,29 @@ public class RegisterTask extends AsyncTask<String, String,String> {
     public interface RegisteTaskCallBack{
         void OnRegisterComplete(String id);
         void OnUserAlreadyExists(String error);
-        void OnNoInternetConnection(String error);
+        void OnNoInternetConnection();
+    }
+
+    protected String makeHTTPResquest(URL url,JSONObject jsoninputs) throws IOException {
+        HttpURLConnection urlConnection= (HttpURLConnection) url.openConnection();
+        urlConnection.setRequestMethod("POST");
+        urlConnection.setRequestProperty("Content-Type","application/json");
+        urlConnection.setConnectTimeout(10000);
+        urlConnection.setReadTimeout(10000);
+        urlConnection.connect();
+
+        OutputStreamWriter   out = new   OutputStreamWriter(urlConnection.getOutputStream());
+        out.write(jsoninputs.toString());
+        out.flush();
+        out.close();
+
+        BufferedReader buffer = new BufferedReader( new InputStreamReader(urlConnection.getInputStream(),"utf-8"));
+        String result ="";
+        String line ;
+        while((line=buffer.readLine())!=null) {
+            result += line;// +"\n";
+        }
+
+        return result;
     }
 }

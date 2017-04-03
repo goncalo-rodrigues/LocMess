@@ -10,7 +10,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 import pt.ulisboa.tecnico.locmess.serverrequests.LoginTask;
+import pt.ulisboa.tecnico.locmess.serverrequests.LogoutTask;
 
 import static pt.ulisboa.tecnico.locmess.R.layout.activity_login;
 
@@ -18,7 +20,7 @@ import static pt.ulisboa.tecnico.locmess.R.layout.activity_login;
  * Created by nca on 19-03-2017.
  */
 
-public class LoginActivity extends AppCompatActivity implements LoginTask.LoginTaskCallBack ,View.OnClickListener{
+public class LoginActivity extends AppCompatActivity implements LoginTask.LoginTaskCallBack ,View.OnClickListener, LogoutTask.LogoutCallBack {
     EditText usernameEt;
     EditText passwordEt;
     Button loginBt;
@@ -66,7 +68,7 @@ public class LoginActivity extends AppCompatActivity implements LoginTask.LoginT
     }
 
     @Override
-    public void OnNoInternetConnection(String error){
+    public void OnNoInternetConnection(){
         loginResquested = false;
         waitingBallPb.setVisibility(View.GONE);
         loginBt.setVisibility(View.VISIBLE);
@@ -78,7 +80,6 @@ public class LoginActivity extends AppCompatActivity implements LoginTask.LoginT
         //TODO use the real input
         switch (v.getId()) {
             case R.id.button:
-
 
                 errorViewTv.setText("");
 
@@ -96,13 +97,34 @@ public class LoginActivity extends AppCompatActivity implements LoginTask.LoginT
                 loginResquested = true;
                 loginBt.setVisibility(View.GONE);
                 waitingBallPb.setVisibility(View.VISIBLE);
-                Toast.makeText(this, getString(R.string.waiting_for_server), Toast.LENGTH_LONG).show();
-                new LoginTask(this,this).execute(username,password);
+
+                NetworkGlobalState globalState = (NetworkGlobalState) this.getApplicationContext();
+                if(globalState.getId()!=null && globalState.getUsername()==null)
+                    new LogoutTask(this,this).execute();
+
+                else
+                    new LoginTask(this,this).execute(username,password);
+
                 break;
             default:
                 break;
         }
     }
 
+
+    @Override
+    public void logoutComplete() {
+        String username =usernameEt.getText().toString();
+        String password = passwordEt.getText().toString();
+        new LoginTask(this,this).execute(username,password);
+    }
+
+    @Override
+    public void logoutErrorResponse() {
+        loginResquested = false;
+        waitingBallPb.setVisibility(View.GONE);
+        loginBt.setVisibility(View.VISIBLE);
+        errorViewTv.setText(getString(R.string.no_internet));
+    }
 
 }

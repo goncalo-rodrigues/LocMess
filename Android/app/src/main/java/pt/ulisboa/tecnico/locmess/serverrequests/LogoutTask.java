@@ -90,15 +90,20 @@ public class LogoutTask extends AsyncTask<Void, String, String>{
 
     @Override
     protected void onPostExecute(String result) {
-        if (result.equals("nok"))
+        globalState.setUsername(null);
+
+        if (result.equals("nok")) {
             callback.logoutErrorResponse();
-
-        else if (result.equals("conetionError"))
+        }
+        else if (result.equals("conetionError")) {
             callback.OnNoInternetConnection();
+        }
 
-        else
+        else {
+            globalState.setCommunication_Key(null);
+            globalState.setId(null);
             callback.logoutComplete();
-
+        }
         super.onPostExecute(result);
     }
 

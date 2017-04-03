@@ -11,7 +11,7 @@ import android.app.Application;
 import javax.crypto.SecretKey;
 
 public class NetworkGlobalState extends Application{
-    private String id;
+    private String id ;
     private SecretKey communication_Key;
     private String username;
 
@@ -22,7 +22,6 @@ public class NetworkGlobalState extends Application{
     public void setCommunication_Key(SecretKey communication_Key) {
         this.communication_Key = communication_Key;
     }
-
 
     public String getId() {
         return id;

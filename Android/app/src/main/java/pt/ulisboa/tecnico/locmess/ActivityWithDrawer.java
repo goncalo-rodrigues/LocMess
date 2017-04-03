@@ -22,6 +22,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 import pt.ulisboa.tecnico.locmess.adapters.DrawerListAdapter;
+import pt.ulisboa.tecnico.locmess.serverrequests.LogoutTask;
 
 import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
 
@@ -29,7 +30,8 @@ import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
  * Created by root on 14-03-2017.
  */
 
-public abstract class ActivityWithDrawer extends AppCompatActivity implements DrawerListAdapter.Callback, View.OnClickListener{
+public abstract class ActivityWithDrawer extends AppCompatActivity implements DrawerListAdapter.Callback, View.OnClickListener,
+        LogoutTask.LogoutCallBack {
 
 
     private static final String LOG_TAG = ActivityWithDrawer.class.getSimpleName();
@@ -129,14 +131,9 @@ public abstract class ActivityWithDrawer extends AppCompatActivity implements Dr
 
     @Override
     public void onClick(View v) {
-        Intent intent;
         switch (v.getId()) {
             case R.id.left_drawer_logout_ll:
                 logout();
-                intent = new Intent(this, InitActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-                finish();
                 break;
             default:
                 Log.w(LOG_TAG, "On click event not yet implemented for this view.");
@@ -145,6 +142,32 @@ public abstract class ActivityWithDrawer extends AppCompatActivity implements Dr
     }
 
     public void logout() {
+        //TODO check what else is needed
+        new LogoutTask(this,this).execute();
+
+    }
+
+    @Override
+    public void logoutComplete(){
+        logoutClear();
+    }
+
+    @Override
+    public void logoutErrorResponse(){
+        logoutClear();
+    }
+
+    @Override
+    public void OnNoInternetConnection(){
+        logoutClear();
+    }
+
+    private void logoutClear(){
+        Intent intent;
+        intent = new Intent(this, InitActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
 
     }
 
