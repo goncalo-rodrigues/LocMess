@@ -1,6 +1,6 @@
 import MySQLdb
 import Crypto.Random.random
-from error_messages import *
+from json_creator import *
 
 
 class Database:
@@ -260,6 +260,80 @@ class Database:
             return create_error_json(error_filter_not_found)
 
         self.__delete(cursor, "Filters", ["FilterKey = %s AND FilterValue = %s"], [key, val])
+        cursor.close()
+        self.conn.commit()
+        return create_json(["resp"], ["ok"])
+
+    def post_message(self, session_id, msg):
+        cursor = self.conn.cursor()
+        filter_ids = []
+
+        # Extracting the fields from the message
+        msg_id = msg["id"]
+        msg_user = msg["username"]
+        msg_loc = msg["location"]
+        msg_start = msg["start_date"]
+        msg_end = msg["end_date"]
+        msg_content = msg["content"]
+        msg_filters = msg["filters"]
+
+        self.__select(cursor, "*", ["Sessions"], ["SessionID = %s AND Username = %s"], [session_id, msg_user])
+        if cursor.rowcount == 0:
+            cursor.close()
+            return create_error_json(error_session_not_found)
+
+        self.__select(cursor, "*", ["Locations"], ["Name = %s"], [msg_loc])
+        if cursor.rowcount == 0:
+            cursor.close()
+            return create_error_json(error_location_not_found)
+
+        self.__select(cursor, "*", ["Messages"], ["MessageID = %s"], [msg_id])
+        if cursor.rowcount != 0:
+            cursor.close()
+            return create_error_json(error_duplicate_msg)
+
+        for filter in msg_filters:
+            self.__select(cursor, "FilterID", ["Filters"], ["FilterKey = %s AND FilterValue = %s"], [filter["key"], filter["value"]])
+            if cursor.rowcount == 0:
+                cursor.close()
+                return create_error_json(error_filter_not_found)
+
+            # JSON supports the boolean type
+            filter_ids.append((cursor.fetchone(), 1 if filter["is_whitelist"] else 0))
+
+        try:
+            self.__insert(cursor, "Messages",
+                          ["MessageID", "Username", "Location", "StartDate", "EndDate", "Content"],
+                          [msg_id, msg_user, msg_loc, msg_start, msg_end, msg_content])
+
+            for el in filter_ids:
+                self.__insert(cursor, "MessageFilters", ["MessageID", "FilterID", "Whitelist"],
+                              [msg_id, el[0], el[1]])
+
+        except MySQLdb.Error:
+            cursor.close()
+            return create_error_json(error_storing_msg)
+
+        cursor.close()
+        self.conn.commit()
+        return create_json(["resp"], ["ok"])
+
+    def delete_msg(self, session_id, msg_id):
+        cursor = self.conn.cursor()
+
+        self.__select(cursor, "Username", ["Sessions"], ["SessionID = %s"], [session_id])
+        if cursor.rowcount == 0:
+            cursor.close()
+            return create_error_json(error_session_not_found)
+
+        username = cursor.fetchone()
+
+        self.__select(cursor, "*", ["Messages"], ["MessageID = %s AND Username = %s"], [msg_id, username])
+        if cursor.rowcount == 0:
+            cursor.close()
+            return create_error_json(error_msg_not_found)
+
+        self.__delete(cursor, "Messages", ["MessageID = %s"], [msg_id])
         cursor.close()
         self.conn.commit()
         return create_json(["resp"], ["ok"])
