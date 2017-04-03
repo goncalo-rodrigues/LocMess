@@ -21,7 +21,7 @@ public class MuleMessage extends Message {
     private List<MuleMessageFilter> filters;
     private int hops = 0;
 
-    public MuleMessage(int id, String messageText, String author, String location, Date startDate, Date endDate, List<MuleMessageFilter> filters, int hops) {
+    public MuleMessage(String id, String messageText, String author, String location, Date startDate, Date endDate, List<MuleMessageFilter> filters, int hops) {
         super(id, messageText, author, location, startDate, endDate);
         this.filters = filters;
         this.hops = hops;
@@ -101,7 +101,7 @@ public class MuleMessage extends Message {
         SQLiteDatabase db = helper.getWritableDatabase();
         db.delete(LocmessContract.CreatedMessageTable.TABLE_NAME,
                 LocmessContract.CreatedMessageTable.COLUMN_NAME_ID + " = ?",
-                new String[] {String.valueOf(getId())});
+                new String[] {getId()});
         // TODO: delete filters
         db.close();
     }

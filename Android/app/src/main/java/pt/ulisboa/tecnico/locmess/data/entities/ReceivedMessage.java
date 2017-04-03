@@ -15,7 +15,7 @@ import pt.ulisboa.tecnico.locmess.data.LocmessDbHelper;
  */
 
 public class ReceivedMessage extends Message {
-    public ReceivedMessage(int id, String messageText, String author, String location, Date startDate, Date endDate) {
+    public ReceivedMessage(String id, String messageText, String author, String location, Date startDate, Date endDate) {
         super(id, messageText, author, location, startDate, endDate);
     }
 
@@ -44,7 +44,7 @@ public class ReceivedMessage extends Message {
         SQLiteDatabase db = helper.getWritableDatabase();
         db.delete(LocmessContract.MessageTable.TABLE_NAME,
                 LocmessContract.MessageTable.COLUMN_NAME_ID + " = ?",
-                new String[] {String.valueOf(getId())});
+                new String[] {getId()});
         db.close();
     }
 
