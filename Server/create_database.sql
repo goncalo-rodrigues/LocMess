@@ -74,4 +74,4 @@ CREATE TABLE UserFilters (
 
 CREATE USER 'locmess_account'@'localhost' IDENTIFIED BY 'FDvlalaland129&&';
 
-GRANT SELECT,INSERT,UPDATE ON cmu_locmess.* TO 'locmess_account'@'localhost';
+GRANT SELECT,INSERT,UPDATE,DELETE ON cmu_locmess.* TO 'locmess_account'@'localhost';
