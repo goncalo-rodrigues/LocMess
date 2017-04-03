@@ -25,9 +25,11 @@ import java.util.List;
 import pt.ulisboa.tecnico.locmess.adapters.KeyValueAdapter;
 import pt.ulisboa.tecnico.locmess.data.CustomCursorLoader;
 import pt.ulisboa.tecnico.locmess.data.entities.ProfileKeyValue;
+import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 import pt.ulisboa.tecnico.locmess.serverrequests.RequestExistentFiltersTask;
+import pt.ulisboa.tecnico.locmess.serverrequests.SetMyFilterTask;
 
-public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapter.Callback, View.OnClickListener, LoaderManager.LoaderCallbacks<Cursor>,RequestExistentFiltersTask.RequestFiltersTaskCallBack {
+public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapter.Callback, View.OnClickListener, LoaderManager.LoaderCallbacks<Cursor>,RequestExistentFiltersTask.RequestFiltersTaskCallBack, SetMyFilterTask.SetMyFilterTaskCallBack {
 
     private static final String LOG_TAG = ProfileActivity.class.getSimpleName();
     private KeyValueAdapter keyValueAdapter;
@@ -35,6 +37,7 @@ public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapt
     private LinearLayoutManager mLayoutManager;
     private RecyclerView mRecyclerView;
     private AutoCompleteTextView mKeyAtv;
+    private ArrayAdapter mKeyadapter;
     private TextView mNameTv;
     private AutoCompleteTextView mKeyTv;
     private EditText mValueTv;
@@ -67,9 +70,9 @@ public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapt
         mRecyclerView.setAdapter(keyValueAdapter);
 
         mKeyAtv = (AutoCompleteTextView) findViewById(R.id.profile_new_key_autotv);
-        ArrayAdapter adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, keys);
+        mKeyadapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, keys);
 
-        mKeyAtv.setAdapter(adapter);
+        mKeyAtv.setAdapter(mKeyadapter);
 
 
         // show dropdown when focused
@@ -83,7 +86,8 @@ public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapt
         });
         mNameTv = (TextView) findViewById(R.id.profile_name_tv);
 
-        mNameTv.setText("Goncalo");
+        NetworkGlobalState globalState = (NetworkGlobalState) this.getApplicationContext();
+        mNameTv.setText(globalState.getUsername());
 
         mValueTv = (EditText) findViewById(R.id.profile_new_value_tv);
 
@@ -121,9 +125,9 @@ public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapt
         switch (v.getId()) {
             case R.id.profile_add_keyval_bt:
                 // TODO: Validate key / value min and max length
-                ProfileKeyValue keyValue = new ProfileKeyValue(mKeyAtv.getText().toString(), mValueTv.getText().toString());
-                keyValue.save(this);
-                getSupportLoaderManager().restartLoader(0, null, this);
+                String key = mKeyAtv.getText().toString();
+                String value = mValueTv.getText().toString();
+                new SetMyFilterTask(this,this).execute(key, value);
                 mKeyAtv.setText(null);
                 mValueTv.setText(null);
 
@@ -159,9 +163,25 @@ public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapt
 
     @Override
     public void OnSearchComplete(ArrayList<String> filters) {
-        keys = filters;
+        keys = filters;//todo verify if we are receiving
+        mKeyadapter.clear();
+        mKeyadapter.addAll(keys);
+        mKeyadapter.notifyDataSetChanged();
 
         Toast.makeText(this, "Received filters"+filters, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void SetMyFilterComplete(String key,String value) {
+        ProfileKeyValue keyValue = new ProfileKeyValue(key, value);
+        keyValue.save(this);
+        getSupportLoaderManager().restartLoader(0, null, this);
+    }
+
+    @Override
+    public void onSetFilterErrorResponse() {
+        //TODO see if someting is needed
+        Toast.makeText(this, "Error seting filter", Toast.LENGTH_SHORT);
     }
 
     @Override
