@@ -16,6 +16,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,10 +27,11 @@ import pt.ulisboa.tecnico.locmess.adapters.KeyValueAdapter;
 import pt.ulisboa.tecnico.locmess.data.CustomCursorLoader;
 import pt.ulisboa.tecnico.locmess.data.entities.ProfileKeyValue;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
+import pt.ulisboa.tecnico.locmess.serverrequests.RemoveMyFilterTask;
 import pt.ulisboa.tecnico.locmess.serverrequests.RequestExistentFiltersTask;
 import pt.ulisboa.tecnico.locmess.serverrequests.SetMyFilterTask;
 
-public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapter.Callback, View.OnClickListener, LoaderManager.LoaderCallbacks<Cursor>,RequestExistentFiltersTask.RequestFiltersTaskCallBack, SetMyFilterTask.SetMyFilterTaskCallBack {
+public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapter.Callback, View.OnClickListener, LoaderManager.LoaderCallbacks<Cursor>,RequestExistentFiltersTask.RequestFiltersTaskCallBack, SetMyFilterTask.SetMyFilterTaskCallBack, RemoveMyFilterTask.SetMyFilterTaskCallBack {
 
     private static final String LOG_TAG = ProfileActivity.class.getSimpleName();
     private KeyValueAdapter keyValueAdapter;
@@ -44,6 +46,7 @@ public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapt
     private List<String> keys = new ArrayList<>();
     private ImageButton mAddBt;
     private Cursor keyValues;
+    ProgressBar waitingBallPb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)  {
@@ -94,6 +97,8 @@ public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapt
         mAddBt = ((ImageButton) findViewById(R.id.profile_add_keyval_bt));
         mAddBt.setOnClickListener(this);
 
+        waitingBallPb = (ProgressBar) findViewById(R.id.waiting_ball);
+
         mValueTv.setOnEditorActionListener(new EditText.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -114,10 +119,8 @@ public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapt
 
     @Override
     public void onRemoveClicked(int position, ProfileKeyValue item) {
-        item.delete(this);
-        getSupportLoaderManager().restartLoader(0, null, this);
-//        keyValueList.remove(position);
-//        keyValueAdapter.notifyItemRemoved(position);
+        new RemoveMyFilterTask(this, this).execute(item);
+
     }
 
     @Override
@@ -125,11 +128,12 @@ public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapt
         switch (v.getId()) {
             case R.id.profile_add_keyval_bt:
                 // TODO: Validate key / value min and max length
+                mAddBt.setVisibility(View.GONE);
+                waitingBallPb.setVisibility(View.VISIBLE);
                 String key = mKeyAtv.getText().toString();
                 String value = mValueTv.getText().toString();
                 new SetMyFilterTask(this,this).execute(key, value);
-                mKeyAtv.setText(null);
-                mValueTv.setText(null);
+
 
 //                keyValueAdapter.notifyItemInserted(keyValueList.size() - 1);;
                 break;
@@ -176,16 +180,35 @@ public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapt
         ProfileKeyValue keyValue = new ProfileKeyValue(key, value);
         keyValue.save(this);
         getSupportLoaderManager().restartLoader(0, null, this);
+        mKeyAtv.setText(null);
+        mValueTv.setText(null);
+        waitingBallPb.setVisibility(View.GONE);
+        mAddBt.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void onSetFilterErrorResponse() {
         //TODO see if someting is needed
-        Toast.makeText(this, "Error seting filter", Toast.LENGTH_SHORT);
+        Toast.makeText(this, "Error seting filter", Toast.LENGTH_SHORT).show();
+        waitingBallPb.setVisibility(View.GONE);
+        mAddBt.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void RemoveMyFilterComplete(ProfileKeyValue pkv) {
+        pkv.delete(this);
+        getSupportLoaderManager().restartLoader(0, null, this);
+    }
+
+    @Override
+    public void onRemoveErrorResponse() {
+        Toast.makeText(this, "Error removing filter", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void OnNoInternetConnection() {
-        Toast.makeText(this, "No internet conection", Toast.LENGTH_SHORT);
+        Toast.makeText(this, "No internet conection", Toast.LENGTH_SHORT).show();
+        waitingBallPb.setVisibility(View.GONE);
+        mAddBt.setVisibility(View.VISIBLE);
     }
 }
