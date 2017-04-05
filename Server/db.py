@@ -79,7 +79,6 @@ class Database:
         self.conn.commit()
         return create_json(["session_id"], [id])
 
-    # TODO: Return the filters of the given user
     def login(self, username, password):
         cursor = self.conn.cursor()
 
@@ -97,7 +96,29 @@ class Database:
         id = self.__create_session(cursor, username)
         cursor.close()
         self.conn.commit()
-        return create_json(["session_id"], [id])
+        return create_json(["session_id", "filters"], [id, self.__get_login_filters(id)])
+
+    def __get_login_filters(self, session_id):
+        cursor = self.conn.cursor()
+
+        self.__select(cursor, "Username", ["Sessions"], ["SessionID = %s"], [session_id])
+        if cursor.rowcount == 0:
+            cursor.close()
+            return create_error_json(error_session_not_found)
+
+        user = cursor.fetchone()
+
+        self.__select(cursor, "F.FilterKey, F.FilterValue", ["Filters AS F", "UserFilters AS UF"],
+                      ["F.FilterID = UF.FilterID AND UF.Username = %s"], [user])
+
+        result = []
+        q_res = cursor.fetchall()
+        for row in q_res:
+            key = row[0]
+            val = row[1]
+            result.append({"key": key, "value": val})
+
+        return result
 
     def logout(self, session_id):
         cursor = self.conn.cursor()
@@ -230,10 +251,7 @@ class Database:
             cursor.close()
             return create_error_json(error_session_not_found)
 
-        user = cursor.fetchone()
-
-        self.__select(cursor, "DISTINCT F.FilterKey", ["Filters AS F", "UserFilters AS UF"],
-                      ["F.FilterID = UF.FilterID AND UF.Username = %s"], [user])
+        self.__select(cursor, "DISTINCT FilterKey", ["Filters"], ["1 = %s"], ["1"])
 
         result = []
         q_res = cursor.fetchall()

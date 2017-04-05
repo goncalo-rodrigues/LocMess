@@ -12,7 +12,7 @@ app = Flask(__name__)
 db = Database()
 out = sys.stdout
 
-# TODO: Return the filters of the given user
+
 @app.route("/login", methods=['POST'])
 def login():
     req = request.get_json()
