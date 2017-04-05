@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -29,11 +30,12 @@ import java.util.List;
 
 import pt.ulisboa.tecnico.locmess.adapters.FilterAdapter;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
+import pt.ulisboa.tecnico.locmess.serverrequests.PostMessageTask;
 
 import static java.lang.Math.random;
 
 public class PostMessageActivity extends ActivityWithDrawer implements FilterAdapter.Callback, View.OnClickListener,
-        TimePicker.TimePickerCallback, DatePicker.DatePickerCallback{
+        TimePicker.TimePickerCallback, DatePicker.DatePickerCallback, PostMessageTask.PostMessageTaskCallBack {
 
     private static final String LOG_TAG = ProfileActivity.class.getSimpleName();
     private ArrayList<String> locationList = new ArrayList<>();
@@ -311,23 +313,34 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
             // action with ID action_send was selected
             case R.id.action_send:
                 Toast.makeText(this, "Pressed message send message!",Toast.LENGTH_LONG).show();
-                //TODO request id to the server and get author from global variables
-                String id = String.valueOf((int) (random()*221313161));
-                //id = send request to server
+                String id;
+                String messageText =messageTextET.getText().toString();
+                String username = globalState.getUsername();
+                String location = mLocationAtv.getText().toString();
+                Date start = startDate.getTime();
+                Date end = endDate.getTime();
+                ArrayList<Pair> whitelisted = new ArrayList<>();//TODO
+                ArrayList<Pair> blacklisted = new ArrayList<>();//TODO
+                id = String.valueOf((int) (random()*221313161));
+
 
                 if(mAdOcRadio.isActivated()){
                     //AD-OC mode
+                    //TODO request id to the server and get author from global variables
 
                 }
 
                 else{
+
+                    new PostMessageTask(this,this,username,location,start,end,messageText,whitelisted,blacklisted,id).execute();
                     //Centralized mod is activated
+                    id ="FIXME";
                 }
 
 
-                CreatedMessage message = new CreatedMessage(id,messageTextET.getText().toString(), globalState.getUsername(), mLocationAtv.getText().toString(), startDate.getTime(), endDate.getTime());
+                CreatedMessage message = new CreatedMessage(id,messageText, username, location, startDate.getTime(), endDate.getTime());
                 message.save(this);
-                finish();
+                //TODO reput finish();
                 break;
             default:
                 break;
@@ -335,4 +348,13 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void PostMessageComplete() {
+        Toast.makeText(this, "Completed post message", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onErrorResponse() {
+        Toast.makeText(this, "No error in request response", Toast.LENGTH_SHORT).show();
+    }
 }
