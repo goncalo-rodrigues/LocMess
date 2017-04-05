@@ -126,10 +126,20 @@ def get_keys():
     out.flush()
 
     if "session_id" in req:
-        res = db.get_keys(req["session_id"])
-        print("OUT: " + res + "\n")
-        out.flush()
-        return res
+        return db.get_keys(req["session_id"])
+
+    return create_error_json(error_keys_not_in_json)
+
+
+@app.route("/get_values_key", methods=['POST'])
+def get_values_keys():
+    req = request.get_json()
+
+    print("IN: " + str(req) + "\n")
+    out.flush()
+
+    if "session_id" in req and "key" in req:
+        return db.get_values_key(req["session_id"], req["key"])
 
     return create_error_json(error_keys_not_in_json)
 
