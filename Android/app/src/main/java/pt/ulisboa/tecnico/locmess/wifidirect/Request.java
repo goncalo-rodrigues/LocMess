@@ -17,7 +17,8 @@ public class Request {
     /* This indicates all requests possible and their codes */
     public final static int REQUEST_MULE_MESSAGE = 1; // used to ask someone to mule a message for us
     int id = 0;
-    Object json;
+    Object content;
+    JSONObject json;
 
     public Request(int id, JSONObject json) {
         this.id = id;
@@ -42,9 +43,7 @@ public class Request {
                     id = reader.nextInt();
                     break;
                 case "content":
-                    reader.beginObject();
-                    json = getContentFromReader(reader);
-                    reader.endObject();
+                    getContentFromReader(reader);
                     break;
                 default:
                     reader.skipValue();
@@ -65,11 +64,13 @@ public class Request {
         return result;
     }
 
-    private Object getContentFromReader(JsonReader reader) throws IOException {
+    private void getContentFromReader(JsonReader reader) throws IOException {
 
         switch(id) {
             case REQUEST_MULE_MESSAGE:
-                return new MuleMessage(reader);
+                MuleMessage m = new MuleMessage(reader);
+                content = m;
+                json = m.getJson();
             default:
                 JSONObject result = new JSONObject();
                 while (reader.hasNext()) {
@@ -81,11 +82,17 @@ public class Request {
                         reader.skipValue();
                     }
                 }
-                return result;
+                content = result;
+                json = result;
         }
     }
 
+    @Override
+    public String toString() {
+        return getJson().toString();
+    }
+
     public Object getContent() {
-        return json;
+        return content;
     }
 }
