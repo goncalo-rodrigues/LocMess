@@ -172,7 +172,7 @@ public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapt
         mKeyadapter.addAll(keys);
         mKeyadapter.notifyDataSetChanged();
 
-        Toast.makeText(this, "Received filters"+filters, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Received filters"+filters.size(), Toast.LENGTH_SHORT).show();
     }
 
     @Override

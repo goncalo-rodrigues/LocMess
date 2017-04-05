@@ -49,21 +49,21 @@ public class RequestExistentFiltersTask extends AsyncTask<String, String,ArrayLi
             jsoninputs.put("startswith", startswith);
 
             //open the conection to the server and send
-            URL url = new URL(URL_SERVER+"/get_filters");
+            URL url = new URL(URL_SERVER+"/get_keys");
 
             result=makeHTTPResquest(url,jsoninputs);
 
             //parse and get json elements, can be an array of filters or a error message
             JSONObject data = new JSONObject(result);
-            String error = data.getString("error");
+
 
             if (data.opt("error") != null) {
                 response.add("error");
                 response.add(data.getString("error"));
                 return  response;
             }
-            if (data.opt("filters") != null) {
-                JSONArray filters = data.getJSONArray("filters");
+            if (data.opt("keys") != null) {
+                JSONArray filters = data.getJSONArray("keys");
                 for (int j = 0; j < filters.length() - 1; j++)
                     response.add(filters.getString(j));
             }
