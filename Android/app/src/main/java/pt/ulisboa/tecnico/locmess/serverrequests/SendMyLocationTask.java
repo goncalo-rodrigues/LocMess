@@ -73,45 +73,13 @@ public class SendMyLocationTask extends AsyncTask<Void, String,ArrayList<Receive
             jsoninputs.put("gps",jsonCoordinates);
             jsoninputs.put("ssids",jsonSsids);
 
-        } catch (JSONException e) {
-            e.printStackTrace();}//TODO make someting
 
-        //open the conection to the server and send
-        URL url= null;
-        try {
-            url = new URL(URL_SERVER+"/send_locations");
-        } catch (MalformedURLException e) { e.printStackTrace(); }
+            //open the conection to the server and send
+            URL url = new URL(URL_SERVER+"/send_locations");
+            result= makeHTTPResquest(url,jsoninputs);
 
-        try{
-            HttpURLConnection urlConnection= (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("POST");
-            urlConnection.setRequestProperty("Content-Type","application/json");
-            urlConnection.setConnectTimeout(10000);
-            urlConnection.setReadTimeout(10000);
-            urlConnection.connect();
+            //parse and get json elements, can be an array of locations or a error message
 
-            OutputStreamWriter   out = new   OutputStreamWriter(urlConnection.getOutputStream());
-            out.write(jsoninputs.toString());
-            out.flush();
-            out.close();
-
-
-            BufferedReader buffer = new BufferedReader( new InputStreamReader(urlConnection.getInputStream(),"utf-8"));
-
-            String line ;
-            while((line=buffer.readLine())!=null){
-                result+=line;// +"\n";
-            }
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            errorToReturn = "conetionError";
-            return null;
-        }
-
-        //parse and get json elements, can be an array of locations or a error message
-        try {
             JSONObject data = new JSONObject(result);
             String error = data.getString("error");
 
@@ -123,11 +91,39 @@ public class SendMyLocationTask extends AsyncTask<Void, String,ArrayList<Receive
 
             return retrieveMessagesFromJsonArray(messages);
 
-        }catch (JSONException e) {e.printStackTrace(); }
+        }catch (JSONException e) {e.printStackTrace();
+        }catch (IOException e) {
+            e.printStackTrace();
+            errorToReturn = "conetionError";
+            return null;
+        }
 
         //never reach here unless we get an error parsing the json
         return null;
 
+    }
+
+    protected String makeHTTPResquest(URL url,JSONObject jsoninputs) throws IOException {
+        HttpURLConnection urlConnection= (HttpURLConnection) url.openConnection();
+        urlConnection.setRequestMethod("POST");
+        urlConnection.setRequestProperty("Content-Type","application/json");
+        urlConnection.setConnectTimeout(10000);
+        urlConnection.setReadTimeout(10000);
+        urlConnection.connect();
+
+        OutputStreamWriter   out = new   OutputStreamWriter(urlConnection.getOutputStream());
+        out.write(jsoninputs.toString());
+        out.flush();
+        out.close();
+
+        BufferedReader buffer = new BufferedReader( new InputStreamReader(urlConnection.getInputStream(),"utf-8"));
+        String result ="";
+        String line ;
+        while((line=buffer.readLine())!=null) {
+            result += line;// +"\n";
+        }
+
+        return result;
     }
 
     /*{"username":"...", "location":"...", "start_date":XX, "end_date":YY, "content":"...",
@@ -154,7 +150,7 @@ public class SendMyLocationTask extends AsyncTask<Void, String,ArrayList<Receive
                 end_date = new Date(message.getLong("end_date"));
                 content = message.getString("content");
                 //TODO decoment when db ready
-                // result.add(new ReceivedMessage(id, content, username, location, start_date, end_date));
+                result.add(new ReceivedMessage(id, content, username, location, start_date, end_date));
             }
 
         return result;

@@ -10,6 +10,7 @@ from json import *
 
 app = Flask(__name__)
 db = Database()
+out = sys.stdout
 
 
 @app.route("/login", methods=['POST'])
@@ -17,7 +18,7 @@ def login():
     req = request.get_json()
 
     print("IN: " + str(req) + "\n")
-    sys.stdout.flush()
+    out.flush()
 
     if "username" in req and "password" in req:
         return db.login(req["username"], req["password"])
@@ -30,7 +31,7 @@ def signup():
     req = request.get_json()
 
     print("IN: " + str(req) + "\n")
-    sys.stdout.flush()
+    out.flush()
 
     if "username" in req and "password" in req:
         return db.signup(req["username"], req["password"])
@@ -43,7 +44,7 @@ def logout():
     req = request.get_json()
 
     print("IN: " + str(req) + "\n")
-    sys.stdout.flush()
+    out.flush()
 
     if "session_id" in req:
         return db.logout(req["session_id"])
@@ -56,7 +57,7 @@ def request_locations():
     req = request.get_json()
 
     print("IN: " + str(req) + "\n")
-    sys.stdout.flush()
+    out.flush()
 
     if "session_id" in req and "startswith" in req:
         return db.request_locations(req["session_id"], req["startswith"])
@@ -70,7 +71,7 @@ def send_locations():
     req = request.get_json()
 
     print("IN: " + str(req) + "\n")
-    sys.stdout.flush()
+    out.flush()
 
     return create_error_json(error_method_not_implemented)
 
@@ -80,7 +81,7 @@ def create_location():
     req = request.get_json()
 
     print("IN: " + str(req) + "\n")
-    sys.stdout.flush()
+    out.flush()
 
     if "session_id" in req and "name" in req:
         if "gps" in req and "lat" in req["gps"] and "long" in req["gps"] and "radius" in req["gps"]:
@@ -96,7 +97,7 @@ def remove_location():
     req = request.get_json()
 
     print("IN: " + str(req) + "\n")
-    sys.stdout.flush()
+    out.flush()
 
     if "session_id" in req and "name" in req:
         return db.remove_location(req["session_id"], req["name"])
@@ -109,7 +110,7 @@ def set_my_filter():
     req = request.get_json()
 
     print("IN: " + str(req) + "\n")
-    sys.stdout.flush()
+    out.flush()
 
     if "session_id" in req and "filter" in req and "key" in req["filter"] and "value" in req["filter"]:
         return db.set_my_filter(req["session_id"], req["filter"])
@@ -117,15 +118,28 @@ def set_my_filter():
     return create_error_json(error_keys_not_in_json)
 
 
-@app.route("/get_filters", methods=['POST'])
-def get_filters():
+@app.route("/get_keys", methods=['POST'])
+def get_keys():
     req = request.get_json()
 
     print("IN: " + str(req) + "\n")
-    sys.stdout.flush()
+    out.flush()
 
     if "session_id" in req:
-        return db.get_filters(req["session_id"])
+        return db.get_keys(req["session_id"])
+
+    return create_error_json(error_keys_not_in_json)
+
+
+@app.route("/get_values_key", methods=['POST'])
+def get_values_keys():
+    req = request.get_json()
+
+    print("IN: " + str(req) + "\n")
+    out.flush()
+
+    if "session_id" in req and "key" in req:
+        return db.get_values_key(req["session_id"], req["key"])
 
     return create_error_json(error_keys_not_in_json)
 
@@ -135,7 +149,7 @@ def remove_filter():
     req = request.get_json()
 
     print("IN: " + str(req) + "\n")
-    sys.stdout.flush()
+    out.flush()
 
     if "session_id" in req and "filter" in req and "key" in req["filter"] and "value" in req["filter"]:
         return db.remove_filter(req["session_id"], req["filter"])
@@ -143,26 +157,30 @@ def remove_filter():
     return create_error_json(error_keys_not_in_json)
 
 
-# TODO
 @app.route("/post_message", methods=['POST'])
 def post_message():
     req = request.get_json()
 
     print("IN: " + str(req) + "\n")
-    sys.stdout.flush()
+    out.flush()
 
-    return create_error_json(error_method_not_implemented)
+    if "session_id" in req and "msg" in req and is_message(req["msg"]):
+        return db.post_message(req["session_id"], req["msg"])
+
+    return create_error_json(error_keys_not_in_json)
 
 
-# TODO
 @app.route("/delete_message", methods=['POST'])
 def delete_message():
     req = request.get_json()
 
     print("IN: " + str(req) + "\n")
-    sys.stdout.flush()
+    out.flush()
 
-    return create_error_json(error_method_not_implemented)
+    if "session_id" in req and "msg_id" in req:
+        return db.delete_msg(req["session_id"], req["msg_id"])
+
+    return create_error_json(error_keys_not_in_json)
 
 
 def start_server():
@@ -179,32 +197,6 @@ t.daemon = True
 t.start()
 
 print("Press <enter> to stop the server.\n")
-sys.stdout.flush()
+out.flush()
 raw_input()
 db.close()
-
-# FIXME: Debug stuff
-# search_for = "barc"
-# signup_res = loads(db.login("a", "a"))
-# signup_res2 = loads(db.login("b", "b"))
-# print "Session ID: " + str(signup_res)
-# print "Second Session ID: " + str(signup_res)
-# print "\n======================================\n"
-#
-# # Locations tests
-# print "Created GPS: " + str(db.create_gps_location(signup_res["session_id"], "Barco", {"lat": 12, "long": 13, "radius": 14}))
-# print "Created WifiIDs: " + str(db.create_ssids_location(signup_res["session_id"], "Barca", ["eduroam", "h3", "bananas"]))
-# print "Requested locations result for " + search_for + ": " + str(db.request_locations(signup_res["session_id"], search_for))
-# print "Deletion result: " + str(db.remove_location(signup_res["session_id"], "Barca"))
-# print "\n======================================\n"
-#
-# # Filters tests
-# print "Filter creation result: " + str(db.set_my_filter(signup_res["session_id"], {"key": "TestKey", "value": "TestValue"}))
-# print "Second filter creation result: " + str(db.set_my_filter(signup_res2["session_id"], {"key": "TestKey", "value": "TestValue"}))
-# print "Getting filters: " + str(db.get_filters(signup_res["session_id"]))
-# print "Filter removal result: " + str(db.remove_filter(signup_res["session_id"], {"key": "TestKey", "value": "TestValue"}))
-# print "\n======================================\n"
-#
-# # Ends the test
-# print "Logout result: " + str(db.logout(signup_res["session_id"]))
-# print "Logout result: " + str(db.logout(signup_res2["session_id"]))

@@ -1,6 +1,6 @@
 import MySQLdb
 import Crypto.Random.random
-from error_messages import *
+from json_creator import *
 
 
 class Database:
@@ -79,7 +79,6 @@ class Database:
         self.conn.commit()
         return create_json(["session_id"], [id])
 
-    # TODO: Return the filters of the given user
     def login(self, username, password):
         cursor = self.conn.cursor()
 
@@ -97,7 +96,29 @@ class Database:
         id = self.__create_session(cursor, username)
         cursor.close()
         self.conn.commit()
-        return create_json(["session_id"], [id])
+        return create_json(["session_id", "filters"], [id, self.__get_login_filters(id)])
+
+    def __get_login_filters(self, session_id):
+        cursor = self.conn.cursor()
+
+        self.__select(cursor, "Username", ["Sessions"], ["SessionID = %s"], [session_id])
+        if cursor.rowcount == 0:
+            cursor.close()
+            return create_error_json(error_session_not_found)
+
+        user = cursor.fetchone()
+
+        self.__select(cursor, "F.FilterKey, F.FilterValue", ["Filters AS F", "UserFilters AS UF"],
+                      ["F.FilterID = UF.FilterID AND UF.Username = %s"], [user])
+
+        result = []
+        q_res = cursor.fetchall()
+        for row in q_res:
+            key = row[0]
+            val = row[1]
+            result.append({"key": key, "value": val})
+
+        return result
 
     def logout(self, session_id):
         cursor = self.conn.cursor()
@@ -222,7 +243,7 @@ class Database:
         self.conn.commit()
         return create_json(["resp"], ["ok"])
 
-    def get_filters(self, session_id):
+    def get_keys(self, session_id):
         cursor = self.conn.cursor()
 
         self.__select(cursor, "Username", ["Sessions"], ["SessionID = %s"], [session_id])
@@ -230,19 +251,31 @@ class Database:
             cursor.close()
             return create_error_json(error_session_not_found)
 
-        user = cursor.fetchone()
-
-        self.__select(cursor, "F.FilterKey, F.FilterValue", ["Filters AS F", "UserFilters AS UF"],
-                      ["F.FilterID = UF.FilterID AND UF.Username = %s"], [user])
+        self.__select(cursor, "DISTINCT FilterKey", ["Filters"], ["1 = %s"], ["1"])
 
         result = []
         q_res = cursor.fetchall()
         for row in q_res:
-            key = row[0]
-            val = row[1]
-            result.append({"key": key, "value": val})
+            result.append(row[0])
 
-        return create_json(["filters"], [result])
+        return create_json(["keys"], [result])
+
+    def get_values_key(self, session_id, key):
+        cursor = self.conn.cursor()
+
+        self.__select(cursor, "Username", ["Sessions"], ["SessionID = %s"], [session_id])
+        if cursor.rowcount == 0:
+            cursor.close()
+            return create_error_json(error_session_not_found)
+
+        self.__select(cursor, "FilterValue", ["Filters"], ["FilterKey = %s"], [key])
+
+        result = []
+        q_res = cursor.fetchall()
+        for row in q_res:
+            result.append(row[0])
+
+        return create_json(["values"], [result])
 
     def remove_filter(self, session_id, filter):
         cursor = self.conn.cursor()
@@ -254,15 +287,113 @@ class Database:
             cursor.close()
             return create_error_json(error_session_not_found)
 
-        self.__select(cursor, "*", ["Filters"], ["FilterKey = %s AND FilterValue = %s"], [key, val])
+        user = cursor.fetchone()
+
+        self.__select(cursor, "FilterID", ["Filters"], ["FilterKey = %s AND FilterValue = %s"], [key, val])
         if cursor.rowcount == 0:
             cursor.close()
             return create_error_json(error_filter_not_found)
 
-        self.__delete(cursor, "Filters", ["FilterKey = %s AND FilterValue = %s"], [key, val])
+        filter_id = cursor.fetchone()
+
+        self.__delete(cursor, "UserFilters", ["Username = %s AND FilterID = %s"], [user, filter_id])
         cursor.close()
         self.conn.commit()
         return create_json(["resp"], ["ok"])
+
+    def post_message(self, session_id, msg):
+        cursor = self.conn.cursor()
+        filter_ids = []
+
+        # Extracting the fields from the message
+        msg_id = msg["id"]
+        msg_user = msg["username"]
+        msg_loc = msg["location"]
+        msg_start = msg["start_date"]
+        msg_end = msg["end_date"]
+        msg_content = msg["content"]
+        msg_filters = msg["filters"]
+
+        self.__select(cursor, "*", ["Sessions"], ["SessionID = %s AND Username = %s"], [session_id, msg_user])
+        if cursor.rowcount == 0:
+            cursor.close()
+            return create_error_json(error_session_not_found)
+
+        self.__select(cursor, "*", ["Locations"], ["Name = %s"], [msg_loc])
+        if cursor.rowcount == 0:
+            cursor.close()
+            return create_error_json(error_location_not_found)
+
+        self.__select(cursor, "*", ["Messages"], ["MessageID = %s"], [msg_id])
+        if cursor.rowcount != 0:
+            cursor.close()
+            return create_error_json(error_duplicate_msg)
+
+        for filter in msg_filters:
+            self.__select(cursor, "FilterID", ["Filters"], ["FilterKey = %s AND FilterValue = %s"], [filter["key"], filter["value"]])
+            if cursor.rowcount == 0:
+                cursor.close()
+                return create_error_json(error_filter_not_found)
+
+            # JSON supports the boolean type
+            filter_ids.append((cursor.fetchone(), 1 if filter["is_whitelist"] else 0))
+
+        try:
+            self.__insert(cursor, "Messages",
+                          ["MessageID", "Username", "Location", "StartDate", "EndDate", "Content"],
+                          [msg_id, msg_user, msg_loc, msg_start, msg_end, msg_content])
+
+            for el in filter_ids:
+                self.__insert(cursor, "MessageFilters", ["MessageID", "FilterID", "Whitelist"],
+                              [msg_id, el[0], el[1]])
+
+        except MySQLdb.Error:
+            cursor.close()
+            return create_error_json(error_storing_msg)
+
+        cursor.close()
+        self.conn.commit()
+        return create_json(["resp"], ["ok"])
+
+    def delete_msg(self, session_id, msg_id):
+        cursor = self.conn.cursor()
+
+        self.__select(cursor, "Username", ["Sessions"], ["SessionID = %s"], [session_id])
+        if cursor.rowcount == 0:
+            cursor.close()
+            return create_error_json(error_session_not_found)
+
+        username = cursor.fetchone()
+
+        self.__select(cursor, "*", ["Messages"], ["MessageID = %s AND Username = %s"], [msg_id, username])
+        if cursor.rowcount == 0:
+            cursor.close()
+            return create_error_json(error_msg_not_found)
+
+        self.__delete(cursor, "Messages", ["MessageID = %s"], [msg_id])
+        cursor.close()
+        self.conn.commit()
+        return create_json(["resp"], ["ok"])
+
+    # Uses the Haversine formula
+    def get_matching_locs(self, lat, long):
+        cursor = self.conn.cursor()
+
+        self.__select(cursor, "Location", ["GPS"], ["(6371000 * acos(cos(radians(%s)) * cos(radians(Latitude)) \
+        * cos(radians(Longitude) - radians(%s)) + sin(radians(%s)) * sin(radians(Latitude)))) <= Radius"],
+                      [lat, long, lat])
+
+        if cursor.rowcount == 0:
+            cursor.close()
+            return None
+
+        result = []
+        q_res = cursor.fetchall()
+        for row in q_res:
+            result.append(row[0])
+
+        cursor.close()
+        return result
 
     def close(self):
         self.conn.close()
