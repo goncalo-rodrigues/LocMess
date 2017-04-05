@@ -27,6 +27,8 @@ public class SetMyFilterTask extends AsyncTask<String, String, String>{
     //private static final String URL_SERVER = "http://requestb.in/16z80wa1";
     private static final String URL_SERVER = "http://locmess.duckdns.org";
     NetworkGlobalState globalState;
+    String key;
+    String value;
 
 
     public SetMyFilterTask(SetMyFilterTaskCallBack ltcb, Context context){
@@ -42,8 +44,8 @@ public class SetMyFilterTask extends AsyncTask<String, String, String>{
 
     @Override
     protected String doInBackground(String... params) {
-        String key = params[0];
-        String value = params[1];
+        key = params[0];
+        value = params[1];
         String result ="";
 
         //make the jason object to send
@@ -58,7 +60,7 @@ public class SetMyFilterTask extends AsyncTask<String, String, String>{
             jsoninputs.put("filter",jsonfilter);
 
             //open the conection to the server and send
-            URL url = new URL(URL_SERVER+"/remove_filter");
+            URL url = new URL(URL_SERVER+"/set_my_filter");
             result= makeHTTPResquest(url,jsoninputs);
 
             //parse and get json elements, ok/nok
@@ -67,16 +69,37 @@ public class SetMyFilterTask extends AsyncTask<String, String, String>{
 
             return resp;
 
-        }catch (JSONException e) {e.printStackTrace();
+        }catch (JSONException e) {
+            e.printStackTrace();
+            return "nok";
         }catch (IOException e) {
             e.printStackTrace();
-            return "conetionError";
+            return "connectionError";
         }
 
-        //never reach here unless we get an error parsing the json
-        return null;
     }
 
+
+    @Override
+    protected void onPostExecute(String result) {
+        if (result.equals("nok"))
+            callback.onSetFilterErrorResponse();
+
+        else if (result.equals("connectionError"))
+            callback.OnNoInternetConnection();
+
+        else
+            callback.SetMyFilterComplete(key,value);
+
+        super.onPostExecute(result);
+    }
+
+
+    public interface SetMyFilterTaskCallBack{
+        void SetMyFilterComplete(String key,String value);
+        void onSetFilterErrorResponse();
+        void OnNoInternetConnection();
+    }
 
     protected String makeHTTPResquest(URL url,JSONObject jsoninputs) throws IOException {
         HttpURLConnection urlConnection= (HttpURLConnection) url.openConnection();
@@ -101,26 +124,5 @@ public class SetMyFilterTask extends AsyncTask<String, String, String>{
         return result;
     }
 
-
-    @Override
-    protected void onPostExecute(String result) {
-        if (result.equals("nok"))
-            callback.onSetFilterErrorResponse();
-
-        else if (result.equals("conetionError"))
-            callback.OnNoInternetConnection();
-
-        else
-            callback.SetMyFilterComplete();
-
-        super.onPostExecute(result);
-    }
-
-
-    public interface SetMyFilterTaskCallBack{
-        void SetMyFilterComplete();
-        void onSetFilterErrorResponse();
-        void OnNoInternetConnection();
-    }
 
 }

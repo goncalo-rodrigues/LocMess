@@ -75,6 +75,13 @@
                 android:background="?android:selectableItemBackgroundBorderless"
                 />
 
+            <ProgressBar
+                android:layout_width="30dp"
+                android:layout_height="match_parent"
+                android:indeterminate="true"
+                android:visibility="gone"
+                android:id="@+id/waiting_ball" />
+
         </LinearLayout>
 
         <android.support.v7.widget.RecyclerView

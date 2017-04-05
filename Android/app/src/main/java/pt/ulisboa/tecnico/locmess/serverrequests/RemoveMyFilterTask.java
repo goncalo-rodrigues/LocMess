@@ -14,17 +14,19 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import pt.ulisboa.tecnico.locmess.data.entities.ProfileKeyValue;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 
 /**
  * Created by ant on 03-04-2017.
  */
 
-public class RemoveMyFilterTask extends AsyncTask<String, String, String>{
+public class RemoveMyFilterTask extends AsyncTask<ProfileKeyValue, String, String>{
     private SetMyFilterTaskCallBack callback;
     //private static final String URL_SERVER = "http://requestb.in/16z80wa1";
     private static final String URL_SERVER = "http://locmess.duckdns.org";
     NetworkGlobalState globalState;
+    ProfileKeyValue savedpkv;
 
 
     public RemoveMyFilterTask(SetMyFilterTaskCallBack ltcb, Context context){
@@ -32,14 +34,13 @@ public class RemoveMyFilterTask extends AsyncTask<String, String, String>{
         callback = ltcb;
     }
 
-    protected String doInBackground(String key, String value){
-        return doInBackground(key,value);
-    }
+
 
     @Override
-    protected String doInBackground(String... params) {
-        String key = params[0];
-        String value = params[1];
+    protected String doInBackground(ProfileKeyValue... params) {
+        savedpkv = params[0];
+        String key = params[0].getKey();
+        String value = params[0].getValue();
         String result ="";
 
         //make the jason object to send
@@ -54,7 +55,7 @@ public class RemoveMyFilterTask extends AsyncTask<String, String, String>{
             jsoninputs.put("filter",jsonfilter);
 
             //open the conection to the server and send
-            URL url = new URL(URL_SERVER+"/set_my_filter");
+            URL url = new URL(URL_SERVER+"/remove_filter");
             result= makeHTTPResquest(url,jsoninputs);
 
             //parse and get json elements ok/nok
@@ -108,14 +109,14 @@ public class RemoveMyFilterTask extends AsyncTask<String, String, String>{
             callback.OnNoInternetConnection();
 
         else
-            callback.RemoveMyFilterComplete();
+            callback.RemoveMyFilterComplete(savedpkv);
 
         super.onPostExecute(result);
     }
 
 
     public interface SetMyFilterTaskCallBack{
-        void RemoveMyFilterComplete();
+        void RemoveMyFilterComplete(ProfileKeyValue pkv);
         void onRemoveErrorResponse();
         void OnNoInternetConnection();
     }
