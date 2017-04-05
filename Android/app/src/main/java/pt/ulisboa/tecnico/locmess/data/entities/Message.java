@@ -20,6 +20,10 @@ public abstract class Message {
     private Date startDate;
     private Date endDate;
 
+    protected Message() {
+
+    }
+
     public Message(final Cursor cursor) {
         int id_idx = cursor.getColumnIndexOrThrow(LocmessContract.MessageTable.COLUMN_NAME_ID);
         int txt_idx = cursor.getColumnIndexOrThrow(LocmessContract.MessageTable.COLUMN_NAME_CONTENT);
@@ -37,7 +41,7 @@ public abstract class Message {
         init(id,  messageText, author, location, startDate, endDate);
     }
 
-    private void init(String id, String messageText, String author, String location, Date startDate, Date endDate) {
+    protected void init(String id, String messageText, String author, String location, Date startDate, Date endDate) {
         this.id = id;
         this.messageText = messageText;
         this.author = author;

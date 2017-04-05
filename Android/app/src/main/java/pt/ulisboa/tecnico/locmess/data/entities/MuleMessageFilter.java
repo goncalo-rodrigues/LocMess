@@ -4,6 +4,13 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.JsonReader;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 
 import pt.ulisboa.tecnico.locmess.data.LocmessContract;
 import pt.ulisboa.tecnico.locmess.data.LocmessDbHelper;
@@ -28,6 +35,38 @@ public class MuleMessageFilter {
         int val_idx = cursor.getColumnIndexOrThrow(LocmessContract.MessageFilter.COLUMN_NAME_VALUE);
         int black_idx = cursor.getColumnIndexOrThrow(LocmessContract.MessageFilter.COLUMN_NAME_BLACKLISTED);
         init(cursor.getString(id_idx), cursor.getString(key_idx), cursor.getString(val_idx), cursor.getInt(black_idx) > 0);
+    }
+    public MuleMessageFilter(JsonReader reader) throws IOException {
+        String messageId = null;
+        String key = null;
+        String value = null;
+        boolean blackList = false;
+
+
+        reader.beginObject();
+        while (reader.hasNext()) {
+            String name = reader.nextName();
+            switch (name) {
+                case "messageId":
+                    messageId = reader.nextString();
+                    break;
+                case "key":
+                    key = reader.nextString();
+                    break;
+                case "value":
+                    value = reader.nextString();
+                    break;
+                case "blackList":
+                    blackList = reader.nextBoolean();
+                    break;
+                default:
+                    reader.skipValue();
+                    break;
+            }
+        }
+        reader.endObject();
+
+        init(messageId, key, value, blackList);
     }
 
     private void init(String messageId, String key, String value, boolean blackList) {
@@ -82,5 +121,18 @@ public class MuleMessageFilter {
 
     public void delete(Context ctx) {
         
+    }
+
+    public JSONObject getJson() {
+        JSONObject result = new JSONObject();
+        try {
+            result.put("messageId", getMessageId());
+            result.put("key", getKey());
+            result.put("value", getValue());
+            result.put("blacklist", isBlackList());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 }
