@@ -38,18 +38,18 @@ public class PostMessageTask extends AsyncTask<Void, String,String>{
     private String content;
     private ArrayList<Pair> whitelisted;
     private ArrayList<Pair> blackListed;
+    private String messageID;
 
 
 
 
 
-    public PostMessageTask(PostMessageTaskCallBack ltcb, Context context){
+    public PostMessageTask(PostMessageTaskCallBack ltcb, Context context,String username,
+                           String location, Date start_date, Date end_date,
+                           String content, ArrayList<Pair> whitelisted,ArrayList<Pair> blackListed,
+                           String messageID){
         globalState = (NetworkGlobalState) context.getApplicationContext();
         callback = ltcb;
-    }
-
-    protected String doInBackground(String username, String location, Date start_date, Date end_date,
-                                    String content, ArrayList<Pair> whitelisted,ArrayList<Pair> blackListed){
         this.username = username;
         this.location = location;
         this.start_date = start_date;
@@ -57,8 +57,9 @@ public class PostMessageTask extends AsyncTask<Void, String,String>{
         this.content = content;
         this.whitelisted = whitelisted;
         this.blackListed = blackListed;
-        return doInBackground();
+        this.messageID = messageID;
     }
+
 
     @Override
     protected String doInBackground(Void... params) {
@@ -75,6 +76,7 @@ public class PostMessageTask extends AsyncTask<Void, String,String>{
 
         try {
             jsoninputs.put("session_id", globalState.getId());
+            jsonMessage.put("id",messageID);
             jsonMessage.put("username", username);
             jsonMessage.put("location", location);
             jsonMessage.put("start_date", start_date.getTime());
@@ -106,14 +108,14 @@ public class PostMessageTask extends AsyncTask<Void, String,String>{
             //open the conection to the server and send
             URL url = new URL(URL_SERVER+"/post_message");
             result= makeHTTPResquest(url,jsoninputs);
-
+            return result; //TODO REMOVE
             //parse and get json elements, can be an array of locations or a error message
-
+/*
             JSONObject data = new JSONObject(result);
             String resp = data.getString("resp");
 
             return resp;
-
+*/
         }catch (JSONException e) {e.printStackTrace();
         }catch (IOException e) {
             e.printStackTrace();
