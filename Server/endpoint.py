@@ -10,7 +10,7 @@ from json import *
 
 app = Flask(__name__)
 db = Database()
-
+out = sys.stdout
 
 # TODO: Return the filters of the given user
 @app.route("/login", methods=['POST'])
@@ -18,7 +18,7 @@ def login():
     req = request.get_json()
 
     print("IN: " + str(req) + "\n")
-    sys.stdout.flush()
+    out.flush()
 
     if "username" in req and "password" in req:
         return db.login(req["username"], req["password"])
@@ -31,7 +31,7 @@ def signup():
     req = request.get_json()
 
     print("IN: " + str(req) + "\n")
-    sys.stdout.flush()
+    out.flush()
 
     if "username" in req and "password" in req:
         return db.signup(req["username"], req["password"])
@@ -44,7 +44,7 @@ def logout():
     req = request.get_json()
 
     print("IN: " + str(req) + "\n")
-    sys.stdout.flush()
+    out.flush()
 
     if "session_id" in req:
         return db.logout(req["session_id"])
@@ -57,7 +57,7 @@ def request_locations():
     req = request.get_json()
 
     print("IN: " + str(req) + "\n")
-    sys.stdout.flush()
+    out.flush()
 
     if "session_id" in req and "startswith" in req:
         return db.request_locations(req["session_id"], req["startswith"])
@@ -71,7 +71,7 @@ def send_locations():
     req = request.get_json()
 
     print("IN: " + str(req) + "\n")
-    sys.stdout.flush()
+    out.flush()
 
     return create_error_json(error_method_not_implemented)
 
@@ -81,7 +81,7 @@ def create_location():
     req = request.get_json()
 
     print("IN: " + str(req) + "\n")
-    sys.stdout.flush()
+    out.flush()
 
     if "session_id" in req and "name" in req:
         if "gps" in req and "lat" in req["gps"] and "long" in req["gps"] and "radius" in req["gps"]:
@@ -97,7 +97,7 @@ def remove_location():
     req = request.get_json()
 
     print("IN: " + str(req) + "\n")
-    sys.stdout.flush()
+    out.flush()
 
     if "session_id" in req and "name" in req:
         return db.remove_location(req["session_id"], req["name"])
@@ -110,7 +110,7 @@ def set_my_filter():
     req = request.get_json()
 
     print("IN: " + str(req) + "\n")
-    sys.stdout.flush()
+    out.flush()
 
     if "session_id" in req and "filter" in req and "key" in req["filter"] and "value" in req["filter"]:
         return db.set_my_filter(req["session_id"], req["filter"])
@@ -118,15 +118,18 @@ def set_my_filter():
     return create_error_json(error_keys_not_in_json)
 
 
-@app.route("/get_filters", methods=['POST'])
-def get_filters():
+@app.route("/get_keys", methods=['POST'])
+def get_keys():
     req = request.get_json()
 
     print("IN: " + str(req) + "\n")
-    sys.stdout.flush()
+    out.flush()
 
     if "session_id" in req:
-        return db.get_filters(req["session_id"])
+        res = db.get_keys(req["session_id"])
+        print("OUT: " + res + "\n")
+        out.flush()
+        return res
 
     return create_error_json(error_keys_not_in_json)
 
@@ -136,7 +139,7 @@ def remove_filter():
     req = request.get_json()
 
     print("IN: " + str(req) + "\n")
-    sys.stdout.flush()
+    out.flush()
 
     if "session_id" in req and "filter" in req and "key" in req["filter"] and "value" in req["filter"]:
         return db.remove_filter(req["session_id"], req["filter"])
@@ -149,7 +152,7 @@ def post_message():
     req = request.get_json()
 
     print("IN: " + str(req) + "\n")
-    sys.stdout.flush()
+    out.flush()
 
     if "session_id" in req and "msg" in req and is_message(req["msg"]):
         return db.post_message(req["session_id"], req["msg"])
@@ -162,7 +165,7 @@ def delete_message():
     req = request.get_json()
 
     print("IN: " + str(req) + "\n")
-    sys.stdout.flush()
+    out.flush()
 
     if "session_id" in req and "msg_id" in req:
         return db.delete_msg(req["session_id"], req["msg_id"])
@@ -184,6 +187,6 @@ t.daemon = True
 t.start()
 
 print("Press <enter> to stop the server.\n")
-sys.stdout.flush()
+out.flush()
 raw_input()
 db.close()

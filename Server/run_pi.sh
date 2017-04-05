@@ -2,10 +2,12 @@
 
 if [ "$#" -ne 1 ]; then
   echo "Usage: ./run_pi.sh <raspberry pi public IP / DNS>"
-  exit 1
+  echo "Default: locmess.duckdns.org"
+  echo ""
+  ip="locmess.duckdns.org"
+else
+  ip=$1
 fi
-
-ip=$1
 
 ssh -l "pi" $ip "mkdir locmess"
 scp *.py "pi@$ip:./locmess"

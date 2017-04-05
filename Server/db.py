@@ -222,7 +222,7 @@ class Database:
         self.conn.commit()
         return create_json(["resp"], ["ok"])
 
-    def get_filters(self, session_id):
+    def get_keys(self, session_id):
         cursor = self.conn.cursor()
 
         self.__select(cursor, "Username", ["Sessions"], ["SessionID = %s"], [session_id])
@@ -232,17 +232,15 @@ class Database:
 
         user = cursor.fetchone()
 
-        self.__select(cursor, "F.FilterKey, F.FilterValue", ["Filters AS F", "UserFilters AS UF"],
+        self.__select(cursor, "DISTINCT F.FilterKey", ["Filters AS F", "UserFilters AS UF"],
                       ["F.FilterID = UF.FilterID AND UF.Username = %s"], [user])
 
         result = []
         q_res = cursor.fetchall()
         for row in q_res:
-            key = row[0]
-            val = row[1]
-            result.append({"key": key, "value": val})
+            result.append(row[0])
 
-        return create_json(["filters"], [result])
+        return create_json(["keys"], [result])
 
     def remove_filter(self, session_id, filter):
         cursor = self.conn.cursor()
@@ -254,12 +252,16 @@ class Database:
             cursor.close()
             return create_error_json(error_session_not_found)
 
-        self.__select(cursor, "*", ["Filters"], ["FilterKey = %s AND FilterValue = %s"], [key, val])
+        user = cursor.fetchone()
+
+        self.__select(cursor, "FilterID", ["Filters"], ["FilterKey = %s AND FilterValue = %s"], [key, val])
         if cursor.rowcount == 0:
             cursor.close()
             return create_error_json(error_filter_not_found)
 
-        self.__delete(cursor, "Filters", ["FilterKey = %s AND FilterValue = %s"], [key, val])
+        filter_id = cursor.fetchone()
+
+        self.__delete(cursor, "UserFilters", ["Username = %s AND FilterID = %s"], [user, filter_id])
         cursor.close()
         self.conn.commit()
         return create_json(["resp"], ["ok"])
