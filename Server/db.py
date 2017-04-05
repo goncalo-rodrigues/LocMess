@@ -79,7 +79,6 @@ class Database:
         self.conn.commit()
         return create_json(["session_id"], [id])
 
-    # TODO: Return the filters of the given user
     def login(self, username, password):
         cursor = self.conn.cursor()
 
@@ -97,7 +96,29 @@ class Database:
         id = self.__create_session(cursor, username)
         cursor.close()
         self.conn.commit()
-        return create_json(["session_id"], [id])
+        return create_json(["session_id", "filters"], [id, self.__get_login_filters(id)])
+
+    def __get_login_filters(self, session_id):
+        cursor = self.conn.cursor()
+
+        self.__select(cursor, "Username", ["Sessions"], ["SessionID = %s"], [session_id])
+        if cursor.rowcount == 0:
+            cursor.close()
+            return create_error_json(error_session_not_found)
+
+        user = cursor.fetchone()
+
+        self.__select(cursor, "F.FilterKey, F.FilterValue", ["Filters AS F", "UserFilters AS UF"],
+                      ["F.FilterID = UF.FilterID AND UF.Username = %s"], [user])
+
+        result = []
+        q_res = cursor.fetchall()
+        for row in q_res:
+            key = row[0]
+            val = row[1]
+            result.append({"key": key, "value": val})
+
+        return result
 
     def logout(self, session_id):
         cursor = self.conn.cursor()
@@ -222,7 +243,7 @@ class Database:
         self.conn.commit()
         return create_json(["resp"], ["ok"])
 
-    def get_filters(self, session_id):
+    def get_keys(self, session_id):
         cursor = self.conn.cursor()
 
         self.__select(cursor, "Username", ["Sessions"], ["SessionID = %s"], [session_id])
@@ -230,19 +251,31 @@ class Database:
             cursor.close()
             return create_error_json(error_session_not_found)
 
-        user = cursor.fetchone()
-
-        self.__select(cursor, "F.FilterKey, F.FilterValue", ["Filters AS F", "UserFilters AS UF"],
-                      ["F.FilterID = UF.FilterID AND UF.Username = %s"], [user])
+        self.__select(cursor, "DISTINCT FilterKey", ["Filters"], ["1 = %s"], ["1"])
 
         result = []
         q_res = cursor.fetchall()
         for row in q_res:
-            key = row[0]
-            val = row[1]
-            result.append({"key": key, "value": val})
+            result.append(row[0])
 
-        return create_json(["filters"], [result])
+        return create_json(["keys"], [result])
+
+    def get_values_key(self, session_id, key):
+        cursor = self.conn.cursor()
+
+        self.__select(cursor, "Username", ["Sessions"], ["SessionID = %s"], [session_id])
+        if cursor.rowcount == 0:
+            cursor.close()
+            return create_error_json(error_session_not_found)
+
+        self.__select(cursor, "FilterValue", ["Filters"], ["FilterKey = %s"], [key])
+
+        result = []
+        q_res = cursor.fetchall()
+        for row in q_res:
+            result.append(row[0])
+
+        return create_json(["values"], [result])
 
     def remove_filter(self, session_id, filter):
         cursor = self.conn.cursor()
@@ -254,12 +287,16 @@ class Database:
             cursor.close()
             return create_error_json(error_session_not_found)
 
-        self.__select(cursor, "*", ["Filters"], ["FilterKey = %s AND FilterValue = %s"], [key, val])
+        user = cursor.fetchone()
+
+        self.__select(cursor, "FilterID", ["Filters"], ["FilterKey = %s AND FilterValue = %s"], [key, val])
         if cursor.rowcount == 0:
             cursor.close()
             return create_error_json(error_filter_not_found)
 
-        self.__delete(cursor, "Filters", ["FilterKey = %s AND FilterValue = %s"], [key, val])
+        filter_id = cursor.fetchone()
+
+        self.__delete(cursor, "UserFilters", ["Username = %s AND FilterID = %s"], [user, filter_id])
         cursor.close()
         self.conn.commit()
         return create_json(["resp"], ["ok"])
@@ -337,6 +374,26 @@ class Database:
         cursor.close()
         self.conn.commit()
         return create_json(["resp"], ["ok"])
+
+    # Uses the Haversine formula
+    def get_matching_locs(self, lat, long):
+        cursor = self.conn.cursor()
+
+        self.__select(cursor, "Location", ["GPS"], ["(6371000 * acos(cos(radians(%s)) * cos(radians(Latitude)) \
+        * cos(radians(Longitude) - radians(%s)) + sin(radians(%s)) * sin(radians(Latitude)))) <= Radius"],
+                      [lat, long, lat])
+
+        if cursor.rowcount == 0:
+            cursor.close()
+            return None
+
+        result = []
+        q_res = cursor.fetchall()
+        for row in q_res:
+            result.append(row[0])
+
+        cursor.close()
+        return result
 
     def close(self):
         self.conn.close()
