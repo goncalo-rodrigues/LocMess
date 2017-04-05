@@ -6,10 +6,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import pt.ulisboa.tecnico.locmess.R;
-import java.util.List;
 
 import pt.ulisboa.tecnico.locmess.BaseMessageFragment;
-import pt.ulisboa.tecnico.locmess.MainActivity;
 
 /**
  * Created by goncalo on 17-03-2017.

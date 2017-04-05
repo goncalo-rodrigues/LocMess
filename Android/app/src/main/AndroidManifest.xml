@@ -46,15 +46,10 @@
             android:exported="false">
 
         </provider>
-        <!--<receiver android:name=".wifidirect.WiFiDirectBroadcastReceiver">-->
-            <!--<intent-filter>-->
-                <!--<action android:name="android.net.wifi.p2p.STATE_CHANGED" />-->
-                <!--<action android:name="android.net.wifi.p2p.PEERS_CHANGED" />-->
-                <!--<action android:name="android.net.wifi.p2p.THIS_DEVICE_CHANGED" />-->
-                <!--<action android:name="android.net.wifi.p2p.CONNECTION_STATE_CHANGE" />-->
-            <!--</intent-filter>-->
-        <!--</receiver>-->
-        <!--<service android:name=".wifidirect.WifiDirectService" />-->
+
+        <service android:name=".wifidirect.WifiDirectService" />
+        <service android:name="pt.inesc.termite.wifidirect.service.SimWifiP2pService" />
+
     </application>
 
 </manifest>

@@ -26,7 +26,10 @@ import pt.ulisboa.tecnico.locmess.adapters.MessagesAdapter;
 import pt.ulisboa.tecnico.locmess.adapters.Pager;
 import pt.ulisboa.tecnico.locmess.data.entities.CreatedMessage;
 import pt.ulisboa.tecnico.locmess.data.entities.Message;
+import pt.ulisboa.tecnico.locmess.data.entities.MuleMessage;
+import pt.ulisboa.tecnico.locmess.data.entities.MuleMessageFilter;
 import pt.ulisboa.tecnico.locmess.data.entities.ReceivedMessage;
+import pt.ulisboa.tecnico.locmess.wifidirect.WifiDirectService;
 
 public class MainActivity extends ActivityWithDrawer implements BaseMessageFragment.Callback, TabLayout.OnTabSelectedListener{
 
@@ -56,6 +59,10 @@ public class MainActivity extends ActivityWithDrawer implements BaseMessageFragm
                 sendMessage(v);
             }
         });
+
+        Intent myIntent = new Intent(this, WifiDirectService.class);
+        startService(myIntent);
+
 
         super.onCreate(savedInstanceState);
     }
