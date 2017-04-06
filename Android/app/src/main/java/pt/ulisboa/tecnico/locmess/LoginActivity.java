@@ -127,4 +127,9 @@ public class LoginActivity extends AppCompatActivity implements LoginTask.LoginT
         errorViewTv.setText(getString(R.string.no_internet));
     }
 
+    @Override
+    public void OnLogoutNoInternetConnection() {
+        OnNoInternetConnection();
+    }
+
 }

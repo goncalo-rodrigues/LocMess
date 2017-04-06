@@ -3,7 +3,9 @@ package pt.ulisboa.tecnico.locmess.serverrequests;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Pair;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -13,56 +15,85 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Date;
 
+import pt.ulisboa.tecnico.locmess.data.entities.ReceivedMessage;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 
 /**
- * Created by ant on 03-04-2017.
+ * Created by ant on 06-04-2017.
  */
 
-public class LogoutTask extends AsyncTask<Void, String, String>{
-    private LogoutCallBack callback;
+public class GetLocationInfoTask extends AsyncTask<Void, String, String>{
+    private GetLocationInfoCallBack callback;
     //private static final String URL_SERVER = "http://requestb.in/16z80wa1";
     private static final String URL_SERVER = "http://locmess.duckdns.org";
     NetworkGlobalState globalState;
+    private ArrayList<String> ssids = new ArrayList<>();
+    String errorToReturn = "";
+    String location;
+    Double lat;
+    Double longitude;
+    int radius;
 
 
-    public LogoutTask(LogoutCallBack ltcb, Context context){
+    public GetLocationInfoTask(GetLocationInfoCallBack ltcb, Context context, String location){
         globalState = (NetworkGlobalState) context.getApplicationContext();
         callback = ltcb;
+        this.location = location;
     }
 
 
     @Override
     protected String doInBackground(Void... params) {
+
         String result ="";
 
         //make the jason object to send
         JSONObject jsoninputs = new JSONObject();
 
+
         try {
             jsoninputs.put("session_id", globalState.getId());
+            jsoninputs.put("location",location);
 
             //open the conection to the server and send
-            URL url = new URL(URL_SERVER+"/logout");
+            URL url = new URL(URL_SERVER+"/get_location_info");
             result= makeHTTPResquest(url,jsoninputs);
 
-            //parse and get json elements, ok/nok
+            //parse and get json elements, can be an array of locations or a error message
             JSONObject data = new JSONObject(result);
-            String resp = data.getString("resp");
 
-            return resp;
+            if (data.opt("error") != null)
+                return data.getString("error");
+
+            if (data.opt("ssids") != null) {
+                JSONArray jsonSsids = data.getJSONArray("ssids");
+                for (int j = 0; j < jsonSsids.length() ; j++)
+                    ssids.add(jsonSsids.getString(j));
+            }
+
+            if (data.opt("gps") != null) {
+                JSONObject gpsJson = data.getJSONObject("gps");
+                lat = gpsJson.getDouble("lat");
+                longitude = gpsJson.getDouble("long");
+                radius = gpsJson.getInt("radius");
+            }
+
+            return "ok";
 
         }catch (JSONException e) {e.printStackTrace();
         }catch (IOException e) {
             e.printStackTrace();
-            return "conetionError";
+            errorToReturn = "conetionError";
+            return null;
         }
 
         //never reach here unless we get an error parsing the json
         return null;
-    }
 
+    }
 
     protected String makeHTTPResquest(URL url,JSONObject jsoninputs) throws IOException {
         HttpURLConnection urlConnection= (HttpURLConnection) url.openConnection();
@@ -90,28 +121,24 @@ public class LogoutTask extends AsyncTask<Void, String, String>{
 
     @Override
     protected void onPostExecute(String result) {
-        globalState.setUsername(null);
+        //TODO see the possible errors and handle them
+        if (result.equals("ok"))
+            callback.OnGetLocationInfoComplete(ssids, lat,  longitude, radius);
+        else if(result.equals("conetionError"))
+            callback.OnNoInternetConnection();
+        else
+            callback.OnGetInfoErrorResponse(result);
 
-        if (result.equals("nok")) {
-            callback.logoutErrorResponse();
-        }
-        else if (result.equals("conetionError")) {
-            callback.OnLogoutNoInternetConnection();
-        }
-
-        else {
-            globalState.setCommunication_Key(null);
-            globalState.setId(null);
-            callback.logoutComplete();
-        }
         super.onPostExecute(result);
     }
 
 
-    public interface LogoutCallBack{
-        void logoutComplete();
-        void logoutErrorResponse();
-        void OnLogoutNoInternetConnection();
+    public interface GetLocationInfoCallBack{
+        void OnGetLocationInfoComplete(ArrayList<String> ssids, Double lat, Double longitude, int radius);
+        void OnGetInfoErrorResponse(String error);
+        void OnNoInternetConnection();
     }
+
+    
 
 }

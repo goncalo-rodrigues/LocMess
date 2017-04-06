@@ -33,11 +33,13 @@ import pt.ulisboa.tecnico.locmess.data.entities.MuleMessage;
 import pt.ulisboa.tecnico.locmess.data.entities.MuleMessageFilter;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 import pt.ulisboa.tecnico.locmess.serverrequests.PostMessageTask;
+import pt.ulisboa.tecnico.locmess.serverrequests.RequestExistentFiltersTask;
+import pt.ulisboa.tecnico.locmess.serverrequests.RequestLocationsTask;
 
 import static java.lang.Math.random;
 
 public class PostMessageActivity extends ActivityWithDrawer implements FilterAdapter.Callback, View.OnClickListener,
-        TimePicker.TimePickerCallback, DatePicker.DatePickerCallback, PostMessageTask.PostMessageTaskCallBack {
+        TimePicker.TimePickerCallback, DatePicker.DatePickerCallback, PostMessageTask.PostMessageTaskCallBack, RequestExistentFiltersTask.RequestFiltersTaskCallBack, RequestLocationsTask.RequestLocationsTaskCallBack {
 
     private static final String LOG_TAG = ProfileActivity.class.getSimpleName();
     private ArrayList<String> locationList = new ArrayList<>();
@@ -57,6 +59,7 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
     private RadioButton mAdOcRadio;
 
     private AutoCompleteTextView mKeyAtv;
+    ArrayAdapter keysListAdapter;
     private TextView mValueTv;
     private RadioButton mblacklistedRadio;
     private RadioButton mWhitelistedRadio;
@@ -145,9 +148,9 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
         mRecyclerView.setAdapter(filtersAdapter);
 
         mKeyAtv = (AutoCompleteTextView) findViewById(R.id.send_m_new_key_autotv);
-        ArrayAdapter adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, filterKeys);
+        keysListAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, filterKeys);
 
-        mKeyAtv.setAdapter(adapter);
+        mKeyAtv.setAdapter(keysListAdapter);
         // show dropdown when focused
         mKeyAtv.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -209,17 +212,14 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
 
     private void getLocations(){
         //TODO this should load locations from database
-        locationList.add("IST");
-        locationList.add("location2");
-        locationList.add("location3");
-        locationList.add("location4");
+        RequestLocationsTask rlt = new RequestLocationsTask(this,this);
+        rlt.execute("");
     }
 
     private void getFiltersList(){
-        //TODO this should get possible keys for filters
-        filterKeys.add("country");
-        filterKeys.add("Sex");
-        filterKeys.add("Color");
+        RequestExistentFiltersTask reft = new RequestExistentFiltersTask(this,this);
+        reft.execute("");
+
     }
 
 
@@ -394,5 +394,35 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
     @Override
     public void onErrorResponse() {
         Toast.makeText(this, "No error in request response", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void OnNoInternetConnection() {
+        Toast.makeText(this, "No Internet connection", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void OnSearchComplete(ArrayList<String> filters) {
+        filterKeys = filters;//todo verify if we are receiving
+        keysListAdapter.clear();
+        keysListAdapter.addAll(filterKeys);
+        keysListAdapter.notifyDataSetChanged();
+
+        Toast.makeText(this, "Received filters"+filters.size(), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void OnLocationSearchComplete(ArrayList<String> locations) {
+        locationList = locations;
+        locationListAdapter.clear();
+        locationListAdapter.addAll(locations);
+        locationListAdapter.notifyDataSetChanged();
+        Toast.makeText(this, "Received Locations"+locations.size(), Toast.LENGTH_SHORT).show();
+
+    }
+
+    @Override
+    public void OnErrorResponse(String error) {
+        Toast.makeText(this, "Error:"+error, Toast.LENGTH_SHORT).show();
     }
 }

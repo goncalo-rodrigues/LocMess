@@ -154,7 +154,7 @@ public abstract class ActivityWithDrawer extends AppCompatActivity implements Dr
     }
 
     @Override
-    public void OnNoInternetConnection(){
+    public void OnLogoutNoInternetConnection(){
         Toast.makeText(this, "logout No Internet Connection", Toast.LENGTH_LONG).show();
         logoutClear();
     }
