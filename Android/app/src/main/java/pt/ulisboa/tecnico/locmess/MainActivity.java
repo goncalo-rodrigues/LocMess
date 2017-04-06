@@ -68,10 +68,10 @@ public class MainActivity extends ActivityWithDrawer implements BaseMessageFragm
     }
 
     protected void sendMessage(View v){
-        ReceivedMessage m = new ReceivedMessage("1", "text", "author", "loc", new Date(), new Date());
-        m.save(this);
-        CreatedMessage m2 = new CreatedMessage("2", "text", "author", "loc", new Date(), new Date());
-        m2.save(this);
+//        ReceivedMessage m = new ReceivedMessage("1", "text", "author", "loc", new Date(), new Date());
+//        m.save(this);
+//        CreatedMessage m2 = new CreatedMessage("2", "text", "author", "loc", new Date(), new Date());
+//        m2.save(this);
         Intent intent = new Intent(this, PostMessageActivity.class);
         startActivity(intent);
     }

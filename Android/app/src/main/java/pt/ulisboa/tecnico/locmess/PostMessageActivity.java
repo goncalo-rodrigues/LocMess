@@ -326,7 +326,7 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
                 Date end = endDate.getTime();
                 id = String.valueOf((int) (random()*221313161));//TODO fix this id
 
-                if(mAdOcRadio.isActivated())
+                if(mAdOcRadio.isChecked())
                     postMessageAdOc(id, messageText , username, location,  start,  end);
 
                 else
@@ -354,7 +354,7 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
                 whitelisted.add(filter);
         }
 
-        message = new CreatedMessage(id,messageText, username, location, startDate.getTime(), endDate.getTime());
+        message = new CreatedMessage(id,messageText, username, location, startDate.getTime(), endDate.getTime(), true);
 
         new PostMessageTask(this,this,username,location,start,end,messageText,
                 whitelisted,blacklisted,id).execute();
@@ -375,7 +375,7 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
         muleM.save(this);
 
         //TODO make a change in created messages in order to distinguish ad-oc from centralized
-        CreatedMessage messageAdOc = new CreatedMessage(id,messageText, username, location, startDate.getTime(), endDate.getTime());
+        CreatedMessage messageAdOc = new CreatedMessage(id,messageText, username, location, startDate.getTime(), endDate.getTime(), false);
         messageAdOc.save(this);
         Toast.makeText(this, "Ad-oc message", Toast.LENGTH_SHORT).show();
         finish();

@@ -19,6 +19,7 @@ public abstract class Message {
     private String location;
     private Date startDate;
     private Date endDate;
+    private boolean centralized;
 
     protected Message() {
 
@@ -31,23 +32,25 @@ public abstract class Message {
         int location_idx = cursor.getColumnIndexOrThrow(LocmessContract.MessageTable.COLUMN_NAME_LOCATION);
         int stdate_idx = cursor.getColumnIndexOrThrow(LocmessContract.MessageTable.COLUMN_NAME_STARTDATE);
         int enddate_idx = cursor.getColumnIndexOrThrow(LocmessContract.MessageTable.COLUMN_NAME_ENDDATE);
+        int centralized_idx = cursor.getColumnIndexOrThrow(LocmessContract.MessageTable.COLUMN_NAME_CENTRALIZED);
 
         init(cursor.getString(id_idx), cursor.getString(txt_idx), cursor.getString(author_idx), cursor.getString(location_idx)
-                , new Date(cursor.getString(stdate_idx)), new Date(cursor.getString(enddate_idx)));
+                , new Date(cursor.getString(stdate_idx)), new Date(cursor.getString(enddate_idx)), cursor.getInt(centralized_idx) != 0);
     }
 
 
-    public Message(String id, String messageText, String author, String location, Date startDate, Date endDate) {
-        init(id,  messageText, author, location, startDate, endDate);
+    public Message(String id, String messageText, String author, String location, Date startDate, Date endDate, boolean centralized) {
+        init(id,  messageText, author, location, startDate, endDate, centralized);
     }
 
-    protected void init(String id, String messageText, String author, String location, Date startDate, Date endDate) {
+    protected void init(String id, String messageText, String author, String location, Date startDate, Date endDate, boolean centralized) {
         this.id = id;
         this.messageText = messageText;
         this.author = author;
         this.location = location;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.centralized = centralized;
     }
 
     public String getId() {
@@ -101,4 +104,12 @@ public abstract class Message {
     public abstract void save(Context ctx);
 
     public abstract void delete(Context ctx);
+
+    public boolean isCentralized() {
+        return centralized;
+    }
+
+    public void setCentralized(boolean centralized) {
+        this.centralized = centralized;
+    }
 }

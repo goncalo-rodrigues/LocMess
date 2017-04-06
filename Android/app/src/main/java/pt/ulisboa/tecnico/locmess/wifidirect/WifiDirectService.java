@@ -166,7 +166,7 @@ public class WifiDirectService extends Service implements WifiP2pManager.PeerLis
         m.moveToFirst();
         while (!m.isAfterLast()) {
             MuleMessage msgToSend = new MuleMessage(m);
-            if (msgToSend.getHops() < 1) {
+            if (msgToSend.getHops() < 2) {
                 sendToAll(new Request(Request.REQUEST_MULE_MESSAGE, new MuleMessage(m).getJson()));
             }
             m.moveToNext();

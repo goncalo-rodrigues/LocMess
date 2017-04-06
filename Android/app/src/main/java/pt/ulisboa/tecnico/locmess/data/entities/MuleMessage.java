@@ -93,7 +93,7 @@ public class MuleMessage extends Message {
     }
 
     protected void init(String id, String messageText, String author, String location, Date startDate, Date endDate, List<MuleMessageFilter> filters, int hops) {
-        super.init(id, messageText, author, location, startDate, endDate);
+        super.init(id, messageText, author, location, startDate, endDate, false);
         this.filters = filters;
         this.hops = hops;
     }
