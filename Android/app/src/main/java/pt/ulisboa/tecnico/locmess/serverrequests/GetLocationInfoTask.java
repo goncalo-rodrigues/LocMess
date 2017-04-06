@@ -139,6 +139,6 @@ public class GetLocationInfoTask extends AsyncTask<Void, String, String>{
         void OnNoInternetConnection();
     }
 
-    
+
 
 }
