@@ -116,7 +116,7 @@ public class MuleMessageFilter {
         values.put(LocmessContract.MessageFilter.COLUMN_NAME_VALUE, getValue());
         values.put(LocmessContract.MessageFilter.COLUMN_NAME_BLACKLISTED, isBlackList());
         values.put(LocmessContract.MessageFilter.COLUMN_NAME_MESSAGEID, getMessageId());
-        db.insert(LocmessContract.MessageTable.TABLE_NAME, null, values);
+        db.insert(LocmessContract.MessageFilter.TABLE_NAME, null, values);
     }
 
     public void delete(Context ctx) {

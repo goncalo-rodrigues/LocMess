@@ -172,17 +172,17 @@ public abstract class ActivityWithDrawer extends AppCompatActivity implements Dr
     private void clearDatabase(){
         LocmessDbHelper helper = new LocmessDbHelper(this);
         SQLiteDatabase db = helper.getWritableDatabase();
-        db.execSQL(LocmessContract.SQL_DELETE_1);
-        db.execSQL(LocmessContract.SQL_DELETE_2);
-        db.execSQL(LocmessContract.SQL_DELETE_3);
-        db.execSQL(LocmessContract.SQL_DELETE_5);
-        db.execSQL(LocmessContract.SQL_DELETE_6);
+        db.execSQL(LocmessContract.SQL_DELETE_MESSAGE_TBL);
+        db.execSQL(LocmessContract.SQL_DELETE_MESSAGE_FILTER_TBL);
+        db.execSQL(LocmessContract.SQL_DELETE_CREATED_MESSAGE_TBL);
+        db.execSQL(LocmessContract.SQL_DELETE_LOCATION_TBL);
+        db.execSQL(LocmessContract.SQL_DELETE_PROFILE_KEYVAL_TBL);
 
-        db.execSQL(LocmessContract.SQL_CREATE_1);
-        db.execSQL(LocmessContract.SQL_CREATE_2);
-        db.execSQL(LocmessContract.SQL_CREATE_4);
-        db.execSQL(LocmessContract.SQL_CREATE_5);
-        db.execSQL(LocmessContract.SQL_CREATE_6);
+        db.execSQL(LocmessContract.SQL_CREATE_MESSAGE_TBL);
+        db.execSQL(LocmessContract.SQL_CREATE_CREATED_MESSAGE_TBL);
+        db.execSQL(LocmessContract.SQL_CREATE_MESSAGE_FILTER_TBL);
+        db.execSQL(LocmessContract.SQL_CREATE_LOCATION_TBL);
+        db.execSQL(LocmessContract.SQL_CREATE_PROFILE_KEYVAL_TBL);
 
     }
 

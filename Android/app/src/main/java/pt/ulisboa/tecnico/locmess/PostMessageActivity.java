@@ -370,9 +370,9 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
             filters.add(mmf);
         }
 
-        MuleMessage muleM = new MuleMessage(id, messageText, username, location, start,
-                end,filters, 0);
-        muleM.save(this);
+//        MuleMessage muleM = new MuleMessage(id, messageText, username, location, start,
+//                end,filters, 0);
+//        muleM.save(this);
 
         //TODO make a change in created messages in order to distinguish ad-oc from centralized
         CreatedMessage messageAdOc = new CreatedMessage(id,messageText, username, location, startDate.getTime(), endDate.getTime(), false);
