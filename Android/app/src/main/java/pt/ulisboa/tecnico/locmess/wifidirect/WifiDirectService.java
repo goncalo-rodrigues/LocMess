@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.database.Cursor;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
@@ -110,6 +111,7 @@ public class WifiDirectService extends Service implements WifiP2pManager.PeerLis
     public void onDestroy() {
         wdThread.exit();
         unregisterReceiver(mReceiver);
+        unbindService(mConnection);
         super.onDestroy();
     }
 
@@ -142,10 +144,7 @@ public class WifiDirectService extends Service implements WifiP2pManager.PeerLis
         }
     };
 
-    @Override
-    public Response onNewMessage(Request message) {
-        return null;
-    }
+
 
     @Override
     public void onGroupInfoAvailable(SimWifiP2pDeviceList devices,
@@ -163,6 +162,15 @@ public class WifiDirectService extends Service implements WifiP2pManager.PeerLis
         }
 
         Log.i(LOG_TAG, peersStr.toString());
+        Cursor m = MuleMessage.getAll(this);
+        m.moveToFirst();
+        while (!m.isAfterLast()) {
+            MuleMessage msgToSend = new MuleMessage(m);
+            if (msgToSend.getHops() < 1) {
+                sendToAll(new Request(Request.REQUEST_MULE_MESSAGE, new MuleMessage(m).getJson()));
+            }
+            m.moveToNext();
+        }
 //        MuleMessage m = new MuleMessage("id123", "content 123", "author 123", "location 123", new Date(), new Date(), new ArrayList<MuleMessageFilter>(), 0);
 //        m.save(this);
 //        sendToAll(new Request(0, m.getJson()));
@@ -186,7 +194,18 @@ public class WifiDirectService extends Service implements WifiP2pManager.PeerLis
             t.start();
         }
     }
-
+    @Override
+    public Response onNewMessage(Request message) {
+        switch(message.id) {
+            case Request.REQUEST_MULE_MESSAGE:
+                MuleMessage m = (MuleMessage) message.getContent();
+                m.setHops(m.getHops()+1); // 1 more hop!
+                m.save(this);
+                return new Response(true);
+            default:
+                return new Response(false); // protocol unknown
+        }
+    }
     @Override
     public Request onNewResponse(Response response) {
         Log.i(LOG_TAG, "received response " + response.success);

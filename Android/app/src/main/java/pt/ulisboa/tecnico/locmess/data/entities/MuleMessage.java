@@ -31,6 +31,11 @@ public class MuleMessage extends Message {
         init(id, messageText, author, location, startDate, endDate, filters, hops);
     }
 
+    @Override
+    public String toString() {
+        return getJson().toString();
+    }
+
     public MuleMessage(JsonReader reader) throws IOException {
         String id = null;
         String messageText = null;
@@ -179,7 +184,7 @@ public class MuleMessage extends Message {
             result.put("endDate", getEndDate().toString());
             result.put("hops", getHops());
             JSONArray filts = new JSONArray();
-            for (MuleMessageFilter f : filters) {
+            for (MuleMessageFilter f : getFilters(null)) {
                 filts.put(f.getJson());
             }
             result.put("filters", filts);
