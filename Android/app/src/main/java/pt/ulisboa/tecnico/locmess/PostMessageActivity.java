@@ -29,6 +29,8 @@ import java.util.Date;
 import java.util.List;
 
 import pt.ulisboa.tecnico.locmess.adapters.FilterAdapter;
+import pt.ulisboa.tecnico.locmess.data.entities.MuleMessage;
+import pt.ulisboa.tecnico.locmess.data.entities.MuleMessageFilter;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 import pt.ulisboa.tecnico.locmess.serverrequests.PostMessageTask;
 
@@ -71,6 +73,9 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
     private boolean start;
 
     NetworkGlobalState globalState;
+
+    private CreatedMessage message; // variable used to save message while answer from server
+                                    // dont come
 
 
 
@@ -312,45 +317,78 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
         switch (item.getItemId()) {
             // action with ID action_send was selected
             case R.id.action_send:
-                Toast.makeText(this, "Pressed message send message!",Toast.LENGTH_LONG).show();
+                //Toast.makeText(this, "Pressed message send message!",Toast.LENGTH_LONG).show();
                 String id;
                 String messageText =messageTextET.getText().toString();
                 String username = globalState.getUsername();
                 String location = mLocationAtv.getText().toString();
                 Date start = startDate.getTime();
                 Date end = endDate.getTime();
-                ArrayList<Pair> whitelisted = new ArrayList<>();//TODO
-                ArrayList<Pair> blacklisted = new ArrayList<>();//TODO
-                id = String.valueOf((int) (random()*221313161));
+                id = String.valueOf((int) (random()*221313161));//TODO fix this id
 
+                if(mAdOcRadio.isActivated())
+                    postMessageAdOc(id, messageText , username, location,  start,  end);
 
-                if(mAdOcRadio.isActivated()){
-                    //AD-OC mode
-                    //TODO request id to the server and get author from global variables
+                else
+                    postMessageCentralized(id, messageText , username, location,  start,  end);
 
-                }
-
-                else{
-
-                    new PostMessageTask(this,this,username,location,start,end,messageText,whitelisted,blacklisted,id).execute();
-                    //Centralized mod is activated
-                    id ="FIXME";
-                }
-
-
-                CreatedMessage message = new CreatedMessage(id,messageText, username, location, startDate.getTime(), endDate.getTime());
-                message.save(this);
-                //TODO reput finish();
                 break;
+
             default:
                 break;
         }
         return super.onOptionsItemSelected(item);
     }
 
+    private void postMessageCentralized(String id, String messageText ,String username,
+                                        String location, Date start, Date end){
+        ArrayList<Pair> whitelisted = new ArrayList<>();
+        ArrayList<Pair> blacklisted = new ArrayList<>();
+        ArrayList<MuleMessageFilter> filters = new ArrayList<>();
+        Pair filter;
+        for(FilterAdapter.KeyValue kv : filterList){
+            filter = new Pair(kv.key, kv.value);
+            if(kv.blacklisted)
+                blacklisted.add(filter);
+            else
+                whitelisted.add(filter);
+        }
+
+        message = new CreatedMessage(id,messageText, username, location, startDate.getTime(), endDate.getTime());
+
+        new PostMessageTask(this,this,username,location,start,end,messageText,
+                whitelisted,blacklisted,id).execute();
+
+    }
+
+    private void postMessageAdOc(String id, String messageText ,String username,
+                                 String location, Date start, Date end){
+        ArrayList<MuleMessageFilter> filters = new ArrayList<>();
+        MuleMessageFilter mmf;
+        for(FilterAdapter.KeyValue kv : filterList){
+            mmf = new MuleMessageFilter(id, kv.key, kv.value, kv.blacklisted);
+            filters.add(mmf);
+        }
+
+        MuleMessage muleM = new MuleMessage(id, messageText, username, location, start,
+                end,filters, 0);
+        muleM.save(this);
+
+        //TODO make a change in created messages in order to distinguish ad-oc from centralized
+        CreatedMessage messageAdOc = new CreatedMessage(id,messageText, username, location, startDate.getTime(), endDate.getTime());
+        messageAdOc.save(this);
+        Toast.makeText(this, "Ad-oc message", Toast.LENGTH_SHORT).show();
+        finish();
+
+    }
+
+
+
     @Override
     public void PostMessageComplete() {
+        message.save(this);
         Toast.makeText(this, "Completed post message", Toast.LENGTH_SHORT).show();
+        finish();
     }
 
     @Override
