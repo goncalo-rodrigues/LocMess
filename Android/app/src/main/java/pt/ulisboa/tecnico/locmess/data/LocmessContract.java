@@ -38,6 +38,7 @@ public final class LocmessContract {
         public static final String COLUMN_NAME_STARTDATE = "startdate";
         public static final String COLUMN_NAME_ENDDATE = "enddate";
         public static final String COLUMN_NAME_HOPS = "hops";
+        public static final String COLUMN_NAME_CENTRALIZED = "centralized";
 
     }
 
@@ -86,6 +87,7 @@ public final class LocmessContract {
                     MuleMessageTable.COLUMN_NAME_LOCATION + " TEXT," +
                     MuleMessageTable.COLUMN_NAME_STARTDATE + " TEXT," +
                     MuleMessageTable.COLUMN_NAME_ENDDATE + " TEXT," +
+                    MuleMessageTable.COLUMN_NAME_CENTRALIZED + " INTEGER DEFAULT 0," +
                     MuleMessageTable.COLUMN_NAME_HOPS + " INTEGER);";
     public static final String SQL_CREATE_4 =
             "CREATE TABLE " + MessageFilter.TABLE_NAME + " (" +

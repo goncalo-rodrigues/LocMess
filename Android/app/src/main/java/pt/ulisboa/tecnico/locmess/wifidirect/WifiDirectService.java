@@ -201,6 +201,8 @@ public class WifiDirectService extends Service implements WifiP2pManager.PeerLis
                 MuleMessage m = (MuleMessage) message.getContent();
                 m.setHops(m.getHops()+1); // 1 more hop!
                 m.save(this);
+
+
                 return new Response(true);
             default:
                 return new Response(false); // protocol unknown

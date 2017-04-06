@@ -118,6 +118,9 @@ public class BaseMessageFragment extends Fragment implements MessagesAdapter.Cal
         messagesAdapter.notifyDataSetChanged();
         if (data.getCount() == 0)
             emptyView.setVisibility(View.VISIBLE);
+        else
+            emptyView.setVisibility(View.INVISIBLE);
+
     }
 
 
