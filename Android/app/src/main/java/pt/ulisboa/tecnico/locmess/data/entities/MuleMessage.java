@@ -26,8 +26,9 @@ import pt.ulisboa.tecnico.locmess.data.LocmessDbHelper;
 public class MuleMessage extends Message {
     private List<MuleMessageFilter> filters;
     private int hops = 0;
+    private FullLocation fullLocation;
 
-    public MuleMessage(String id, String messageText, String author, String location, Date startDate, Date endDate, List<MuleMessageFilter> filters, int hops) {
+    public MuleMessage(String id, String messageText, String author, FullLocation location, Date startDate, Date endDate, List<MuleMessageFilter> filters, int hops) {
         init(id, messageText, author, location, startDate, endDate, filters, hops);
     }
 
@@ -40,7 +41,7 @@ public class MuleMessage extends Message {
         String id = null;
         String messageText = null;
         String author = null;
-        String location = null;
+        FullLocation location = null;
         Date startDate = null;
         Date endDate = null;
         List<MuleMessageFilter> filters = new ArrayList<>();
@@ -59,7 +60,7 @@ public class MuleMessage extends Message {
                     author = reader.nextString();
                     break;
                 case "location":
-                    location = reader.nextString();
+                    location = new FullLocation(reader);
                     break;
                 case "startDate":
                     startDate = new Date(reader.nextString());
@@ -86,16 +87,19 @@ public class MuleMessage extends Message {
         init(id, messageText, author, location, startDate, endDate, filters, hops);
     }
 
-    public MuleMessage(final Cursor cursor) {
+    public MuleMessage(final Cursor cursor, Context ctx) {
         super(cursor);
         int hops_idx = cursor.getColumnIndexOrThrow(LocmessContract.MuleMessageTable.COLUMN_NAME_HOPS);
         this.hops = cursor.getInt(hops_idx);
+        this.getFullLocation(ctx);
+        this.getFilters(ctx);
     }
 
-    protected void init(String id, String messageText, String author, String location, Date startDate, Date endDate, List<MuleMessageFilter> filters, int hops) {
-        super.init(id, messageText, author, location, startDate, endDate, false);
+    protected void init(String id, String messageText, String author, FullLocation location, Date startDate, Date endDate, List<MuleMessageFilter> filters, int hops) {
+        super.init(id, messageText, author, location.getLocation(), startDate, endDate, false);
         this.filters = filters;
         this.hops = hops;
+        this.fullLocation = location;
     }
 
 
@@ -106,15 +110,16 @@ public class MuleMessage extends Message {
             if (ctx != null) {
                 LocmessDbHelper helper = new LocmessDbHelper(ctx);
                 SQLiteDatabase db = helper.getReadableDatabase();
-                Cursor result =  db.query(LocmessContract.MuleMessageTable.TABLE_NAME, null,
+                Cursor result =  db.query(LocmessContract.MessageFilter.TABLE_NAME, null,
                         LocmessContract.MessageFilter.COLUMN_NAME_MESSAGEID + " = ?",
-                        new String[] {String.valueOf(getId())}, null, null, null);
-                db.close();
+                        new String[] {getId()}, null, null, null);
+
                 filters = new ArrayList<>();
                 for(result.moveToFirst(); !result.isAfterLast(); result.moveToNext()) {
                     // The Cursor is now set to the right position
                     filters.add(new MuleMessageFilter(result));
                 }
+                db.close();
             } else {
                 filters = new ArrayList<>();
             }
@@ -137,6 +142,9 @@ public class MuleMessage extends Message {
 
     @Override
     public void save(Context ctx) {
+        if (fullLocation != null)
+            fullLocation.save(ctx);
+
         LocmessDbHelper helper = new LocmessDbHelper(ctx);
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -152,6 +160,8 @@ public class MuleMessage extends Message {
             f.save(ctx);
         }
         db.close();
+
+
     }
 
     public static Cursor getAll(Context ctx) {
@@ -170,6 +180,7 @@ public class MuleMessage extends Message {
                 LocmessContract.CreatedMessageTable.COLUMN_NAME_ID + " = ?",
                 new String[] {getId()});
         // TODO: delete filters
+        // TODO: delete fullLocation
         db.close();
     }
 
@@ -179,7 +190,7 @@ public class MuleMessage extends Message {
             result.put("id", getId());
             result.put("messageText", getMessageText());
             result.put("author", getAuthor());
-            result.put("location", getLocation());
+            result.put("location", fullLocation.getJson());
             result.put("startDate", getStartDate().toString());
             result.put("endDate", getEndDate().toString());
             result.put("hops", getHops());
@@ -195,5 +206,13 @@ public class MuleMessage extends Message {
     }
 
 
+    public FullLocation getFullLocation() {
+        return fullLocation;
+    }
 
+    public FullLocation getFullLocation(Context ctx) {
+        if (fullLocation == null)
+            fullLocation = FullLocation.get(ctx, getLocation());
+        return fullLocation;
+    }
 }
