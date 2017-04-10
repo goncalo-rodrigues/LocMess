@@ -19,8 +19,11 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 
+import pt.ulisboa.tecnico.locmess.PeriodicLocationService;
+import pt.ulisboa.tecnico.locmess.data.entities.FullLocation;
 import pt.ulisboa.tecnico.locmess.data.entities.ReceivedMessage;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
+import pt.ulisboa.tecnico.locmess.PeriodicLocationService.TimestampedLocation;
 
 /**
  * Created by ant on 26-03-2017.
@@ -34,18 +37,21 @@ public class SendMyLocationTask extends AsyncTask<Void, String,ArrayList<Receive
     private ArrayList<Pair> gpsCoordiantes;
     private ArrayList<String> ssids;
     String errorToReturn = "";
+    ArrayList<TimestampedLocation> locations;
 
 
-    public SendMyLocationTask(SendMyLocationsTaskCallBack ltcb, Context context){
+    public SendMyLocationTask(SendMyLocationsTaskCallBack ltcb, Context context, ArrayList<TimestampedLocation> locations){
         globalState = (NetworkGlobalState) context.getApplicationContext();
         callback = ltcb;
+        this.locations = locations;
     }
 
-    protected ArrayList<ReceivedMessage> doInBackground(ArrayList<Pair> gpsCoordiantes ,ArrayList<String> ssids){
-        this.gpsCoordiantes = gpsCoordiantes;
-        this.ssids = ssids;
-        return doInBackground();
-    }
+    /*{
+locations : [{latitude: 5.50123,longitude: 0.9123, ssids: [] timestamp: 28 maio 2017 15:52:21},
+{latitude: null,longitude: null,ssids: [A, B, E],timestamp: 28 maio 2017 15:56:21}
+]
+}*/
+
 
     @Override
     protected ArrayList<ReceivedMessage> doInBackground(Void... params) {
@@ -54,25 +60,27 @@ public class SendMyLocationTask extends AsyncTask<Void, String,ArrayList<Receive
 
         //make the jason object to send
         JSONObject jsoninputs = new JSONObject();
-        JSONArray jsonCoordinates = new JSONArray(gpsCoordiantes);//todo check this
-        JSONArray jsonSsids = new JSONArray(ssids);
+        JSONArray jsonLocations = new JSONArray();
+
 
 
         try {
             jsoninputs.put("session_id", globalState.getId());
 
-            /*TODO verificar se o modo de cima funciona
-            JSONObject coord;
-            for(Pair coordinate : gpsCoordiantes){
-                coord = new JSONObject();
-                coord.put("lat",coordinate.first);
-                coord.put("long",coordinate.second);
-                jsonCoordinates.put(coord);
-            }*/
+            JSONArray jsonSsids;
+            JSONObject jsonlocation;
+            for(TimestampedLocation location : locations){
+                jsonlocation = new JSONObject();
+                jsonlocation.put("lat",location.latitude);
+                jsonlocation.put("long",location.longitude);
+                jsonSsids = new JSONArray(location.ssids);
+                jsonlocation.put("ssids",jsonSsids);
+                jsonlocation.put("timestamp",location.timeStamp.getTime());
+                jsonLocations.put(jsonlocation);
+            }
 
-            jsoninputs.put("gps",jsonCoordinates);
-            jsoninputs.put("ssids",jsonSsids);
 
+            jsoninputs.put("locations",jsonLocations);
 
             //open the conection to the server and send
             URL url = new URL(URL_SERVER+"/send_locations");
@@ -81,12 +89,13 @@ public class SendMyLocationTask extends AsyncTask<Void, String,ArrayList<Receive
             //parse and get json elements, can be an array of locations or a error message
 
             JSONObject data = new JSONObject(result);
-            String error = data.getString("error");
 
-            if(error!=null && error.length()>0){
-                errorToReturn = error;
+
+            if (data.opt("error") != null) {
+                errorToReturn =  data.getString("error");
                 return null;
             }
+
             JSONArray messages =data.getJSONArray("messages");
 
             return retrieveMessagesFromJsonArray(messages);
@@ -126,8 +135,7 @@ public class SendMyLocationTask extends AsyncTask<Void, String,ArrayList<Receive
         return result;
     }
 
-    /*{"username":"...", "location":"...", "start_date":XX, "end_date":YY, "content":"...",
-     "filters":[{"key":"...", "value":"...", "is_whitelist": T/F }, ...]}*/
+
     private ArrayList<ReceivedMessage> retrieveMessagesFromJsonArray(JSONArray messages) throws JSONException {
 
         ArrayList<ReceivedMessage> result = new ArrayList<>();
