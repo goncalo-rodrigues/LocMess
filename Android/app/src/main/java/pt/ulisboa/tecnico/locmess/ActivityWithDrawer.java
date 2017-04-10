@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import pt.ulisboa.tecnico.locmess.adapters.DrawerListAdapter;
 import pt.ulisboa.tecnico.locmess.data.LocmessContract;
 import pt.ulisboa.tecnico.locmess.data.LocmessDbHelper;
+import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 import pt.ulisboa.tecnico.locmess.serverrequests.LogoutTask;
 
 import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
@@ -96,6 +98,11 @@ public abstract class ActivityWithDrawer extends AppCompatActivity implements Dr
 
         mLogoutBt.setOnClickListener(this);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        String username = ((NetworkGlobalState) getApplicationContext()).getUsername();
+        if (username == null || username.isEmpty()) username = "<Username>";
+        TextView nameTv = (TextView) mDrawerLayout.findViewById(R.id.left_drawer_name);
+        nameTv.setText(username);
 
     }
 

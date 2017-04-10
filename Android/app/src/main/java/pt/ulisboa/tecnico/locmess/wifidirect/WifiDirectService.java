@@ -58,6 +58,9 @@ public class WifiDirectService extends Service implements WifiP2pManager.PeerLis
     private Collection<SimWifiP2pDevice> devices;
     private SimWifiP2pBroadcastReceiver mReceiver;
 
+    // protocol
+    private Policy routingPolicy = new Policy();
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -167,7 +170,14 @@ public class WifiDirectService extends Service implements WifiP2pManager.PeerLis
         while (!m.isAfterLast()) {
             MuleMessage msgToSend = new MuleMessage(m, this);
             if (msgToSend.getHops() < 2) {
-                sendToAll(new Request(Request.REQUEST_MULE_MESSAGE, new MuleMessage(m, this).getJson()));
+                MuleMessage message =  new MuleMessage(m, this);
+                Request request = new Request(Request.REQUEST_MULE_MESSAGE, message.getJson());
+                for (SimWifiP2pDevice device : this.devices) {
+                    if (routingPolicy.shouldSendToPeer(device, message)) {
+                        WifiDirectClientThread t = new WifiDirectClientThread(device.getVirtIp(), PORT, request, this);
+                        t.start();
+                    }
+                }
             }
             m.moveToNext();
         }
@@ -187,13 +197,6 @@ public class WifiDirectService extends Service implements WifiP2pManager.PeerLis
         mManager.requestGroupInfo(mChannel, this);
     }
 
-    private void sendToAll(Request request) {
-
-        for (SimWifiP2pDevice device : devices) {
-            WifiDirectClientThread t = new WifiDirectClientThread(device.getVirtIp(), PORT, request, this);
-            t.start();
-        }
-    }
     @Override
     public Response onNewMessage(Request message) {
         switch(message.id) {

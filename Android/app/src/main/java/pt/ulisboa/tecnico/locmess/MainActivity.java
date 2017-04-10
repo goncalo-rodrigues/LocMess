@@ -63,6 +63,9 @@ public class MainActivity extends ActivityWithDrawer implements BaseMessageFragm
         Intent myIntent = new Intent(this, WifiDirectService.class);
         startService(myIntent);
 
+        myIntent = new Intent(this, PeriodicLocationService.class);
+        startService(myIntent);
+
 
         super.onCreate(savedInstanceState);
     }

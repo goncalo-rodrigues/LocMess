@@ -152,7 +152,7 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
         if(!permGranted) {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_WIFI_SCAN);
+                    REQUEST_LOCATION);
         }
 
         // Checks if the GPS is enabled
