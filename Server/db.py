@@ -414,13 +414,10 @@ class Database:
         Send location functions
     -------------------------------------------------------------------------"""
 
-    # Uses the Haversine formula
-    def get_matching_gps_locs(self, lat, long):
+    def __get_msgid_gps(self, wh_query, lst_query):
         cursor = self.conn.cursor()
 
-        self.__select(cursor, "Location", ["GPS"], ["(6371000 * acos(cos(radians(%s)) * cos(radians(Latitude)) \
-        * cos(radians(Longitude) - radians(%s)) + sin(radians(%s)) * sin(radians(Latitude)))) <= Radius"],
-                      [lat, long, lat])
+        self.__select(cursor, "DISTINCT M.MessageID", ["GPS AS G", "Messages AS M"], [wh_query], lst_query)
 
         if cursor.rowcount == 0:
             cursor.close()
@@ -434,46 +431,76 @@ class Database:
         cursor.close()
         return result
 
-    def get_matching_ssid_locs(self, lst_ssids):
+    def __get_msgid_ssid(self, wh_query, lst_query):
         cursor = self.conn.cursor()
 
-        where = None
-        if len(lst_ssids) > 0:
-            where = "W.Location = M.Location AND (W.WifiID = %s"
-            rem_els = lst_ssids[1:]
-            for el in rem_els:
-                where += " OR WifiID = %s"
-            where += ")"
+        self.__select(cursor, "DISTINCT M.MessageID", ["WifiIDs AS W", "Messages AS M"], [wh_query], lst_query)
 
-            self.__select(cursor, "", "WifiID", where, lst_ssids)
+        if cursor.rowcount == 0:
+            cursor.close()
+            return None
 
+        result = []
+        q_res = cursor.fetchall()
+        for row in q_res:
+            result.append(row[0])
 
-    #TODO: Method that returns the messages
+        cursor.close()
+        return result
 
+    # TODO: Check if the stuff exists before using it
 
-
-
-    def search_messages(self, session_id, gps, ssids):
+    def search_messages(self, session_id, loc_lst):
         cursor = self.conn.cursor()
+
+        # Sequence: lat, long, lat, timestamp, timestamp
+        haversine_formula = "OR ((6371000 * acos(cos(radians(%s)) * cos(radians(G.Latitude)) \
+                * cos(radians(G.Longitude) - radians(%s)) + sin(radians(%s)) * sin(radians(G.Latitude)))) <= G.Radius \
+                AND %s >= M.StartDate AND %s < M.EndDate) "
+
+        ssid_cmp = "OR (W.WifiID = %s AND %s >= M.StartDate AND %s < M.EndDate)"
+
+        q_gps = None
+        q_ssids = None
+
+        gps = []
+        ssids = []
 
         self.__select(cursor, "Username", ["Sessions"], ["SessionID = %s"], [session_id])
         if cursor.rowcount == 0:
             cursor.close()
             return create_error_json(error_session_not_found)
 
-        locs = []
-        for coord in gps:
-            tmp = self.get_matching_gps_locs(coord["lat"], coord["long"])
-            if tmp is not None:
-                locs.append(tmp)
+        for loc in loc_lst:
+            tm = loc["timestamp"]
+            
+            if "lat" in loc and "long" in loc:
+                if q_gps is None:
+                    q_gps = "G.Location = M.Location AND ( 1 "
+                q_gps += haversine_formula
 
-        """
-        for place in ssids:
-            tmp
-        """
+                gps.extend([loc["lat"], loc["long"], loc["lat"], loc["lat"], tm, tm])
+
+            if len(loc["ssids"]) > 0:
+                if q_ssids is None:
+                    q_ssids = "W.Location = M.Location AND ( 1 "
+
+                for ssid in loc["ssids"]:
+                    q_ssids += ssid_cmp
+                    ssids.extend([ssid, tm, tm])
+
+        result = set()
+
+        if q_gps is not None:
+            q_gps += ")"
+            result = set(self.__get_msgid_gps(q_gps, gps))
+
+        if q_ssids is not None:
+            q_ssids += ")"
+            result = result.union(self.__get_msgid_ssid(q_ssids, ssids))
 
         cursor.close()
-        return create_error_json(error_method_not_implemented)
+        return create_json(["messages"], [list(result)])
 
     def close(self):
         self.conn.close()
