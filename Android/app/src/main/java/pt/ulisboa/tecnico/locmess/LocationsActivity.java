@@ -1,49 +1,42 @@
 package pt.ulisboa.tecnico.locmess;
 
-import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
-import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import pt.ulisboa.tecnico.locmess.adapters.LocationsAdapter;
+import pt.ulisboa.tecnico.locmess.serverrequests.RemoveLocationTask;
+import pt.ulisboa.tecnico.locmess.serverrequests.RequestLocationsTask;
 
 /**
  * Created by nca on 20-03-2017.
  */
 
-public class LocationsActivity extends ActivityWithDrawer implements LocationsAdapter.Callback {
+public class LocationsActivity extends ActivityWithDrawer implements LocationsAdapter.Callback, RequestLocationsTask.RequestLocationsTaskCallBack, RemoveLocationTask.RemoveLocationTaskCallBack {
     private static final String LOG_TAG = ProfileActivity.class.getSimpleName();
     private LocationsActivity locAct = this;
 
     private LocationsAdapter locationsAdapter;
-    private List<LocationsAdapter.LocValue> locList = new ArrayList<>();
-    private List<LocationsAdapter.LocValue> searchList = new ArrayList<>(locList);
+    private List<String> locList = new ArrayList<>();
+    private List<String> searchList = new ArrayList<>(locList);
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;
+    private RequestLocationsTask task;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.activity_locations);
 
-        // TODO: Start removing when done
-        addLoc(new LocationsAdapter.LocValue("eduroam-rnl"));
-        addLoc(new LocationsAdapter.LocValue("arco do cego"));
-        addLoc(new LocationsAdapter.LocValue("h3-saldanha"));
-        // TODO: End of removal
+
 
         locationsAdapter = new LocationsAdapter(searchList, this);
 
@@ -61,20 +54,12 @@ public class LocationsActivity extends ActivityWithDrawer implements LocationsAd
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                if(!newText.equals("")) {
-                    searchList = new ArrayList<>();
-                    for(LocationsAdapter.LocValue l : locList) {
-                        if(l.loc.contains(newText))
-                            searchList.add(l);
-                    }
+                if (task!= null && task.getStatus() != AsyncTask.Status.FINISHED) {
+                    task.cancel(false);
+
                 }
-
-                else
-                    searchList = locList;
-
-                locationsAdapter = new LocationsAdapter(searchList, locAct);
-                mRecyclerView.setAdapter(locationsAdapter);
-
+                task = new RequestLocationsTask(LocationsActivity.this, LocationsActivity.this);
+                task.execute(newText);
                 return true;
             }
         });
@@ -83,16 +68,18 @@ public class LocationsActivity extends ActivityWithDrawer implements LocationsAd
     }
 
     @Override
-    public void onRemoveClicked(int position) {
-        updateStructures(position);
-        locationsAdapter.notifyItemRemoved(position);
+    protected void onResume() {
+        task = new RequestLocationsTask(this, this);
+        task.execute();
+        super.onResume();
     }
 
-    private void updateStructures(int position) {
-        LocationsAdapter.LocValue val = searchList.get(position);
-
-        searchList.remove(val);
-        locList.remove(val);
+    @Override
+    public void onRemoveClicked(int position) {
+        RemoveLocationTask removeTask = new RemoveLocationTask(this, this);
+        removeTask.execute(locList.get(position));
+        locList.remove(position);
+        locationsAdapter.notifyItemRemoved(position);
     }
 
     public void clickNew(View v) {
@@ -100,8 +87,35 @@ public class LocationsActivity extends ActivityWithDrawer implements LocationsAd
         startActivity(intent);
     }
 
-    public void addLoc(LocationsAdapter.LocValue val) {
-        searchList.add(val);
-        locList.add(val);
+    @Override
+    public void OnLocationSearchComplete(ArrayList<String> locations) {
+        locList = locations;
+        locationsAdapter.setData(locList);
+        locationsAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void OnErrorResponse(String error) {
+        Toast.makeText(this, error == null ? "Error" : error, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void OnNoInternetConnection() {
+        Toast.makeText(this, "Unable to retrieve locations from server", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void removeLocationComplete() {
+
+    }
+
+    @Override
+    public void onErrorResponse() {
+
+    }
+
+    @Override
+    public void onNoInternetConnection() {
+
     }
 }

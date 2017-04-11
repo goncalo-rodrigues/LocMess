@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context="pt.ulisboa.tecnico.locmess.NewLocationActivity">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingBottom="@dimen/activity_vertical_margin"
@@ -20,25 +20,32 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/name"
-            android:fontFamily="sans-serif-condensed" />
+            android:fontFamily="sans-serif-condensed"
+            android:layout_alignParentTop="true"
+            android:id="@+id/newlocation_name_tv"/>
 
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
             android:id="@+id/location_name"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp"
+            android:layout_below="@id/newlocation_name_tv" />
 
         <TextView
             android:text="Coordinates:"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-condensed" />
+            android:fontFamily="sans-serif-condensed"
+            android:layout_below="@id/location_name"
+            android:id="@+id/newlocation_coords_tv"/>
 
         <RadioGroup
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:orientation="vertical"
+            android:layout_below="@id/newlocation_coords_tv"
+            android:id="@+id/newlocation_radiogroup">
 
             <RadioButton
                 android:text="@string/gps"
@@ -61,7 +68,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone"
-            android:id="@+id/chose_gps">
+            android:id="@+id/chose_gps"
+            android:layout_below="@id/newlocation_radiogroup">
 
             <LinearLayout
                 android:orientation="horizontal"
@@ -145,21 +153,23 @@
 
             </LinearLayout>
 
-            <Button
-                android:text="@string/create"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/accept_gps"
-                style="@style/Widget.AppCompat.Button.Colored" />
-
         </LinearLayout>
-
-        <LinearLayout
+        <Button
+            android:text="@string/create"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:id="@+id/newlocation_create_bt"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_alignParentBottom="true"/>
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:id="@+id/chose_wifi"
             android:orientation="vertical"
             android:isScrollContainer="true"
+            android:layout_below="@id/newlocation_radiogroup"
+            android:layout_above="@id/newlocation_create_bt"
             android:visibility="gone">
 
             <ListView
@@ -167,17 +177,19 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/wifi_ids_list"
                 android:layout_weight="5" />
-
-            <Button
-                android:text="@string/create"
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/accept_wifi"
-                style="@style/Widget.AppCompat.Button.Colored" />
+                android:text="No wifis are in range"
+                android:id="@+id/newlocation_wifis_empty_tv"
+                android:textSize="24sp"
+                android:gravity="center"
+                android:layout_gravity="center"/>
 
-        </LinearLayout>
 
-    </LinearLayout>
+        </FrameLayout>
+
+    </RelativeLayout>
 
     <include layout="@layout/drawer_layout" />
 

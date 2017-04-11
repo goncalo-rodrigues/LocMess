@@ -17,7 +17,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import pt.ulisboa.tecnico.locmess.data.entities.FullLocation;
 import pt.ulisboa.tecnico.locmess.data.entities.ReceivedMessage;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 
@@ -25,18 +27,12 @@ import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
  * Created by ant on 03-04-2017.
  */
 
-public class CreateLocationTask extends AsyncTask<Void, String,String>{
+public class CreateLocationTask extends AsyncTask<FullLocation, String,String>{
     private CreateLocationTaskCallBack callback;
     //private static final String URL_SERVER = "http://requestb.in/16z80wa1";
     private static final String URL_SERVER = "http://locmess.duckdns.org";
     NetworkGlobalState globalState;
     String errorToReturn = "";
-    //Variables to send
-    private String name;
-    private int lat;
-    private int lon;
-    private int radius;
-    private ArrayList<String> ssids;
 
 
 
@@ -45,18 +41,23 @@ public class CreateLocationTask extends AsyncTask<Void, String,String>{
         globalState = (NetworkGlobalState) context.getApplicationContext();
         callback = ltcb;
     }
-
-    protected String doInBackground(String name, int lat, int lon, int radius ,ArrayList<String> ssids){
-        this.name = name;
-        this.lat = lat;
-        this.lon = lon;
-        this.radius = radius;
-        this.ssids = ssids;
-        return doInBackground();
-    }
-
     @Override
-    protected String doInBackground(Void... params) {
+    protected String doInBackground(FullLocation... params) {
+        if (params.length == 0) {
+            return null;
+        }
+        FullLocation loc = params[0];
+        if (loc == null) {
+            return null;
+        }
+
+
+        String name = loc.getLocation();
+        double lat = loc.getLatitude();
+        double lon = loc.getLongitude();
+        double radius = loc.getRadius();
+        List<String> ssids = loc.getSsids();
+
 
         String result ="";
 

@@ -36,12 +36,18 @@ public class Location {
         db.close();
     }
 
-    public static Cursor getAll(Context ctx) {
+    public static Cursor getAll(Context ctx, String filter) {
         LocmessDbHelper helper = new LocmessDbHelper(ctx);
         SQLiteDatabase db = helper.getReadableDatabase();
-        Cursor result =  db.query(LocmessContract.LocationTable.TABLE_NAME, null, null, null, null, null, null);
+        Cursor result =  db.query(LocmessContract.LocationTable.TABLE_NAME,
+                null, LocmessContract.LocationTable.COLUMN_NAME_LOCATION + " LIKE '%" + filter + "%'", null, null, null,
+                LocmessContract.LocationTable.COLUMN_NAME_LOCATION);
         //db.close();
         return  result;
+    }
+
+    public static Cursor getAll(Context ctx) {
+        return getAll(ctx, "");
     }
 
     public void delete(Context ctx) {

@@ -38,7 +38,7 @@ public class RequestLocationsTask extends AsyncTask<String, String,ArrayList<Str
 
     @Override
     protected ArrayList<String> doInBackground(String... params) {
-        String startswith = params[0];
+        String startswith = params.length > 0? params[0] : "";
         String result ="";
         ArrayList<String> response = new ArrayList<>();
 
