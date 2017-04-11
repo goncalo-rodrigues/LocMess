@@ -16,15 +16,15 @@ import pt.ulisboa.tecnico.locmess.R;
  */
 
 public class LocationsAdapter extends RecyclerView.Adapter<LocationsAdapter.ViewHolder> {
-    private List<LocationsAdapter.LocValue> data;
+    private List<String> data;
     private LocationsAdapter.Callback callback;
 
-    public LocationsAdapter(List<LocationsAdapter.LocValue> list) {
+    public LocationsAdapter(List<String> list) {
         super();
         this.data = list;
     }
 
-    public LocationsAdapter(List<LocationsAdapter.LocValue> list, LocationsAdapter.Callback callback) {
+    public LocationsAdapter(List<String> list, LocationsAdapter.Callback callback) {
         this(list);
         this.callback = callback;
     }
@@ -40,8 +40,8 @@ public class LocationsAdapter extends RecyclerView.Adapter<LocationsAdapter.View
 
     @Override
     public void onBindViewHolder(final LocationsAdapter.ViewHolder holder, final int position) {
-        LocationsAdapter.LocValue item = data.get(position);
-        holder.loc_tv.setText(item.loc);
+        String item = data.get(position);
+        holder.loc_tv.setText(item);
 
         holder.remove_bt.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -57,6 +57,10 @@ public class LocationsAdapter extends RecyclerView.Adapter<LocationsAdapter.View
         return data.size();
     }
 
+    public void setData(List<String> data) {
+        this.data = data;
+    }
+
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public ImageButton remove_bt;
@@ -67,14 +71,6 @@ public class LocationsAdapter extends RecyclerView.Adapter<LocationsAdapter.View
             super(v);
             remove_bt = (ImageButton) v.findViewById(R.id.locations_item_remove);
             loc_tv = (TextView) v.findViewById(R.id.locations_item_value);
-        }
-    }
-
-    public static class LocValue {
-        public String loc;
-
-        public LocValue(String loc) {
-            this.loc = loc;
         }
     }
 
