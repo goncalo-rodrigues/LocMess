@@ -37,6 +37,17 @@ def create_msg_dict(id, username, location, start, end, content, filters):
                        [id, username, location, start, end, content, filters])
 
 
+def is_gps(something):
+    return "lat" in something and "long" in something
+
+
+def are_gps(something):
+    for el in something:
+        if not is_gps(el):
+            return False
+    return True
+
+
 def is_filter(something):
     return "key" in something and "value" in something
 

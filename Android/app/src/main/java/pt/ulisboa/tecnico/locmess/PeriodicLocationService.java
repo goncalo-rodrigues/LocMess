@@ -18,6 +18,16 @@ import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -28,12 +38,17 @@ import pt.inesc.termite.wifidirect.SimWifiP2pDeviceList;
 import pt.inesc.termite.wifidirect.SimWifiP2pManager;
 import pt.inesc.termite.wifidirect.service.SimWifiP2pService;
 import pt.ulisboa.tecnico.locmess.data.LocmessContract;
+import pt.ulisboa.tecnico.locmess.data.entities.ReceivedMessage;
+import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
+import pt.ulisboa.tecnico.locmess.serverrequests.SendMyLocationTask;
+import pt.ulisboa.tecnico.locmess.serverrequests.SendMyLocationTask.SendMyLocationsTaskCallBack;
 
-public class PeriodicLocationService extends Service implements LocationListener, SimWifiP2pManager.PeerListListener {
+public class PeriodicLocationService extends Service implements LocationListener, SimWifiP2pManager.PeerListListener,SendMyLocationsTaskCallBack{
     private LocationManager mLocationManager;
     private long minTimeMs = 1000 * 30; // 30 seconds
     private float minDistance = 0;
     private Location mostRecentLocation;
+    private List<TimestampedLocation> updates = new ArrayList<>();
 
     private List<String> ssids = new ArrayList<>();
     private SimWifiP2pBroadcastReceiver mReceiver;
@@ -43,14 +58,18 @@ public class PeriodicLocationService extends Service implements LocationListener
     private final int interval = 1000 * 10; // 1 Second
     private Handler handler = new Handler();
 
+    NetworkGlobalState globalState;
+    private static final String URL_SERVER = "http://locmess.duckdns.org";
+
     private Runnable runnable = new Runnable(){
         public void run() {
-            Toast.makeText(PeriodicLocationService.this, "Sending location to server", Toast.LENGTH_SHORT).show();
+
+            sendToServer();
             handler.postDelayed(runnable, interval);
         }
     };
 
-    private List<TimestampedLocation> updates = new ArrayList<>();
+
     @Override
     public void onDestroy() {
         mLocationManager.removeUpdates(this);
@@ -82,7 +101,11 @@ public class PeriodicLocationService extends Service implements LocationListener
         Intent intent = new Intent(this, SimWifiP2pService.class);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
 
+        globalState = (NetworkGlobalState) getApplicationContext();
+
         handler.postDelayed(runnable, interval);
+
+
         super.onCreate();
     }
 
@@ -151,6 +174,16 @@ public class PeriodicLocationService extends Service implements LocationListener
         updates.add(new TimestampedLocation(ssids, mostRecentLocation.getLatitude(), mostRecentLocation.getLongitude()));
     }
 
+    @Override
+    public void OnSendComplete() {
+        Toast.makeText(this, "Send to server complete", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void OnErrorResponse(String error) {
+        Toast.makeText(this, "Error:"+error, Toast.LENGTH_SHORT).show();
+    }
+
     public class SimWifiP2pBroadcastReceiver extends BroadcastReceiver {
 
         @Override
@@ -181,6 +214,15 @@ public class PeriodicLocationService extends Service implements LocationListener
             mChannel = null;
         }
     };
+
+    private void sendToServer(){
+        ArrayList<TimestampedLocation> copy = new ArrayList<>(updates);
+        updates = new ArrayList<>();
+        new SendMyLocationTask(this,this,copy).execute();
+
+    }
+
+
 
     public class TimestampedLocation {
         public Date timeStamp;

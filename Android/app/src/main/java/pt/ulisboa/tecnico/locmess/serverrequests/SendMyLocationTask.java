@@ -19,14 +19,17 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 
+import pt.ulisboa.tecnico.locmess.PeriodicLocationService;
+import pt.ulisboa.tecnico.locmess.data.entities.FullLocation;
 import pt.ulisboa.tecnico.locmess.data.entities.ReceivedMessage;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
+import pt.ulisboa.tecnico.locmess.PeriodicLocationService.TimestampedLocation;
 
 /**
  * Created by ant on 26-03-2017.
  */
 
-public class SendMyLocationTask extends AsyncTask<Void, String,ArrayList<ReceivedMessage>>{
+public class SendMyLocationTask extends AsyncTask<Void, String,String>{
     private SendMyLocationsTaskCallBack callback;
     //private static final String URL_SERVER = "http://requestb.in/16z80wa1";
     private static final String URL_SERVER = "http://locmess.duckdns.org";
@@ -34,73 +37,68 @@ public class SendMyLocationTask extends AsyncTask<Void, String,ArrayList<Receive
     private ArrayList<Pair> gpsCoordiantes;
     private ArrayList<String> ssids;
     String errorToReturn = "";
+    ArrayList<TimestampedLocation> locations;
+    Context context;
 
 
-    public SendMyLocationTask(SendMyLocationsTaskCallBack ltcb, Context context){
+    public SendMyLocationTask(SendMyLocationsTaskCallBack ltcb, Context context, ArrayList<TimestampedLocation> locations){
         globalState = (NetworkGlobalState) context.getApplicationContext();
         callback = ltcb;
+        this.locations = locations;
+        this.context =context;
     }
 
-    protected ArrayList<ReceivedMessage> doInBackground(ArrayList<Pair> gpsCoordiantes ,ArrayList<String> ssids){
-        this.gpsCoordiantes = gpsCoordiantes;
-        this.ssids = ssids;
-        return doInBackground();
-    }
+    /*{
+locations : [{latitude: 5.50123,longitude: 0.9123, ssids: [] timestamp: 28 maio 2017 15:52:21},
+{latitude: null,longitude: null,ssids: [A, B, E],timestamp: 28 maio 2017 15:56:21}
+]
+}*/
+
 
     @Override
-    protected ArrayList<ReceivedMessage> doInBackground(Void... params) {
+    protected String doInBackground(Void... params) {
 
         String result ="";
 
         //make the jason object to send
-        JSONObject jsoninputs = new JSONObject();
-        JSONArray jsonCoordinates = new JSONArray(gpsCoordiantes);//todo check this
-        JSONArray jsonSsids = new JSONArray(ssids);
-
-
-        try {
-            jsoninputs.put("session_id", globalState.getId());
-
-            /*TODO verificar se o modo de cima funciona
-            JSONObject coord;
-            for(Pair coordinate : gpsCoordiantes){
-                coord = new JSONObject();
-                coord.put("lat",coordinate.first);
-                coord.put("long",coordinate.second);
-                jsonCoordinates.put(coord);
-            }*/
-
-            jsoninputs.put("gps",jsonCoordinates);
-            jsoninputs.put("ssids",jsonSsids);
-
+        try{
 
             //open the conection to the server and send
             URL url = new URL(URL_SERVER+"/send_locations");
+            JSONObject jsoninputs = createJsonMessage(locations);
             result= makeHTTPResquest(url,jsoninputs);
 
             //parse and get json elements, can be an array of locations or a error message
 
             JSONObject data = new JSONObject(result);
-            String error = data.getString("error");
 
-            if(error!=null && error.length()>0){
-                errorToReturn = error;
-                return null;
+            if (data.opt("error") != null) {
+                String error =  data.getString("error");
+                return error;
             }
-            JSONArray messages =data.getJSONArray("messages");
 
-            return retrieveMessagesFromJsonArray(messages);
+            saveMessagesFromJson(data);
 
-        }catch (JSONException e) {e.printStackTrace();
+            return "ok";
+
+        }catch (JSONException e) {
+            e.printStackTrace();
+            return "JSONerror";
         }catch (IOException e) {
             e.printStackTrace();
-            errorToReturn = "conetionError";
-            return null;
+            return "conetionError";
         }
+    }
 
-        //never reach here unless we get an error parsing the json
-        return null;
+    @Override
+    protected void onPostExecute(String result) {
+        //TODO see the possible errors and handle them
+        if (!result.equals("ok"))
+            callback.OnErrorResponse(result);
+        else
+            callback.OnSendComplete();
 
+        super.onPostExecute(result);
     }
 
     protected String makeHTTPResquest(URL url,JSONObject jsoninputs) throws IOException {
@@ -126,8 +124,7 @@ public class SendMyLocationTask extends AsyncTask<Void, String,ArrayList<Receive
         return result;
     }
 
-    /*{"username":"...", "location":"...", "start_date":XX, "end_date":YY, "content":"...",
-     "filters":[{"key":"...", "value":"...", "is_whitelist": T/F }, ...]}*/
+
     private ArrayList<ReceivedMessage> retrieveMessagesFromJsonArray(JSONArray messages) throws JSONException {
 
         ArrayList<ReceivedMessage> result = new ArrayList<>();
@@ -139,10 +136,9 @@ public class SendMyLocationTask extends AsyncTask<Void, String,ArrayList<Receive
         Date end_date;
         String content;
 
-
-        for (int j=0;j<messages.length()-1;j++)
+        for (int j=0;j<messages.length()-1;j++) {
             message = messages.getJSONObject(j);
-            if( message != null) {
+            if (message != null) {
                 id = message.getString("id");
                 username = message.getString("username");
                 location = message.getString("location");
@@ -152,25 +148,66 @@ public class SendMyLocationTask extends AsyncTask<Void, String,ArrayList<Receive
                 //TODO decoment when db ready
                 result.add(new ReceivedMessage(id, content, username, location, start_date, end_date, false));
             }
-
+        }
         return result;
     }
 
 
-    @Override
-    protected void onPostExecute(ArrayList<ReceivedMessage> result) {
-        //TODO see the possible errors and handle them
-        if (result== null)
-            callback.OnErrorResponse(errorToReturn);
-        else
-            callback.OnSendComplete(result);
+    public void saveMessagesFromJson(JSONObject json) throws JSONException {
+        JSONArray messages =json.getJSONArray("messages");
+        ArrayList<ReceivedMessage> result = new ArrayList<>();
+        JSONObject message =null;
+        String id;
+        String username;
+        String location;
+        Date start_date;
+        Date end_date;
+        String content;
+        ReceivedMessage rm;
 
-        super.onPostExecute(result);
+        for (int j=0;j<messages.length()-1;j++) {
+            message = messages.getJSONObject(j);
+            if (message != null) {
+                id = message.getString("id");
+                username = message.getString("username");
+                location = message.getString("location");
+                start_date = new Date(message.getLong("start_date"));
+                end_date = new Date(message.getLong("end_date"));
+                content = message.getString("content");
+                rm =new ReceivedMessage(id, content, username, location, start_date, end_date, false);
+                rm.save(context);
+            }
+        }
+        return;
+    }
+
+
+    private JSONObject createJsonMessage(ArrayList<TimestampedLocation> locations) throws JSONException {
+        String result ="";
+        JSONObject jsoninputs = new JSONObject();
+        JSONArray jsonLocations = new JSONArray();
+
+        jsoninputs.put("session_id", globalState.getId());
+
+        JSONArray jsonSsids;
+        JSONObject jsonlocation;
+        for(TimestampedLocation location : locations){
+            jsonlocation = new JSONObject();
+            jsonlocation.put("lat",location.latitude);
+            jsonlocation.put("long",location.longitude);
+            jsonSsids = new JSONArray(location.ssids);
+            jsonlocation.put("ssids",jsonSsids);
+            jsonlocation.put("timestamp",location.timeStamp.getTime());
+            jsonLocations.put(jsonlocation);
+        }
+
+        jsoninputs.put("locations",jsonLocations);
+        return  jsoninputs;
     }
 
 
     public interface SendMyLocationsTaskCallBack{
-        void OnSendComplete(ArrayList<ReceivedMessage> locations);
+        void OnSendComplete();
         void OnErrorResponse(String error);
     }
 

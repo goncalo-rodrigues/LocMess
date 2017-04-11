@@ -65,7 +65,6 @@ def request_locations():
     return create_error_json(error_keys_not_in_json)
 
 
-# TODO
 @app.route("/send_locations", methods=['POST'])
 def send_locations():
     req = request.get_json()
@@ -73,7 +72,10 @@ def send_locations():
     print("IN: " + str(req) + "\n")
     out.flush()
 
-    return create_error_json(error_method_not_implemented)
+    if "session_id" in req and "gps" in req and "ssids" and are_gps(req["gps"]):
+        return db.search_messages(req["session_id"], req["gps"], req["ssids"])
+
+    return create_error_json(error_keys_not_in_json)
 
 
 @app.route("/create_location", methods=['POST'])
@@ -101,6 +103,19 @@ def remove_location():
 
     if "session_id" in req and "name" in req:
         return db.remove_location(req["session_id"], req["name"])
+
+    return create_error_json(error_keys_not_in_json)
+
+
+@app.route("/get_location_info", methods=['POST'])
+def get_location_info():
+    req = request.get_json()
+
+    print("IN: " + str(req) + "\n")
+    out.flush()
+
+    if "session_id" in req and "location" in req:
+        return db.get_location_info(req["session_id"], req["location"])
 
     return create_error_json(error_keys_not_in_json)
 
