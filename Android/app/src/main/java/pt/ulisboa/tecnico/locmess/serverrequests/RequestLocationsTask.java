@@ -47,61 +47,35 @@ public class RequestLocationsTask extends AsyncTask<String, String,ArrayList<Str
         try {
             jsoninputs.put("session_id", globalState.getId());
             jsoninputs.put("startswith", startswith);
-        } catch (JSONException e) {
-            e.printStackTrace();}//TODO make someting
 
-        //open the conection to the server and send
-        URL url= null;
-        try {
-            url = new URL(URL_SERVER+"/request_locations");
-        } catch (MalformedURLException e) { e.printStackTrace(); }
+            //open the conection to the server and send
+            URL url=  new URL(URL_SERVER+"/request_locations");
 
-        try{
-            HttpURLConnection urlConnection= (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("POST");
-            urlConnection.setRequestProperty("Content-Type","application/json");
-            urlConnection.setConnectTimeout(10000);
-            urlConnection.setReadTimeout(10000);
-            urlConnection.connect();
+            result =makeHTTPResquest(url, jsoninputs);
 
-            OutputStreamWriter   out = new   OutputStreamWriter(urlConnection.getOutputStream());
-            out.write(jsoninputs.toString());
-            out.flush();
-            out.close();
+            //parse and get json elements, can be an array of locations or a error message
+            JSONObject data = new JSONObject(result);
 
-
-            BufferedReader buffer = new BufferedReader( new InputStreamReader(urlConnection.getInputStream(),"utf-8"));
-
-            String line ;
-            while((line=buffer.readLine())!=null){
-                result+=line;// +"\n";
+            if (data.opt("error") != null) {
+                response.add("error");
+                response.add(data.getString("error"));
+                return  response;
+            }
+            if (data.opt("locations") != null) {
+                JSONArray locations = data.getJSONArray("locations");
+                int x = locations.length();
+                for (int j = 0; j < locations.length() ; j++)
+                    response.add(locations.getString(j));
+                return response;
             }
 
 
-        } catch (IOException e) {
+        }catch (JSONException e) {e.printStackTrace();
+        }catch (IOException e) {
             e.printStackTrace();
             response.add("conetionError");
             return response;
         }
-
-        //parse and get json elements, can be an array of locations or a error message
-        try {
-            JSONObject data = new JSONObject(result);
-            String error = data.getString("error");
-
-            if(error!=null && error.length()>0){
-                response.add(error);
-                response.add(error);
-                return response;
-            }
-            JSONArray locations =data.getJSONArray("locations");
-            for (int j=0;j<locations.length()-1;j++)
-                response.add(locations.getString(j));
-
-            return response;
-
-        }catch (JSONException e) {e.printStackTrace(); }
-
 
         return response;
 
@@ -110,18 +84,49 @@ public class RequestLocationsTask extends AsyncTask<String, String,ArrayList<Str
     @Override
     protected void onPostExecute(ArrayList<String> result) {
         //TODO see the possible errors and handle them
-        if (result.get(0).equals("error"))
+        String first= "";
+        if (result.size()>0)
+            first = result.get(0);
+
+        if (first.equals("error"))
             callback.OnErrorResponse(result.get(1));
 
+        else if (first.equals("conetionError"))
+            callback.OnNoInternetConnection();
+
         else
-            callback.OnSearchComplete(result);
+            callback.OnLocationSearchComplete(result);
 
         super.onPostExecute(result);
     }
 
 
     public interface RequestLocationsTaskCallBack{
-        void OnSearchComplete(ArrayList<String> locations);
+        void OnLocationSearchComplete(ArrayList<String> locations);
         void OnErrorResponse(String error);
+        void OnNoInternetConnection();
+    }
+
+    protected String makeHTTPResquest(URL url,JSONObject jsoninputs) throws IOException {
+        HttpURLConnection urlConnection= (HttpURLConnection) url.openConnection();
+        urlConnection.setRequestMethod("POST");
+        urlConnection.setRequestProperty("Content-Type","application/json");
+        urlConnection.setConnectTimeout(10000);
+        urlConnection.setReadTimeout(10000);
+        urlConnection.connect();
+
+        OutputStreamWriter   out = new   OutputStreamWriter(urlConnection.getOutputStream());
+        out.write(jsoninputs.toString());
+        out.flush();
+        out.close();
+
+        BufferedReader buffer = new BufferedReader( new InputStreamReader(urlConnection.getInputStream(),"utf-8"));
+        String result ="";
+        String line ;
+        while((line=buffer.readLine())!=null) {
+            result += line;// +"\n";
+        }
+
+        return result;
     }
 }

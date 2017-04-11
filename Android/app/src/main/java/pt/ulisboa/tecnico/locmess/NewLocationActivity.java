@@ -7,9 +7,11 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.ScanCallback;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -19,6 +21,8 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.Messenger;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -35,11 +39,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import pt.inesc.termite.wifidirect.SimWifiP2pBroadcast;
+import pt.inesc.termite.wifidirect.SimWifiP2pDevice;
+import pt.inesc.termite.wifidirect.SimWifiP2pDeviceList;
+import pt.inesc.termite.wifidirect.SimWifiP2pInfo;
+import pt.inesc.termite.wifidirect.SimWifiP2pManager;
+import pt.inesc.termite.wifidirect.service.SimWifiP2pService;
+import pt.ulisboa.tecnico.locmess.wifidirect.SimWifiP2pBroadcastReceiver;
+
 /**
  * Created by nca on 20-03-2017.
  */
 
-public class NewLocationActivity extends ActivityWithDrawer implements LocationListener {
+public class NewLocationActivity extends ActivityWithDrawer implements LocationListener, SimWifiP2pManager.PeerListListener {
     private static final int REQUEST_LOCATION = 0;
     private static final int REQUEST_WIFI_SCAN = 1;
     private Context context = this;
@@ -48,17 +60,14 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
     private double longitude = 200;
     private LocationManager mLocationManager;
 
-    private BluetoothAdapter bluetoothAdapter = null;
-    private BLECallback bleCallback = null;
-    private List<String> bleSSIDS = null;
-    private boolean btScanning = true;
-
-    private WifiManager wifi = null;
-    private WifiReceiver recv = null;
     private List<ScanResult> scanRes;
     private List<String> ssids = null;
     private ArrayAdapter<String> arrayAdapter = null;
     private boolean finishedWifiSearch = false;
+    private SimWifiP2pBroadcastReceiver mReceiver;
+
+    private SimWifiP2pManager mManager = null;
+    private SimWifiP2pManager.Channel mChannel = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,26 +75,27 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
         super.onCreate(savedInstanceState);
 
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-        recv = new WifiReceiver();
-
-        // BLE is only available from Android 4.3
-        BluetoothManager bm = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        bluetoothAdapter = bm.getAdapter();
-        bleCallback = new BLECallback();
 
         ssids = new ArrayList<>();
         ListView lv = (ListView) findViewById(R.id.wifi_ids_list);
         arrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, ssids);
         lv.setAdapter(arrayAdapter);
-        // Receives WiFi scan results
-        registerReceiver(recv, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+
+        // register broadcast receiver
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_PEERS_CHANGED_ACTION);
+        mReceiver = new SimWifiP2pBroadcastReceiver();
+        registerReceiver(mReceiver, filter);
+
+        Intent intent = new Intent(this, SimWifiP2pService.class);
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(recv);
+        unregisterReceiver(mReceiver);
+        unbindService(mConnection);
     }
 
     public void gpsClicked(View view) {
@@ -116,10 +126,6 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
         checkGPSStatus();
         checkWifiStatus();
 
-        if(checkBluetoothStatus())
-            new scanLeDeviceTask().execute(true);
-
-        wifi.startScan();
     }
 
     public void getCurrentLocation(View v) {
@@ -146,7 +152,7 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
         if(!permGranted) {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_WIFI_SCAN);
+                    REQUEST_LOCATION);
         }
 
         // Checks if the GPS is enabled
@@ -158,10 +164,6 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
 
     private void checkWifiStatus() {
         // Makes sure that WiFi is enabled
-        if (!wifi.isWifiEnabled()) {
-            Intent intent = new Intent(Settings.ACTION_WIFI_SETTINGS);
-            startActivity(intent);
-        }
 
         boolean permGranted =
                 ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_WIFI_STATE)
@@ -172,20 +174,6 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_WIFI_STATE},
                     REQUEST_WIFI_SCAN);
-    }
-
-    // If the device does not support BLE, the result is false
-    private boolean checkBluetoothStatus() {
-        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)
-                || bluetoothAdapter == null)
-            return false;
-
-        if (!bluetoothAdapter.isEnabled()) {
-            Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivity(intent);
-        }
-
-        return true;
     }
 
     public void getMapLocation(View v) {
@@ -219,20 +207,6 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
                         // It should not happen because permission was granted
                         e.printStackTrace();
                     }
-                }
-            }
-
-            case REQUEST_WIFI_SCAN: {
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    // Receives WiFi scan results
-                    registerReceiver(new BroadcastReceiver() {
-                        @Override
-                        public void onReceive(Context c, Intent intent) {
-                            scanRes = wifi.getScanResults();
-                        }
-                    }, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
                 }
             }
         }
@@ -286,86 +260,45 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
         return bestLocation;
     }
 
-    // Used for discovering the wifi networks
-    private class WifiReceiver extends BroadcastReceiver {
+    @Override
+    public void onPeersAvailable(SimWifiP2pDeviceList peers) {
+        ssids.clear();
+        for (SimWifiP2pDevice device : peers.getDeviceList()) {
+            ssids.add(device.deviceName);
+        }
+        arrayAdapter.notifyDataSetChanged();
+    }
+
+
+    public class SimWifiP2pBroadcastReceiver extends BroadcastReceiver {
+
         @Override
-        public void onReceive(Context c, Intent intent) {
-            scanRes = wifi.getScanResults();
-
-            if(!finishedWifiSearch && scanRes.size() > 0) {
-                finishedWifiSearch = true;
-
-                if(ssids == null)
-                    ssids = new ArrayList<>();
-
-                for (ScanResult sc : scanRes)
-                    ssids.add(sc.SSID + sc.BSSID);
-
-                Collections.sort(ssids);
-                arrayAdapter.notifyDataSetChanged();
+        public void onReceive(android.content.Context context, Intent intent) {
+            String action = intent.getAction();
+            if (SimWifiP2pBroadcast.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) {
+                Toast.makeText(context, "Peers changed",
+                        Toast.LENGTH_SHORT).show();
+                mManager.requestPeers(mChannel, NewLocationActivity.this);
 
             }
         }
     }
 
-    // It is available from Android 4.3 upwards
-    private class BLECallback implements BluetoothAdapter.LeScanCallback {
-        @Override
-        public void onLeScan(BluetoothDevice bluetoothDevice, int i, byte[] bytes) {
-            if(bleSSIDS == null)
-                bleSSIDS = new ArrayList<>();
-
-            if (bluetoothDevice.getAddress() != null && !bleSSIDS.contains(bluetoothDevice.getAddress())) {
-                bleSSIDS.add(bluetoothDevice.getAddress());
-                ssids.add(bluetoothDevice.getAddress());
-                Collections.sort(ssids);
-                arrayAdapter.notifyDataSetChanged();
-
-            }
-
-        }
-    }
-
-    // Performs the BLE scanning
-    private class scanLeDeviceTask extends AsyncTask<Boolean, Boolean, List<String>> {
-        private static final int DELAY = 5000; // Measured in milliseconds
+    private ServiceConnection mConnection = new ServiceConnection() {
+        // callbacks for service binding, passed to bindService()
 
         @Override
-        protected List<String> doInBackground(Boolean... enable) {
-            if (enable[0]) {
-                btScanning = true;
-                bluetoothAdapter.startLeScan(bleCallback);
-
-//                try {
-//                    Thread.sleep(DELAY);
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-            }
-
-            btScanning = false;
-//            bluetoothAdapter.stopLeScan(bleCallback);
-
-            if(!enable[0])
-                return null;
-
-            return bleSSIDS;
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            mManager = new SimWifiP2pManager(new Messenger(service));
+            mChannel = mManager.initialize(getApplication(), getMainLooper(), null);
+            mManager.requestPeers(mChannel, NewLocationActivity.this);
         }
 
         @Override
-        protected void onPostExecute(List<String> bleSSIDS) {
-            // And now can add the results to the interface
-
-//            if (bleSSIDS != null && bleSSIDS.size() > 0) {
-//                if (ssids == null)
-//                    ssids = new ArrayList<>();
-//
-//                ssids.addAll(bleSSIDS);
-//                Collections.sort(ssids);
-//
-//                arrayAdapter.notifyDataSetChanged();
-//            }
-
+        public void onServiceDisconnected(ComponentName arg0) {
+            mManager = null;
+            mChannel = null;
         }
-    }
+    };
+
 }

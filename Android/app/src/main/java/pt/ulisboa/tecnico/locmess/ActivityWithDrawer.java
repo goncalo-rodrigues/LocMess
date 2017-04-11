@@ -10,14 +10,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
-import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -25,6 +22,7 @@ import java.util.ArrayList;
 import pt.ulisboa.tecnico.locmess.adapters.DrawerListAdapter;
 import pt.ulisboa.tecnico.locmess.data.LocmessContract;
 import pt.ulisboa.tecnico.locmess.data.LocmessDbHelper;
+import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 import pt.ulisboa.tecnico.locmess.serverrequests.LogoutTask;
 
 import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
@@ -101,6 +99,11 @@ public abstract class ActivityWithDrawer extends AppCompatActivity implements Dr
         mLogoutBt.setOnClickListener(this);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        String username = ((NetworkGlobalState) getApplicationContext()).getUsername();
+        if (username == null || username.isEmpty()) username = "<Username>";
+        TextView nameTv = (TextView) mDrawerLayout.findViewById(R.id.left_drawer_name);
+        nameTv.setText(username);
+
     }
 
     @Override
@@ -158,7 +161,7 @@ public abstract class ActivityWithDrawer extends AppCompatActivity implements Dr
     }
 
     @Override
-    public void OnNoInternetConnection(){
+    public void OnLogoutNoInternetConnection(){
         Toast.makeText(this, "logout No Internet Connection", Toast.LENGTH_LONG).show();
         logoutClear();
     }
@@ -176,17 +179,17 @@ public abstract class ActivityWithDrawer extends AppCompatActivity implements Dr
     private void clearDatabase(){
         LocmessDbHelper helper = new LocmessDbHelper(this);
         SQLiteDatabase db = helper.getWritableDatabase();
-        db.execSQL(LocmessContract.SQL_DELETE_1);
-        db.execSQL(LocmessContract.SQL_DELETE_2);
-        db.execSQL(LocmessContract.SQL_DELETE_3);
-        db.execSQL(LocmessContract.SQL_DELETE_5);
-        db.execSQL(LocmessContract.SQL_DELETE_6);
+        db.execSQL(LocmessContract.SQL_DELETE_MESSAGE_TBL);
+        db.execSQL(LocmessContract.SQL_DELETE_MESSAGE_FILTER_TBL);
+        db.execSQL(LocmessContract.SQL_DELETE_CREATED_MESSAGE_TBL);
+        db.execSQL(LocmessContract.SQL_DELETE_LOCATION_TBL);
+        db.execSQL(LocmessContract.SQL_DELETE_PROFILE_KEYVAL_TBL);
 
-        db.execSQL(LocmessContract.SQL_CREATE_1);
-        db.execSQL(LocmessContract.SQL_CREATE_2);
-        db.execSQL(LocmessContract.SQL_CREATE_4);
-        db.execSQL(LocmessContract.SQL_CREATE_5);
-        db.execSQL(LocmessContract.SQL_CREATE_6);
+        db.execSQL(LocmessContract.SQL_CREATE_MESSAGE_TBL);
+        db.execSQL(LocmessContract.SQL_CREATE_CREATED_MESSAGE_TBL);
+        db.execSQL(LocmessContract.SQL_CREATE_MESSAGE_FILTER_TBL);
+        db.execSQL(LocmessContract.SQL_CREATE_LOCATION_TBL);
+        db.execSQL(LocmessContract.SQL_CREATE_PROFILE_KEYVAL_TBL);
 
     }
 

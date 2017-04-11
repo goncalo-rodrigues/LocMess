@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -19,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 import pt.ulisboa.tecnico.locmess.data.entities.CreatedMessage;
+import pt.ulisboa.tecnico.locmess.data.entities.FullLocation;
 import pt.ulisboa.tecnico.locmess.data.entities.Message;
 
 import java.text.DateFormat;
@@ -28,12 +30,18 @@ import java.util.Date;
 import java.util.List;
 
 import pt.ulisboa.tecnico.locmess.adapters.FilterAdapter;
+import pt.ulisboa.tecnico.locmess.data.entities.MuleMessage;
+import pt.ulisboa.tecnico.locmess.data.entities.MuleMessageFilter;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
+import pt.ulisboa.tecnico.locmess.serverrequests.GetLocationInfoTask;
+import pt.ulisboa.tecnico.locmess.serverrequests.PostMessageTask;
+import pt.ulisboa.tecnico.locmess.serverrequests.RequestExistentFiltersTask;
+import pt.ulisboa.tecnico.locmess.serverrequests.RequestLocationsTask;
 
 import static java.lang.Math.random;
 
 public class PostMessageActivity extends ActivityWithDrawer implements FilterAdapter.Callback, View.OnClickListener,
-        TimePicker.TimePickerCallback, DatePicker.DatePickerCallback{
+        TimePicker.TimePickerCallback, DatePicker.DatePickerCallback, PostMessageTask.PostMessageTaskCallBack, RequestExistentFiltersTask.RequestFiltersTaskCallBack, RequestLocationsTask.RequestLocationsTaskCallBack, GetLocationInfoTask.GetLocationInfoCallBack {
 
     private static final String LOG_TAG = ProfileActivity.class.getSimpleName();
     private ArrayList<String> locationList = new ArrayList<>();
@@ -53,6 +61,7 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
     private RadioButton mAdOcRadio;
 
     private AutoCompleteTextView mKeyAtv;
+    ArrayAdapter keysListAdapter;
     private TextView mValueTv;
     private RadioButton mblacklistedRadio;
     private RadioButton mWhitelistedRadio;
@@ -70,8 +79,16 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
 
     NetworkGlobalState globalState;
 
+    private CreatedMessage message; // variable used to save message while answer from server
+                                    // dont come
 
-
+    //elements to save
+    String id;
+    String messageText ;
+    String username ;
+    String location ;
+    Date startD ;
+    Date endD ;
 
 
 
@@ -138,9 +155,9 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
         mRecyclerView.setAdapter(filtersAdapter);
 
         mKeyAtv = (AutoCompleteTextView) findViewById(R.id.send_m_new_key_autotv);
-        ArrayAdapter adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, filterKeys);
+        keysListAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, filterKeys);
 
-        mKeyAtv.setAdapter(adapter);
+        mKeyAtv.setAdapter(keysListAdapter);
         // show dropdown when focused
         mKeyAtv.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -177,7 +194,6 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
 
                 filtersAdapter.notifyItemInserted(filterList.size() - 1);;
                 break;
-        //TODO a partir daqui nao tao a funcionar
             case R.id.start_time_button:
                 showStartTimePickerDialog(v);
                 break;
@@ -199,20 +215,16 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
         }
     }
 
-
+    //Get Existent locations from the server
     private void getLocations(){
-        //TODO this should load locations from database
-        locationList.add("IST");
-        locationList.add("location2");
-        locationList.add("location3");
-        locationList.add("location4");
+        RequestLocationsTask rlt = new RequestLocationsTask(this,this);
+        rlt.execute("");
     }
 
+    //Get the existent filters keys from the server
     private void getFiltersList(){
-        //TODO this should get possible keys for filters
-        filterKeys.add("country");
-        filterKeys.add("Sex");
-        filterKeys.add("Color");
+        RequestExistentFiltersTask reft = new RequestExistentFiltersTask(this,this);
+        reft.execute("");
     }
 
 
@@ -222,7 +234,6 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
         newFragment.setDate(startDate);
         newFragment.show(getSupportFragmentManager(), "timePicker");
     }
-
 
 
     public void showEndTimePickerDialog(View v) {
@@ -310,29 +321,124 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
         switch (item.getItemId()) {
             // action with ID action_send was selected
             case R.id.action_send:
-                Toast.makeText(this, "Pressed message send message!",Toast.LENGTH_LONG).show();
-                //TODO request id to the server and get author from global variables
-                String id = String.valueOf((int) (random()*221313161));
-                //id = send request to server
 
-                if(mAdOcRadio.isActivated()){
-                    //AD-OC mode
+                //Store the state that at the moment of send existed
+                messageText =messageTextET.getText().toString();
+                username = globalState.getUsername();
+                location = mLocationAtv.getText().toString();
+                startD = startDate.getTime();
+                endD = endDate.getTime();
+                id = String.valueOf((int) (random()*221313161));//TODO fix this id
 
-                }
+                if(mAdOcRadio.isChecked())
+                    postMessageAdOc();
 
-                else{
-                    //Centralized mod is activated
-                }
+                else
+                    postMessageCentralized();
 
-
-                CreatedMessage message = new CreatedMessage(id,messageTextET.getText().toString(), globalState.getUsername(), mLocationAtv.getText().toString(), startDate.getTime(), endDate.getTime());
-                message.save(this);
-                finish();
                 break;
+
             default:
                 break;
         }
         return super.onOptionsItemSelected(item);
     }
 
+    private void postMessageCentralized(){
+        ArrayList<Pair> whitelisted = new ArrayList<>();
+        ArrayList<Pair> blacklisted = new ArrayList<>();
+        ArrayList<MuleMessageFilter> filters = new ArrayList<>();
+        Pair filter;
+        for(FilterAdapter.KeyValue kv : filterList){
+            filter = new Pair(kv.key, kv.value);
+            if(kv.blacklisted)
+                blacklisted.add(filter);
+            else
+                whitelisted.add(filter);
+        }
+
+        message = new CreatedMessage(id,messageText, username, location, startDate.getTime(), endDate.getTime(), true);
+
+        new PostMessageTask(this,this,username,location,startD,endD,messageText,
+                whitelisted,blacklisted,id).execute();
+
+    }
+
+    private void postMessageAdOc(){
+        //All the work id done when the callback from Async task in made
+        //until then nothing can be done
+        new GetLocationInfoTask(this,this,location).execute();
+    }
+
+
+
+//----------------------------------------------------------------------------------------
+//----         Callbacks from the requests made to the server by Assink tasks         ----
+//----------------------------------------------------------------------------------------
+    @Override
+    public void PostMessageComplete() {
+        message.save(this);
+        Toast.makeText(this, "Completed post message", Toast.LENGTH_SHORT).show();
+        finish();
+    }
+
+    @Override
+    public void onErrorResponse() {
+        Toast.makeText(this, "No error in request response", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void OnGetLocationInfoComplete(FullLocation flocation) {
+        ArrayList<MuleMessageFilter> filters = new ArrayList<>();
+        MuleMessageFilter mmf;
+        for(FilterAdapter.KeyValue kv : filterList){
+            mmf = new MuleMessageFilter(id, kv.key, kv.value, kv.blacklisted);
+            filters.add(mmf);
+        }
+
+        MuleMessage muleM = new MuleMessage(id, messageText, username, flocation, startD,
+                endD,filters, 0);
+        muleM.save(this);
+
+        //TODO make a change in created messages in order to distinguish ad-oc from centralized
+        CreatedMessage messageAdOc = new CreatedMessage(id,messageText, username, location, startDate.getTime(), endDate.getTime(), false);
+        messageAdOc.save(this);
+        Toast.makeText(this, "Ad-oc message", Toast.LENGTH_SHORT).show();
+        finish();
+    }
+
+    @Override
+    public void OnGetInfoErrorResponse(String error) {
+        Toast.makeText(this, "ERROR:"+error, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void OnNoInternetConnection() {
+        Toast.makeText(this, "No Internet connection", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void OnSearchComplete(ArrayList<String> filters) {
+        filterKeys = filters;//todo verify if we are receiving
+        keysListAdapter.clear();
+        keysListAdapter.addAll(filterKeys);
+        keysListAdapter.notifyDataSetChanged();
+
+        Toast.makeText(this, "Received filters"+filters.size(), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void OnLocationSearchComplete(ArrayList<String> locations) {
+        locationList = locations;
+        locationListAdapter.clear();
+        locationListAdapter.addAll(locations);
+        locationListAdapter.notifyDataSetChanged();
+        Toast.makeText(this, "Received Locations"+locations.size(), Toast.LENGTH_SHORT).show();
+
+    }
+
+    @Override
+    public void OnErrorResponse(String error) {
+        Toast.makeText(this, "Error:"+error, Toast.LENGTH_SHORT).show();
+    }
 }

@@ -26,7 +26,10 @@ import pt.ulisboa.tecnico.locmess.adapters.MessagesAdapter;
 import pt.ulisboa.tecnico.locmess.adapters.Pager;
 import pt.ulisboa.tecnico.locmess.data.entities.CreatedMessage;
 import pt.ulisboa.tecnico.locmess.data.entities.Message;
+import pt.ulisboa.tecnico.locmess.data.entities.MuleMessage;
+import pt.ulisboa.tecnico.locmess.data.entities.MuleMessageFilter;
 import pt.ulisboa.tecnico.locmess.data.entities.ReceivedMessage;
+import pt.ulisboa.tecnico.locmess.wifidirect.WifiDirectService;
 
 public class MainActivity extends ActivityWithDrawer implements BaseMessageFragment.Callback, TabLayout.OnTabSelectedListener{
 
@@ -57,14 +60,21 @@ public class MainActivity extends ActivityWithDrawer implements BaseMessageFragm
             }
         });
 
+        Intent myIntent = new Intent(this, WifiDirectService.class);
+        startService(myIntent);
+
+        myIntent = new Intent(this, PeriodicLocationService.class);
+        startService(myIntent);
+
+
         super.onCreate(savedInstanceState);
     }
 
     protected void sendMessage(View v){
-        ReceivedMessage m = new ReceivedMessage("1", "text", "author", "loc", new Date(), new Date());
-        m.save(this);
-        CreatedMessage m2 = new CreatedMessage("2", "text", "author", "loc", new Date(), new Date());
-        m2.save(this);
+//        ReceivedMessage m = new ReceivedMessage("1", "text", "author", "loc", new Date(), new Date());
+//        m.save(this);
+//        CreatedMessage m2 = new CreatedMessage("2", "text", "author", "loc", new Date(), new Date());
+//        m2.save(this);
         Intent intent = new Intent(this, PostMessageActivity.class);
         startActivity(intent);
     }

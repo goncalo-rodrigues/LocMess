@@ -15,8 +15,8 @@ import pt.ulisboa.tecnico.locmess.data.LocmessDbHelper;
  */
 
 public class ReceivedMessage extends Message {
-    public ReceivedMessage(String id, String messageText, String author, String location, Date startDate, Date endDate) {
-        super(id, messageText, author, location, startDate, endDate);
+    public ReceivedMessage(String id, String messageText, String author, String location, Date startDate, Date endDate, boolean centralized) {
+        super(id, messageText, author, location, startDate, endDate, centralized);
     }
 
     public ReceivedMessage(final Cursor cursor) {
@@ -34,6 +34,7 @@ public class ReceivedMessage extends Message {
         values.put(LocmessContract.MessageTable.COLUMN_NAME_STARTDATE, getStartDate().toString());
         values.put(LocmessContract.MessageTable.COLUMN_NAME_ENDDATE, getEndDate().toString());
         values.put(LocmessContract.MessageTable.COLUMN_NAME_LOCATION, getLocation());
+        values.put(LocmessContract.MessageTable.COLUMN_NAME_CENTRALIZED, isCentralized());
         db.insert(LocmessContract.MessageTable.TABLE_NAME, null, values);
         db.close();
     }

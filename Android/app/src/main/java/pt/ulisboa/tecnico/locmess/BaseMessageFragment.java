@@ -69,6 +69,12 @@ public class BaseMessageFragment extends Fragment implements MessagesAdapter.Cal
         super.onActivityCreated(savedInstanceState);
     }
 
+    @Override
+    public void onResume() {
+        getLoaderManager().restartLoader(0, null, this);
+        super.onResume();
+    }
+
     public MessagesAdapter getMessagesAdapter() {
         return messagesAdapter;
     }
@@ -112,6 +118,9 @@ public class BaseMessageFragment extends Fragment implements MessagesAdapter.Cal
         messagesAdapter.notifyDataSetChanged();
         if (data.getCount() == 0)
             emptyView.setVisibility(View.VISIBLE);
+        else
+            emptyView.setVisibility(View.INVISIBLE);
+
     }
 
 

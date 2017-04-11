@@ -64,7 +64,7 @@ public class RequestExistentFiltersTask extends AsyncTask<String, String,ArrayLi
             }
             if (data.opt("keys") != null) {
                 JSONArray filters = data.getJSONArray("keys");
-                for (int j = 0; j < filters.length() - 1; j++)
+                for (int j = 0; j < filters.length() ; j++)
                     response.add(filters.getString(j));
             }
             return response;
@@ -75,7 +75,6 @@ public class RequestExistentFiltersTask extends AsyncTask<String, String,ArrayLi
             response.add("conetionError");
             return response;
         }
-
 
         return response;
 

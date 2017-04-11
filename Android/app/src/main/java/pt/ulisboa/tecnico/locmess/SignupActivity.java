@@ -126,4 +126,9 @@ public class SignupActivity extends AppCompatActivity implements RegisterTask.Re
         errorViewTv.setText(getString(R.string.no_internet));
     }
 
+    @Override
+    public void OnLogoutNoInternetConnection() {
+        OnNoInternetConnection();
+    }
+
 }

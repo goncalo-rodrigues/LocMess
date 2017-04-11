@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class LocmessDbHelper extends SQLiteOpenHelper {
 
-    public static final int DATABASE_VERSION = 2;
+    public static final int DATABASE_VERSION = 6;
     public static final String DATABASE_NAME = "Locmess.db";
 
     public LocmessDbHelper(Context context) {
@@ -20,22 +20,24 @@ public class LocmessDbHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
 
-        db.execSQL(LocmessContract.SQL_CREATE_1);
-        db.execSQL(LocmessContract.SQL_CREATE_2);
-        db.execSQL(LocmessContract.SQL_CREATE_3);
-        db.execSQL(LocmessContract.SQL_CREATE_4);
-        db.execSQL(LocmessContract.SQL_CREATE_5);
-        db.execSQL(LocmessContract.SQL_CREATE_6);
+        db.execSQL(LocmessContract.SQL_CREATE_MESSAGE_TBL);
+        db.execSQL(LocmessContract.SQL_CREATE_CREATED_MESSAGE_TBL);
+        db.execSQL(LocmessContract.SQL_CREATE_MULE_MESSAGE_TBL);
+        db.execSQL(LocmessContract.SQL_CREATE_MESSAGE_FILTER_TBL);
+        db.execSQL(LocmessContract.SQL_CREATE_LOCATION_TBL);
+        db.execSQL(LocmessContract.SQL_CREATE_PROFILE_KEYVAL_TBL);
+        db.execSQL(LocmessContract.SQL_CREATE_FULL_LOCATION_TBL);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL(LocmessContract.SQL_DELETE_1);
-        db.execSQL(LocmessContract.SQL_DELETE_2);
-        db.execSQL(LocmessContract.SQL_DELETE_3);
-        db.execSQL(LocmessContract.SQL_DELETE_4);
-        db.execSQL(LocmessContract.SQL_DELETE_5);
-        db.execSQL(LocmessContract.SQL_DELETE_6);
+        db.execSQL(LocmessContract.SQL_DELETE_MESSAGE_TBL);
+        db.execSQL(LocmessContract.SQL_DELETE_MESSAGE_FILTER_TBL);
+        db.execSQL(LocmessContract.SQL_DELETE_CREATED_MESSAGE_TBL);
+        db.execSQL(LocmessContract.SQL_DELETE_MULE_MESSAGE_TBL);
+        db.execSQL(LocmessContract.SQL_DELETE_LOCATION_TBL);
+        db.execSQL(LocmessContract.SQL_DELETE_PROFILE_KEYVAL_TBL);
+        db.execSQL(LocmessContract.SQL_DELETE_FULL_LOCATION_TBL);
         onCreate(db);
     }
 
