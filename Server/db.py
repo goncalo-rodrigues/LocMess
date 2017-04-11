@@ -208,6 +208,39 @@ class Database:
         self.conn.commit()
         return create_json(["resp"], ["ok"])
 
+    def get_location_info(self, session_id, location):
+        cursor = self.conn.cursor()
+
+        gps = {}
+        ssids = []
+
+        self.__select(cursor, "*", ["Sessions"], ["SessionID = %s"], [session_id])
+        if cursor.rowcount == 0:
+            cursor.close()
+            return create_error_json(error_session_not_found)
+
+        self.__select(cursor, "*", ["Locations"], ["Name = %s"], [location])
+        if cursor.rowcount == 0:
+            cursor.close()
+            return create_error_json(error_location_not_found)
+
+        self.__select(cursor, "Latitude, Longitude, Radius", ["GPS"], ["Location = %s"], [location])
+        if cursor.rowcount != 0:
+            row = cursor.fetchone()
+            gps["lat"] = row[0]
+            gps["long"] = row[1]
+            gps["radius"] = row[2]
+
+        self.__select(cursor, "DISTINCT WifiID", ["WifiIDs"], ["Location = %s"], [location])
+        if cursor.rowcount != 0:
+            q_res = cursor.fetchall()
+            for row in q_res:
+                ssids.append(row[0])
+
+        cursor.close()
+        self.conn.commit()
+        return create_json(["gps", "ssids"], [gps, ssids])
+
     def set_my_filter(self, session_id, filter):
         cursor = self.conn.cursor()
         key = filter["key"]
@@ -332,8 +365,10 @@ class Database:
         for filter in msg_filters:
             self.__select(cursor, "FilterID", ["Filters"], ["FilterKey = %s AND FilterValue = %s"], [filter["key"], filter["value"]])
             if cursor.rowcount == 0:
-                cursor.close()
-                return create_error_json(error_filter_not_found)
+                self.set_my_filter(session_id, filter)
+                self.remove_filter(session_id, filter)
+                self.__select(cursor, "FilterID", ["Filters"], ["FilterKey = %s AND FilterValue = %s"],
+                              [filter["key"], filter["value"]])
 
             # JSON supports the boolean type
             filter_ids.append((cursor.fetchone(), 1 if filter["is_whitelist"] else 0))
@@ -375,8 +410,12 @@ class Database:
         self.conn.commit()
         return create_json(["resp"], ["ok"])
 
+    """-------------------------------------------------------------------------
+        Send location functions
+    -------------------------------------------------------------------------"""
+
     # Uses the Haversine formula
-    def get_matching_locs(self, lat, long):
+    def get_matching_gps_locs(self, lat, long):
         cursor = self.conn.cursor()
 
         self.__select(cursor, "Location", ["GPS"], ["(6371000 * acos(cos(radians(%s)) * cos(radians(Latitude)) \
@@ -394,6 +433,47 @@ class Database:
 
         cursor.close()
         return result
+
+    def get_matching_ssid_locs(self, lst_ssids):
+        cursor = self.conn.cursor()
+
+        where = None
+        if len(lst_ssids) > 0:
+            where = "W.Location = M.Location AND (W.WifiID = %s"
+            rem_els = lst_ssids[1:]
+            for el in rem_els:
+                where += " OR WifiID = %s"
+            where += ")"
+
+            self.__select(cursor, "", "WifiID", where, lst_ssids)
+
+
+    #TODO: Method that returns the messages
+
+
+
+
+    def search_messages(self, session_id, gps, ssids):
+        cursor = self.conn.cursor()
+
+        self.__select(cursor, "Username", ["Sessions"], ["SessionID = %s"], [session_id])
+        if cursor.rowcount == 0:
+            cursor.close()
+            return create_error_json(error_session_not_found)
+
+        locs = []
+        for coord in gps:
+            tmp = self.get_matching_gps_locs(coord["lat"], coord["long"])
+            if tmp is not None:
+                locs.append(tmp)
+
+        """
+        for place in ssids:
+            tmp
+        """
+
+        cursor.close()
+        return create_error_json(error_method_not_implemented)
 
     def close(self):
         self.conn.close()
