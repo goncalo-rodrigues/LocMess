@@ -28,16 +28,6 @@
         android:layout_marginLeft="8dp"
         tools:text="@string/value"/>
 
-    <ToggleButton
-        android:text="ToggleButton"
-        android:layout_width="60dp"
-        android:layout_height="match_parent"
-        android:layout_alignLeft="@id/send_m_new_value_tv"
-        android:id="@+id/send_list_toggle_Button_Blacklist"
-        android:textSize="10sp"
-        android:textOff="@string/witheList"
-        android:textOn="@string/blackList"/>
-
     <ImageButton
         android:layout_width="30dp"
         android:layout_height="match_parent"
