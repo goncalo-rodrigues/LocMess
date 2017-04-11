@@ -18,6 +18,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 
+import pt.ulisboa.tecnico.locmess.data.entities.FullLocation;
 import pt.ulisboa.tecnico.locmess.data.entities.ReceivedMessage;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 
@@ -86,8 +87,7 @@ public class GetLocationInfoTask extends AsyncTask<Void, String, String>{
         }catch (JSONException e) {e.printStackTrace();
         }catch (IOException e) {
             e.printStackTrace();
-            errorToReturn = "conetionError";
-            return null;
+            return "conetionError";
         }
 
         //never reach here unless we get an error parsing the json
@@ -122,8 +122,10 @@ public class GetLocationInfoTask extends AsyncTask<Void, String, String>{
     @Override
     protected void onPostExecute(String result) {
         //TODO see the possible errors and handle them
-        if (result.equals("ok"))
-            callback.OnGetLocationInfoComplete(ssids, lat,  longitude, radius);
+        if (result.equals("ok")) {
+            FullLocation flocation = new FullLocation(location,lat,longitude,radius);
+            callback.OnGetLocationInfoComplete(flocation);
+        }
         else if(result.equals("conetionError"))
             callback.OnNoInternetConnection();
         else
@@ -134,7 +136,7 @@ public class GetLocationInfoTask extends AsyncTask<Void, String, String>{
 
 
     public interface GetLocationInfoCallBack{
-        void OnGetLocationInfoComplete(ArrayList<String> ssids, Double lat, Double longitude, int radius);
+        void OnGetLocationInfoComplete(FullLocation flocation);
         void OnGetInfoErrorResponse(String error);
         void OnNoInternetConnection();
     }

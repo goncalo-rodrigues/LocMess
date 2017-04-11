@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 import pt.ulisboa.tecnico.locmess.data.entities.CreatedMessage;
+import pt.ulisboa.tecnico.locmess.data.entities.FullLocation;
 import pt.ulisboa.tecnico.locmess.data.entities.Message;
 
 import java.text.DateFormat;
@@ -32,6 +33,7 @@ import pt.ulisboa.tecnico.locmess.adapters.FilterAdapter;
 import pt.ulisboa.tecnico.locmess.data.entities.MuleMessage;
 import pt.ulisboa.tecnico.locmess.data.entities.MuleMessageFilter;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
+import pt.ulisboa.tecnico.locmess.serverrequests.GetLocationInfoTask;
 import pt.ulisboa.tecnico.locmess.serverrequests.PostMessageTask;
 import pt.ulisboa.tecnico.locmess.serverrequests.RequestExistentFiltersTask;
 import pt.ulisboa.tecnico.locmess.serverrequests.RequestLocationsTask;
@@ -39,7 +41,7 @@ import pt.ulisboa.tecnico.locmess.serverrequests.RequestLocationsTask;
 import static java.lang.Math.random;
 
 public class PostMessageActivity extends ActivityWithDrawer implements FilterAdapter.Callback, View.OnClickListener,
-        TimePicker.TimePickerCallback, DatePicker.DatePickerCallback, PostMessageTask.PostMessageTaskCallBack, RequestExistentFiltersTask.RequestFiltersTaskCallBack, RequestLocationsTask.RequestLocationsTaskCallBack {
+        TimePicker.TimePickerCallback, DatePicker.DatePickerCallback, PostMessageTask.PostMessageTaskCallBack, RequestExistentFiltersTask.RequestFiltersTaskCallBack, RequestLocationsTask.RequestLocationsTaskCallBack, GetLocationInfoTask.GetLocationInfoCallBack {
 
     private static final String LOG_TAG = ProfileActivity.class.getSimpleName();
     private ArrayList<String> locationList = new ArrayList<>();
@@ -80,8 +82,13 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
     private CreatedMessage message; // variable used to save message while answer from server
                                     // dont come
 
-
-
+    //elements to save
+    String id;
+    String messageText ;
+    String username ;
+    String location ;
+    Date startD ;
+    Date endD ;
 
 
 
@@ -187,7 +194,6 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
 
                 filtersAdapter.notifyItemInserted(filterList.size() - 1);;
                 break;
-        //TODO a partir daqui nao tao a funcionar
             case R.id.start_time_button:
                 showStartTimePickerDialog(v);
                 break;
@@ -209,17 +215,16 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
         }
     }
 
-
+    //Get Existent locations from the server
     private void getLocations(){
-        //TODO this should load locations from database
         RequestLocationsTask rlt = new RequestLocationsTask(this,this);
         rlt.execute("");
     }
 
+    //Get the existent filters keys from the server
     private void getFiltersList(){
         RequestExistentFiltersTask reft = new RequestExistentFiltersTask(this,this);
         reft.execute("");
-
     }
 
 
@@ -229,7 +234,6 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
         newFragment.setDate(startDate);
         newFragment.show(getSupportFragmentManager(), "timePicker");
     }
-
 
 
     public void showEndTimePickerDialog(View v) {
@@ -317,20 +321,20 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
         switch (item.getItemId()) {
             // action with ID action_send was selected
             case R.id.action_send:
-                //Toast.makeText(this, "Pressed message send message!",Toast.LENGTH_LONG).show();
-                String id;
-                String messageText =messageTextET.getText().toString();
-                String username = globalState.getUsername();
-                String location = mLocationAtv.getText().toString();
-                Date start = startDate.getTime();
-                Date end = endDate.getTime();
+
+                //Store the state that at the moment of send existed
+                messageText =messageTextET.getText().toString();
+                username = globalState.getUsername();
+                location = mLocationAtv.getText().toString();
+                startD = startDate.getTime();
+                endD = endDate.getTime();
                 id = String.valueOf((int) (random()*221313161));//TODO fix this id
 
                 if(mAdOcRadio.isChecked())
-                    postMessageAdOc(id, messageText , username, location,  start,  end);
+                    postMessageAdOc();
 
                 else
-                    postMessageCentralized(id, messageText , username, location,  start,  end);
+                    postMessageCentralized();
 
                 break;
 
@@ -340,8 +344,7 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
         return super.onOptionsItemSelected(item);
     }
 
-    private void postMessageCentralized(String id, String messageText ,String username,
-                                        String location, Date start, Date end){
+    private void postMessageCentralized(){
         ArrayList<Pair> whitelisted = new ArrayList<>();
         ArrayList<Pair> blacklisted = new ArrayList<>();
         ArrayList<MuleMessageFilter> filters = new ArrayList<>();
@@ -356,34 +359,22 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
 
         message = new CreatedMessage(id,messageText, username, location, startDate.getTime(), endDate.getTime(), true);
 
-        new PostMessageTask(this,this,username,location,start,end,messageText,
+        new PostMessageTask(this,this,username,location,startD,endD,messageText,
                 whitelisted,blacklisted,id).execute();
 
     }
 
-    private void postMessageAdOc(String id, String messageText ,String username,
-                                 String location, Date start, Date end){
-        ArrayList<MuleMessageFilter> filters = new ArrayList<>();
-        MuleMessageFilter mmf;
-        for(FilterAdapter.KeyValue kv : filterList){
-            mmf = new MuleMessageFilter(id, kv.key, kv.value, kv.blacklisted);
-            filters.add(mmf);
-        }
-
-//        MuleMessage muleM = new MuleMessage(id, messageText, username, location, start,
-//                end,filters, 0);
-//        muleM.save(this);
-
-        //TODO make a change in created messages in order to distinguish ad-oc from centralized
-        CreatedMessage messageAdOc = new CreatedMessage(id,messageText, username, location, startDate.getTime(), endDate.getTime(), false);
-        messageAdOc.save(this);
-        Toast.makeText(this, "Ad-oc message", Toast.LENGTH_SHORT).show();
-        finish();
-
+    private void postMessageAdOc(){
+        //All the work id done when the callback from Async task in made
+        //until then nothing can be done
+        new GetLocationInfoTask(this,this,location).execute();
     }
 
 
 
+//----------------------------------------------------------------------------------------
+//----         Callbacks from the requests made to the server by Assink tasks         ----
+//----------------------------------------------------------------------------------------
     @Override
     public void PostMessageComplete() {
         message.save(this);
@@ -394,6 +385,31 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
     @Override
     public void onErrorResponse() {
         Toast.makeText(this, "No error in request response", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void OnGetLocationInfoComplete(FullLocation flocation) {
+        ArrayList<MuleMessageFilter> filters = new ArrayList<>();
+        MuleMessageFilter mmf;
+        for(FilterAdapter.KeyValue kv : filterList){
+            mmf = new MuleMessageFilter(id, kv.key, kv.value, kv.blacklisted);
+            filters.add(mmf);
+        }
+
+        MuleMessage muleM = new MuleMessage(id, messageText, username, flocation, startD,
+                endD,filters, 0);
+        muleM.save(this);
+
+        //TODO make a change in created messages in order to distinguish ad-oc from centralized
+        CreatedMessage messageAdOc = new CreatedMessage(id,messageText, username, location, startDate.getTime(), endDate.getTime(), false);
+        messageAdOc.save(this);
+        Toast.makeText(this, "Ad-oc message", Toast.LENGTH_SHORT).show();
+        finish();
+    }
+
+    @Override
+    public void OnGetInfoErrorResponse(String error) {
+        Toast.makeText(this, "ERROR:"+error, Toast.LENGTH_SHORT).show();
     }
 
     @Override
