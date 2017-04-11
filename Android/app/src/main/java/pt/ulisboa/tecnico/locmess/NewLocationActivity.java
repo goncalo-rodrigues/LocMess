@@ -309,11 +309,13 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
     @Override
     public void onErrorResponse() {
         mSendingProcessDialog.cancel();
+        Toast.makeText(this, R.string.error_server, Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void OnNoInternetConnection() {
         mSendingProcessDialog.cancel();
+        Toast.makeText(this, getString(R.string.no_internet), Toast.LENGTH_SHORT).show();
     }
 
     private void checkIfSsidsEmpty() {
@@ -384,20 +386,20 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
                         task.execute(loc);
                         mSendingProcessDialog.show();
                     } catch (NumberFormatException | NullPointerException e) {
-                        Toast.makeText(this, "Some fields could not be processed. Make sure they are all filled with valid values", Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, R.string.invalid_fields_gps, Toast.LENGTH_LONG).show();
                     }
 
 
                 } else if (mRadioGroup.getCheckedRadioButtonId() == R.id.wifi) {
                     if (ssids.size() == 0) {
-                        Toast.makeText(this, "There are no nearby wifis", Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, R.string.no_nearby_wifis, Toast.LENGTH_LONG).show();
                     } else {
                         loc = new FullLocation(name, ssids);
                         task.execute(loc);
                         mSendingProcessDialog.show();
                     }
                 } else {
-                    Toast.makeText(this, "Please select one of GPS or WIFI IDs", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, R.string.select_one_gps_wifi, Toast.LENGTH_LONG).show();
                 }
                 break;
             default:

@@ -180,7 +180,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="No wifis are in range"
+                android:text="@string/no_nearby_wifis"
                 android:id="@+id/newlocation_wifis_empty_tv"
                 android:textSize="24sp"
                 android:gravity="center"
