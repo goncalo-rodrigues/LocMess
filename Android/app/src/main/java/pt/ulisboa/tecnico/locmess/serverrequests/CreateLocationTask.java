@@ -70,11 +70,14 @@ public class CreateLocationTask extends AsyncTask<FullLocation, String,String>{
         try {
             jsoninputs.put("session_id", globalState.getId());
             jsoninputs.put("name",name);
-            jsongps.put("lat",lat);
-            jsongps.put("lon",lon);
-            jsongps.put("radius",radius);
-            jsoninputs.put("gps",jsongps);
-            jsoninputs.put("ssids",jsonSsids);
+            if (ssids.size()==0) {
+                jsongps.put("lat", lat);
+                jsongps.put("long", lon);
+                jsongps.put("radius", radius);
+                jsoninputs.put("gps", jsongps);
+            }
+            else
+                jsoninputs.put("ssids",jsonSsids);
 
             //open the conection to the server and send
             URL url = new URL(URL_SERVER+"/create_location");

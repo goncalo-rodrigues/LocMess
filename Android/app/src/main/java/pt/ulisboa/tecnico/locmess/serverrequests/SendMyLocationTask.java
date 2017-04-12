@@ -36,9 +36,9 @@ public class SendMyLocationTask extends AsyncTask<Void, String,String>{
     NetworkGlobalState globalState;
     private ArrayList<Pair> gpsCoordiantes;
     private ArrayList<String> ssids;
-    String errorToReturn = "";
     ArrayList<TimestampedLocation> locations;
     Context context;
+    ArrayList<ReceivedMessage> messagesList = new ArrayList<>();
 
 
     public SendMyLocationTask(SendMyLocationsTaskCallBack ltcb, Context context, ArrayList<TimestampedLocation> locations){
@@ -47,12 +47,6 @@ public class SendMyLocationTask extends AsyncTask<Void, String,String>{
         this.locations = locations;
         this.context =context;
     }
-
-    /*{
-locations : [{latitude: 5.50123,longitude: 0.9123, ssids: [] timestamp: 28 maio 2017 15:52:21},
-{latitude: null,longitude: null,ssids: [A, B, E],timestamp: 28 maio 2017 15:56:21}
-]
-}*/
 
 
     @Override
@@ -96,7 +90,7 @@ locations : [{latitude: 5.50123,longitude: 0.9123, ssids: [] timestamp: 28 maio 
         if (!result.equals("ok"))
             callback.OnErrorResponse(result);
         else
-            callback.OnSendComplete();
+            callback.OnSendComplete(messagesList);
 
         super.onPostExecute(result);
     }
@@ -175,7 +169,8 @@ locations : [{latitude: 5.50123,longitude: 0.9123, ssids: [] timestamp: 28 maio 
                 end_date = new Date(message.getLong("end_date"));
                 content = message.getString("content");
                 rm =new ReceivedMessage(id, content, username, location, start_date, end_date, false);
-                rm.save(context);
+                messagesList.add(rm);
+                //rm.save(context);
             }
         }
         return;
@@ -207,7 +202,7 @@ locations : [{latitude: 5.50123,longitude: 0.9123, ssids: [] timestamp: 28 maio 
 
 
     public interface SendMyLocationsTaskCallBack{
-        void OnSendComplete();
+        void OnSendComplete(ArrayList<ReceivedMessage> messages);
         void OnErrorResponse(String error);
     }
 
