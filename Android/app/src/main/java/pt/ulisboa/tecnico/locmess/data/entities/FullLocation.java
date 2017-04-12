@@ -12,6 +12,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -170,5 +171,23 @@ public class FullLocation extends Location{
 
     public double getRadius() {
         return radius;
+    }
+
+    public boolean isGps() {
+        return ssids == null || ssids.size() == 0;
+    }
+
+    public boolean isWifi() {
+        return !isGps();
+    }
+
+    public boolean isInside(FullLocation anotherLoc) {
+        // compare apples to apples and oranges to oranges
+        if (anotherLoc.isGps() && this.isGps()) {
+            throw new RuntimeException("Not yet implemented");
+        } else if (anotherLoc.isWifi() && this.isWifi()) {
+            return !Collections.disjoint(this.ssids, anotherLoc.getSsids());
+        }
+        return false;
     }
 }

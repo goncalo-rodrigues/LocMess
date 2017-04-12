@@ -71,6 +71,7 @@ public class Request {
                 MuleMessage m = new MuleMessage(reader);
                 content = m;
                 json = m.getJson();
+                break;
             default:
                 JSONObject result = new JSONObject();
                 while (reader.hasNext()) {

@@ -215,4 +215,31 @@ public class MuleMessage extends Message {
             fullLocation = FullLocation.get(ctx, getLocation());
         return fullLocation;
     }
+
+    public ReceivedMessage toReceived() {
+        return new ReceivedMessage(getId(), getMessageText(), getAuthor(), getLocation(), getStartDate(), getEndDate(), false);
+    }
+
+    public boolean amIallowedToReceiveThisMessage(Context ctx) {
+        List<MuleMessageFilter> filters = getFilters(ctx);
+        if (filters.size() == 0) return true;
+        Cursor pkvc = ProfileKeyValue.getAll(ctx);
+        try {
+            while (pkvc.moveToNext()) {
+                ProfileKeyValue pkv = new ProfileKeyValue(pkvc);
+                for (MuleMessageFilter f: filters) {
+                    if (pkv.getKey().equals(f.getKey())) {
+                        if (pkv.getValue().equals(f.getValue()) && f.isBlackList()) {
+                            return false;
+                        } else if (!pkv.getValue().equals(f.getValue()) && !f.isBlackList()) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        } finally {
+            pkvc.close();
+        }
+        return true;
+    }
 }

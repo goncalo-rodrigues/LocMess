@@ -1,10 +1,19 @@
 package pt.ulisboa.tecnico.locmess;
 
+import android.Manifest;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
+import android.location.LocationManager;
+import android.os.IBinder;
+import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,6 +24,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
@@ -33,9 +43,11 @@ import pt.ulisboa.tecnico.locmess.wifidirect.WifiDirectService;
 
 public class MainActivity extends ActivityWithDrawer implements BaseMessageFragment.Callback, TabLayout.OnTabSelectedListener{
 
+    private static final int REQUEST_LOCATION = 1;
     private Pager adapter;
     private TabLayout tabLayout;
     private ViewPager viewPager;
+    private IBinder binder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,8 +75,8 @@ public class MainActivity extends ActivityWithDrawer implements BaseMessageFragm
         Intent myIntent = new Intent(this, WifiDirectService.class);
         startService(myIntent);
 
-        myIntent = new Intent(this, PeriodicLocationService.class);
-        startService(myIntent);
+        checkGPSStatus();
+
 
 
         super.onCreate(savedInstanceState);
@@ -77,6 +89,40 @@ public class MainActivity extends ActivityWithDrawer implements BaseMessageFragm
 //        m2.save(this);
         Intent intent = new Intent(this, PostMessageActivity.class);
         startActivity(intent);
+    }
+
+    private void checkGPSStatus() {
+        boolean permGranted =
+                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                        == PackageManager.PERMISSION_GRANTED;
+
+        // Asks for permission
+        if(!permGranted) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_LOCATION);
+        } else {
+            Intent myIntent = new Intent(this, PeriodicLocationService.class);
+            startService(myIntent);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_LOCATION: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    checkGPSStatus();
+                    // TODO
+                } else {
+                    Toast.makeText(this, "Please accept gps permission", Toast.LENGTH_LONG).show();
+                    Intent myIntent = new Intent(this, PeriodicLocationService.class);
+                    startService(myIntent);
+                }
+            }
+        }
     }
 
     @Override
