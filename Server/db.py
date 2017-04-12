@@ -417,7 +417,8 @@ class Database:
     def __get_msgid_gps(self, wh_query, lst_query):
         cursor = self.conn.cursor()
 
-        self.__select(cursor, "DISTINCT M.MessageID", ["GPS AS G", "Messages AS M"], [wh_query], lst_query)
+        self.__select(cursor, "M.MessageID, M.Username, M.Location, M.StartDate, M.EndDate, M.Content",
+                      ["GPS AS G", "Messages AS M"], [wh_query], lst_query)
 
         if cursor.rowcount == 0:
             cursor.close()
@@ -426,7 +427,21 @@ class Database:
         result = []
         q_res = cursor.fetchall()
         for row in q_res:
-            result.append(row[0])
+            self.__select(cursor, "F.FilterKey, F.FilterValue, MF.Whitelist",
+                          ["Filters AS F", "MessageFilters AS MF"],
+                          ["F.FilterID = MF.FilterID AND MF.MessageID = %s"], [row[0]])
+
+            q_filters = cursor.fetchall()
+            filters = []
+            for row2 in q_filters:
+                filter = {}
+                filter["key"] = row2[0]
+                filter["value"] = row2[1]
+
+                filter["is_whitelist"] = False if row2[2] == "\x00" else True
+                filters.append(filter)
+
+            result.append(create_msg_dict(row[0], row[1], row[2], row[3], row[4], row[5], filters))
 
         cursor.close()
         return result
@@ -434,7 +449,8 @@ class Database:
     def __get_msgid_ssid(self, wh_query, lst_query):
         cursor = self.conn.cursor()
 
-        self.__select(cursor, "DISTINCT M.MessageID", ["WifiIDs AS W", "Messages AS M"], [wh_query], lst_query)
+        self.__select(cursor, "M.MessageID, M.Username, M.Location, M.StartDate, M.EndDate, M.Content",
+                      ["WifiIDs AS W", "Messages AS M"], [wh_query], lst_query)
 
         if cursor.rowcount == 0:
             cursor.close()
@@ -443,7 +459,20 @@ class Database:
         result = []
         q_res = cursor.fetchall()
         for row in q_res:
-            result.append(row[0])
+            self.__select(cursor, "F.FilterKey, F.FilterValue, MF.Whitelist",
+                          ["Filters AS F", "MessageFilters AS MF"],
+                          ["F.FilterID = MF.FilterID AND MF.MessageID = %s"], [row[0]])
+
+            q_filters = cursor.fetchall()
+            filters = []
+            for row2 in q_filters:
+                filter = {}
+                filter["key"] = row2[0]
+                filter["value"] = row2[1]
+                filter["is_whitelist"] = False if row2[2] == "\x00" else True
+                filters.append(filter)
+
+            result.append(create_msg_dict(row[0], row[1], row[2], row[3], row[4], row[5], filters))
 
         cursor.close()
         return result
@@ -458,7 +487,21 @@ class Database:
                 * cos(radians(G.Longitude) - radians(%s)) + sin(radians(%s)) * sin(radians(G.Latitude)))) <= G.Radius \
                 AND %s >= M.StartDate AND %s < M.EndDate) "
 
-        ssid_cmp = "OR (W.WifiID = %s AND %s >= M.StartDate AND %s < M.EndDate)"
+        ssid_cmp = "OR (W.WifiID = %s AND %s >= M.StartDate AND %s < M.EndDate) "
+
+        q_black = "(SELECT COUNT(DISTINCT MF.FilterID) FROM MessageFilters AS MF, UserFilters AS UF \
+                  WHERE MF.MessageID = M.MessageID AND MF.Whitelist = 0 AND UF.Username = %s \
+                  AND UF.FilterID = MF.FilterID) = 0"
+
+
+        q_white = "(SELECT COUNT(DISTINCT MF.FilterID) FROM MessageFilters AS MF, UserFilters AS UF \
+                  WHERE MF.MessageID = M.MessageID AND MF.Whitelist = 1 AND UF.Username = %s \
+                  AND UF.FilterID = MF.FilterID)\
+                  =\
+                  (SELECT COUNT(DISTINCT MF.FilterID) FROM MessageFilters AS MF \
+                  WHERE MF.MessageID = M.MessageID AND MF.Whitelist = 1)"
+
+        q_having = ") HAVING (" + q_white + ") AND (" + q_black + ")"
 
         q_gps = None
         q_ssids = None
@@ -471,33 +514,43 @@ class Database:
             cursor.close()
             return create_error_json(error_session_not_found)
 
+        user = cursor.fetchone()
+
         for loc in loc_lst:
             tm = loc["timestamp"]
-            
+
             if "lat" in loc and "long" in loc:
                 if q_gps is None:
-                    q_gps = "G.Location = M.Location AND ( 1 "
+                    q_gps = "M.Username != %s AND G.Location = M.Location AND ( 1 "
+                    gps.extend(user)
                 q_gps += haversine_formula
 
-                gps.extend([loc["lat"], loc["long"], loc["lat"], loc["lat"], tm, tm])
+                gps.extend([loc["lat"], loc["long"], loc["lat"], tm, tm])
 
             if len(loc["ssids"]) > 0:
                 if q_ssids is None:
-                    q_ssids = "W.Location = M.Location AND ( 1 "
+                    q_ssids = "M.Username != %s AND W.Location = M.Location AND ( 1 "
+                    ssids.extend(user)
 
                 for ssid in loc["ssids"]:
                     q_ssids += ssid_cmp
                     ssids.extend([ssid, tm, tm])
 
-        result = set()
+        result = []
 
         if q_gps is not None:
-            q_gps += ")"
-            result = set(self.__get_msgid_gps(q_gps, gps))
+            q_gps += q_having
+            gps.extend([user, user])
+            q_res = self.__get_msgid_gps(q_gps, gps)
+            if q_res is not None:
+                result.extend(q_res)
 
         if q_ssids is not None:
-            q_ssids += ")"
-            result = result.union(self.__get_msgid_ssid(q_ssids, ssids))
+            q_ssids += q_having
+            ssids.extend([user, user])
+            q_res = self.__get_msgid_ssid(q_ssids, ssids)
+            if q_res is not None:
+                result.extend(q_res)
 
         cursor.close()
         return create_json(["messages"], [list(result)])
