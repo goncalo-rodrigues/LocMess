@@ -95,6 +95,19 @@ public class FullLocation extends Location{
     public void save(Context ctx) {
         LocmessDbHelper helper = new LocmessDbHelper(ctx);
         SQLiteDatabase db = helper.getWritableDatabase();
+        // delete previous entries
+        db.delete(LocmessContract.FullLocationTable.TABLE_NAME,
+                LocmessContract.FullLocationTable.COLUMN_NAME_LOCATION + " = ?",
+                new String[] {getLocation()});
+
+        if (isGps()) {
+            ContentValues values = new ContentValues();
+            values.put(LocmessContract.FullLocationTable.COLUMN_NAME_LOCATION, getLocation());
+            values.put(LocmessContract.FullLocationTable.COLUMN_NAME_LATITUDE, latitude);
+            values.put(LocmessContract.FullLocationTable.COLUMN_NAME_LONGITUDE, longitude);
+            values.put(LocmessContract.FullLocationTable.COLUMN_NAME_RADIUS, radius);
+            db.insert(LocmessContract.FullLocationTable.TABLE_NAME, null, values);
+        }
         for (String ssid : ssids) {
             ContentValues values = new ContentValues();
             values.put(LocmessContract.FullLocationTable.COLUMN_NAME_LOCATION, getLocation());
@@ -111,6 +124,7 @@ public class FullLocation extends Location{
     public void delete(Context ctx) {
         LocmessDbHelper helper = new LocmessDbHelper(ctx);
         SQLiteDatabase db = helper.getWritableDatabase();
+
         db.delete(LocmessContract.FullLocationTable.TABLE_NAME,
                 LocmessContract.FullLocationTable.COLUMN_NAME_LOCATION + " = ?",
                 new String[] {getLocation()});

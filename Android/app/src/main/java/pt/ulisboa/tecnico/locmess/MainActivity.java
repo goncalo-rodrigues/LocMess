@@ -35,6 +35,7 @@ import java.util.List;
 import pt.ulisboa.tecnico.locmess.adapters.MessagesAdapter;
 import pt.ulisboa.tecnico.locmess.adapters.Pager;
 import pt.ulisboa.tecnico.locmess.data.entities.CreatedMessage;
+import pt.ulisboa.tecnico.locmess.data.entities.FullLocation;
 import pt.ulisboa.tecnico.locmess.data.entities.Message;
 import pt.ulisboa.tecnico.locmess.data.entities.MuleMessage;
 import pt.ulisboa.tecnico.locmess.data.entities.MuleMessageFilter;
@@ -77,8 +78,9 @@ public class MainActivity extends ActivityWithDrawer implements BaseMessageFragm
 
         checkGPSStatus();
 
-
-
+        MuleMessage m = new MuleMessage("id2", "text", "author", new FullLocation("loc1", 0, 0, 0), (new Date()), new Date(), new ArrayList<MuleMessageFilter>(), 0);
+        m.save(this);
+        MuleMessage.deleteUseless(this);
         super.onCreate(savedInstanceState);
     }
 
