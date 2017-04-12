@@ -123,8 +123,14 @@ public class GetLocationInfoTask extends AsyncTask<Void, String, String>{
     protected void onPostExecute(String result) {
         //TODO see the possible errors and handle them
         if (result.equals("ok")) {
-            FullLocation flocation = new FullLocation(location,lat,longitude,radius);
-            callback.OnGetLocationInfoComplete(flocation);
+            if (lat != null) {
+                FullLocation flocation = new FullLocation(location,lat,longitude,radius);
+                callback.OnGetLocationInfoComplete(flocation);
+            } else {
+                FullLocation flocation = new FullLocation(location,ssids);
+                callback.OnGetLocationInfoComplete(flocation);
+            }
+
         }
         else if(result.equals("conetionError"))
             callback.OnNoInternetConnection();

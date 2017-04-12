@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.locmess;
 
+import android.Manifest;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -7,13 +8,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Messenger;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
@@ -38,6 +42,7 @@ import pt.inesc.termite.wifidirect.SimWifiP2pDeviceList;
 import pt.inesc.termite.wifidirect.SimWifiP2pManager;
 import pt.inesc.termite.wifidirect.service.SimWifiP2pService;
 import pt.ulisboa.tecnico.locmess.data.LocmessContract;
+import pt.ulisboa.tecnico.locmess.data.entities.FullLocation;
 import pt.ulisboa.tecnico.locmess.data.entities.ReceivedMessage;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 import pt.ulisboa.tecnico.locmess.serverrequests.SendMyLocationTask;
@@ -49,6 +54,7 @@ public class PeriodicLocationService extends Service implements LocationListener
     private float minDistance = 0;
     private Location mostRecentLocation;
     private List<TimestampedLocation> updates = new ArrayList<>();
+    private boolean isRequestingLocation = false;
 
     private List<String> ssids = new ArrayList<>();
     private SimWifiP2pBroadcastReceiver mReceiver;
@@ -59,7 +65,9 @@ public class PeriodicLocationService extends Service implements LocationListener
     private Handler handler = new Handler();
 
     NetworkGlobalState globalState;
-    private static final String URL_SERVER = "http://locmess.duckdns.org";
+
+    private List<Callback> clients = new ArrayList<>();
+    private PeriodicLocationBinder mBinder;
 
     private Runnable runnable = new Runnable(){
         public void run() {
@@ -72,7 +80,8 @@ public class PeriodicLocationService extends Service implements LocationListener
 
     @Override
     public void onDestroy() {
-        mLocationManager.removeUpdates(this);
+        if (isRequestingLocation)
+            mLocationManager.removeUpdates(this);
         unregisterReceiver(mReceiver);
         unbindService(mConnection);
         super.onDestroy();
@@ -81,16 +90,8 @@ public class PeriodicLocationService extends Service implements LocationListener
     @Override
     public void onCreate() {
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        // Asks for the current location
-        try {
-            mLocationManager.requestLocationUpdates(
-                    LocationManager.GPS_PROVIDER, minTimeMs, minDistance, this);
-        } catch(SecurityException e) {
-            // It should not happen
-        }
 
-        Location location = getLastKnownLocation();
-        onLocationChanged(location);
+        requestLocation();
 
         // register broadcast receiver
         IntentFilter filter = new IntentFilter();
@@ -105,25 +106,45 @@ public class PeriodicLocationService extends Service implements LocationListener
 
         handler.postDelayed(runnable, interval);
 
+        mBinder = new PeriodicLocationBinder();
 
         super.onCreate();
     }
 
-    public PeriodicLocationService() {
+    private void requestLocation() {
+        boolean permGranted =
+                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_WIFI_STATE)
+                        == PackageManager.PERMISSION_GRANTED;
+        if (permGranted && !isRequestingLocation) {
+            try {
+                mLocationManager.requestLocationUpdates(
+                        LocationManager.GPS_PROVIDER, minTimeMs, minDistance, this);
+                Location location = getLastKnownLocation();
+                onLocationChanged(location);
+                isRequestingLocation = true;
+            } catch(SecurityException e) {
+                // It should not happen, hopefully
+            }
+        }
 
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
-        throw new UnsupportedOperationException("Not yet implemented");
+        return mBinder;
     }
 
     public void onLocationChanged(final Location loc)
     {
-        Toast.makeText(this, "New location", Toast.LENGTH_SHORT).show();
-        mostRecentLocation = loc;
-        updates.add(new TimestampedLocation(ssids, loc.getLatitude(), loc.getLongitude()));
+        if (loc != null) {
+            Toast.makeText(this, "New location", Toast.LENGTH_SHORT).show();
+            mostRecentLocation = loc;
+            for (Callback client: clients) {
+                client.onGPSLocationUpdate(new FullLocation("mylocation", loc.getLatitude(), loc.getLongitude(), 0));
+            }
+            updates.add(new TimestampedLocation(ssids, loc.getLatitude(), loc.getLongitude()));
+        }
+
 
     }
 
@@ -171,6 +192,9 @@ public class PeriodicLocationService extends Service implements LocationListener
         for (SimWifiP2pDevice device : peers.getDeviceList()) {
             ssids.add(device.deviceName);
         }
+        for (Callback client: clients) {
+            client.onWifiLocationUpdate(new FullLocation("mylocation", new ArrayList<>(ssids)));
+        }
         updates.add(new TimestampedLocation(ssids, mostRecentLocation.getLatitude(), mostRecentLocation.getLongitude()));
     }
 
@@ -216,6 +240,10 @@ public class PeriodicLocationService extends Service implements LocationListener
     };
 
     private void sendToServer(){
+        if(updates.size()==0){
+            Toast.makeText(this, "No location to send", Toast.LENGTH_SHORT).show();
+            return;
+        }
         ArrayList<TimestampedLocation> copy = new ArrayList<>(updates);
         updates = new ArrayList<>();
         new SendMyLocationTask(this,this,copy).execute();
@@ -236,5 +264,44 @@ public class PeriodicLocationService extends Service implements LocationListener
             this.longitude = longitude;
             this.timeStamp = new Date();
         }
+    }
+
+
+
+    public class PeriodicLocationBinder extends Binder {
+        public FullLocation getLastGPSLocation() {
+
+            if (mostRecentLocation != null) {
+                return new FullLocation("mylocation", mostRecentLocation.getLatitude(), mostRecentLocation.getLongitude(), 0);
+            } else {
+                // try to get last known location
+                if ((mostRecentLocation = getLastKnownLocation()) != null) {
+                    return new FullLocation("mylocation", mostRecentLocation.getLatitude(), mostRecentLocation.getLongitude(), 0);
+                }
+                return null;
+            }
+        }
+
+        public FullLocation getLastWifiLocation() {
+            return new FullLocation("mylocation", new ArrayList<>(ssids));
+        }
+
+        public void registerClient(Callback callback) {
+            requestLocation();
+            clients.add(callback);
+        }
+
+        public void unregisterClient(Callback callback) {
+            clients.remove(callback);
+        }
+
+        public void reevaluatePermission() {
+            requestLocation();
+        }
+    }
+
+    public interface Callback {
+        void onGPSLocationUpdate(FullLocation location);
+        void onWifiLocationUpdate(FullLocation location);
     }
 }

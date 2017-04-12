@@ -49,6 +49,8 @@ public class SimWifiP2pBroadcastReceiver extends BroadcastReceiver {
 
         	Toast.makeText(context, "Peer list changed",
     				Toast.LENGTH_SHORT).show();
+            if (mCallback != null)
+                mCallback.onPeersChanged();
 
         } else if (SimWifiP2pBroadcast.WIFI_P2P_NETWORK_MEMBERSHIP_CHANGED_ACTION.equals(action)) {
 
@@ -72,5 +74,6 @@ public class SimWifiP2pBroadcastReceiver extends BroadcastReceiver {
 
     public interface Callback {
         void onGroupChanged(SimWifiP2pInfo ginfo);
+        void onPeersChanged();
     }
 }
