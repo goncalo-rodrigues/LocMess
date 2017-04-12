@@ -147,9 +147,8 @@ public class SendMyLocationTask extends AsyncTask<Void, String,String>{
     }
 
 
-    public void saveMessagesFromJson(JSONObject json) throws JSONException {
-        JSONArray messages =json.getJSONArray("messages");
-        ArrayList<ReceivedMessage> result = new ArrayList<>();
+    public void saveMessagesFromJson(JSONObject jsoninput) throws JSONException {
+        JSONArray messages =jsoninput.getJSONArray("messages");
         JSONObject message =null;
         String id;
         String username;
@@ -159,7 +158,10 @@ public class SendMyLocationTask extends AsyncTask<Void, String,String>{
         String content;
         ReceivedMessage rm;
 
-        for (int j=0;j<messages.length()-1;j++) {
+        /*OUT: {"messages": [{"username": "a", "end_date": 1492001877110, "id": "56258147",
+         "content": "hjfjcnfk uruh yhufu", "location": "__________trancoso_______",
+         "filters": [], "start_date": 1491998277110}]}*/
+        for (int j=0;j<messages.length();j++) {
             message = messages.getJSONObject(j);
             if (message != null) {
                 id = message.getString("id");
