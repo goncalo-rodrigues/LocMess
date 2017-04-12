@@ -45,7 +45,7 @@ public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.ViewHolder
         KeyValue item = data.get(position);
         holder.key_tv.setText(item.key);
         holder.value_tv.setText(item.value);
-        holder.black_List_tb.setChecked(item.blacklisted);
+        //holder.black_List_tb.setChecked(item.blacklisted);
 
         holder.remove_bt.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -79,7 +79,7 @@ public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.ViewHolder
             remove_bt = (ImageButton) v.findViewById(R.id.send_list_item_remove_bt);
             key_tv = (TextView) v.findViewById(R.id.send_list_item_key_tv);
             value_tv = (TextView) v.findViewById(R.id.send_list_item_value_tv);
-            black_List_tb = (ToggleButton) v.findViewById(R.id.send_list_toggle_Button_Blacklist);
+            //black_List_tb = (ToggleButton) v.findViewById(R.id.send_list_toggle_Button_Blacklist);
         }
     }
 

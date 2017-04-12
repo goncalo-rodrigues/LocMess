@@ -240,6 +240,10 @@ public class PeriodicLocationService extends Service implements LocationListener
     };
 
     private void sendToServer(){
+        if(updates.size()==0){
+            Toast.makeText(this, "No location to send", Toast.LENGTH_SHORT).show();
+            return;
+        }
         ArrayList<TimestampedLocation> copy = new ArrayList<>(updates);
         updates = new ArrayList<>();
         new SendMyLocationTask(this,this,copy).execute();

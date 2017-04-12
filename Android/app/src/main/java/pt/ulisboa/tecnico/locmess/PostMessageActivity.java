@@ -15,7 +15,9 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,6 +46,9 @@ import static java.lang.Math.random;
 
 public class PostMessageActivity extends ActivityWithDrawer implements FilterAdapter.Callback, View.OnClickListener,
         TimePicker.TimePickerCallback, DatePicker.DatePickerCallback, PostMessageTask.PostMessageTaskCallBack, RequestExistentFiltersTask.RequestFiltersTaskCallBack, RequestLocationsTask.RequestLocationsTaskCallBack, GetLocationInfoTask.GetLocationInfoCallBack {
+
+    private ScrollView fullScreen;
+    private ProgressBar progressBarSending;
 
     private static final String LOG_TAG = ProfileActivity.class.getSimpleName();
     private ArrayList<String> locationList = new ArrayList<>();
@@ -78,6 +83,7 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
     private Calendar startDate;
     private Calendar endDate;
     private boolean start;
+    private boolean waiting = false;
 
     NetworkGlobalState globalState;
 
@@ -99,6 +105,10 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
     protected void onCreate(Bundle savedInstanceState) {
 
         setContentView(R.layout.activity_post_message);
+
+        fullScreen =(ScrollView) findViewById(R.id.ScrolView1);
+        progressBarSending = (ProgressBar) findViewById(R.id.progressBarSending);
+        progressBarSending.setVisibility(View.GONE);
 
         //Locations
         getLocations();
@@ -323,21 +333,23 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
         switch (item.getItemId()) {
             // action with ID action_send was selected
             case R.id.action_send:
+                if(waiting == false) {
+                    setScreenWaiting();
 
-                //Store the state that at the moment of send existed
-                messageText =messageTextET.getText().toString();
-                username = globalState.getUsername();
-                location = mLocationAtv.getText().toString();
-                startD = startDate.getTime();
-                endD = endDate.getTime();
-                id = String.valueOf((int) (random()*221313161));//TODO fix this id
+                    //Store the state that at the moment of send existed
+                    messageText = messageTextET.getText().toString();
+                    username = globalState.getUsername();
+                    location = mLocationAtv.getText().toString();
+                    startD = startDate.getTime();
+                    endD = endDate.getTime();
+                    id = String.valueOf((int) (random() * 221313161));//TODO fix this id
 
-                if(mAdOcRadio.isChecked())
-                    postMessageAdOc();
+                    if (mAdOcRadio.isChecked())
+                        postMessageAdOc();
 
-                else
-                    postMessageCentralized();
-
+                    else
+                        postMessageCentralized();
+                }
                 break;
 
             default:
@@ -372,7 +384,21 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
         new GetLocationInfoTask(this,this,location).execute();
     }
 
+//----------------------    Set the state of the screen     ----------------------------//
 
+    private void setScreenWaiting(){
+        waiting = true;
+        fullScreen.setVisibility(View.GONE);
+        progressBarSending.setVisibility(View.VISIBLE);
+    }
+
+
+
+    private void setScreenNormal(){
+        waiting = false;
+        progressBarSending.setVisibility(View.GONE);
+        fullScreen.setVisibility(View.VISIBLE);
+    }
 
 //----------------------------------------------------------------------------------------
 //----         Callbacks from the requests made to the server by Assink tasks         ----
@@ -387,6 +413,7 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
     @Override
     public void onErrorResponse() {
         Toast.makeText(this, "No error in request response", Toast.LENGTH_SHORT).show();
+        setScreenNormal();
     }
 
     @Override
@@ -414,11 +441,13 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
     @Override
     public void OnGetInfoErrorResponse(String error) {
         Toast.makeText(this, "ERROR:"+error, Toast.LENGTH_SHORT).show();
+        setScreenNormal();
     }
 
     @Override
     public void OnNoInternetConnection() {
         Toast.makeText(this, "No Internet connection", Toast.LENGTH_SHORT).show();
+        setScreenNormal();
     }
 
     @Override
@@ -428,7 +457,7 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
         keysListAdapter.addAll(filterKeys);
         keysListAdapter.notifyDataSetChanged();
 
-        Toast.makeText(this, "Received filters"+filters.size(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Received filters"+filters, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -444,5 +473,6 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
     @Override
     public void OnErrorResponse(String error) {
         Toast.makeText(this, "Error:"+error, Toast.LENGTH_SHORT).show();
+        setScreenNormal();
     }
 }
