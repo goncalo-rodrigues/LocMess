@@ -342,7 +342,7 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
                     location = mLocationAtv.getText().toString();
                     startD = startDate.getTime();
                     endD = endDate.getTime();
-                    id = Utils.buildMessageId(this);
+                    id = Utils.buildMessageId(this, !mAdOcRadio.isChecked());
 
                     if (mAdOcRadio.isChecked())
                         postMessageAdOc();

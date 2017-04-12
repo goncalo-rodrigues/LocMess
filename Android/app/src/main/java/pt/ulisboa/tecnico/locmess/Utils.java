@@ -16,9 +16,9 @@ import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 public class Utils {
 
     private static int counter = 0;
-    public static String buildMessageId(Context ctx) {
+    public static String buildMessageId(Context ctx, boolean centralized) {
         ByteBuffer buffer = ByteBuffer.allocate(1+128+8+4);
-        buffer.put((byte) 0);
+        buffer.put((byte) (centralized ? 0 : 1));
         byte[] session_id =( (NetworkGlobalState) ctx.getApplicationContext()).getId().getBytes();
         buffer.put(session_id);
         long timestamp = ( (NetworkGlobalState) ctx.getApplicationContext()).getSessionTimestamp().getTime();
