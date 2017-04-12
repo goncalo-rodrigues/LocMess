@@ -200,12 +200,12 @@ public class PeriodicLocationService extends Service implements LocationListener
     }
 
     @Override
-    public void OnSendComplete(ArrayList<ReceivedMessage> messages) {
+    public void OnSendComplete(int numberMessages) {
         //TODO Gonçalo the messages are here delete the next and do what you want
-        for(Message m: messages)
-            m.save(this);
+        /*for(String mid: messagesIDs)
+            m.save(this);*/
 
-        Toast.makeText(this, "Send to server complete", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Location Send: "+numberMessages+" available", Toast.LENGTH_SHORT).show();
     }
 
     @Override
