@@ -59,23 +59,16 @@ import pt.ulisboa.tecnico.locmess.wifidirect.SimWifiP2pBroadcastReceiver;
  * Created by nca on 20-03-2017.
  */
 
-public class NewLocationActivity extends ActivityWithDrawer implements LocationListener, SimWifiP2pManager.PeerListListener, View.OnClickListener, CreateLocationTask.CreateLocationTaskCallBack {
+public class NewLocationActivity extends ActivityWithDrawer implements  View.OnClickListener, CreateLocationTask.CreateLocationTaskCallBack, PeriodicLocationService.Callback {
     private static final int REQUEST_LOCATION = 0;
     private static final int REQUEST_WIFI_SCAN = 1;
     private Context context = this;
 
-    private double latitude = 100;
-    private double longitude = 200;
-    private LocationManager mLocationManager;
 
-    private List<ScanResult> scanRes;
     private List<String> ssids = null;
     private ArrayAdapter<String> arrayAdapter = null;
-    private boolean finishedWifiSearch = false;
-    private SimWifiP2pBroadcastReceiver mReceiver;
+    private PeriodicLocationService.PeriodicLocationBinder locBinder;
 
-    private SimWifiP2pManager mManager = null;
-    private SimWifiP2pManager.Channel mChannel = null;
 
     private Button mCreateButton;
     private EditText mNameEditText;
@@ -87,25 +80,20 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
     private ListView mSsidsLv;
     private ProgressDialog mSendingProcessDialog;
 
+    private FullLocation gpsLocation;
+    private FullLocation wifiLocation;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.activity_new_location);
         super.onCreate(savedInstanceState);
-
-        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         ssids = new ArrayList<>();
         mSsidsLv = (ListView) findViewById(R.id.wifi_ids_list);
         arrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, ssids);
         mSsidsLv.setAdapter(arrayAdapter);
 
-        // register broadcast receiver
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_PEERS_CHANGED_ACTION);
-        mReceiver = new SimWifiP2pBroadcastReceiver();
-        registerReceiver(mReceiver, filter);
-
-        Intent intent = new Intent(this, SimWifiP2pService.class);
+        Intent intent = new Intent(this, PeriodicLocationService.class);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
 
         mCreateButton = (Button) findViewById(R.id.newlocation_create_bt);
@@ -124,7 +112,6 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(mReceiver);
         unbindService(mConnection);
     }
 
@@ -139,6 +126,8 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
 
         FrameLayout f = (FrameLayout) findViewById(R.id.chose_wifi);
         f.setVisibility(View.GONE);
+
+        checkGPSStatus();
     }
 
     public void wifiClicked(View view) {
@@ -153,24 +142,6 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
         FrameLayout f = (FrameLayout) findViewById(R.id.chose_wifi);
         f.setVisibility(View.VISIBLE);
 
-        checkGPSStatus();
-        checkWifiStatus();
-
-    }
-
-    public void getCurrentLocation(View v) {
-        checkGPSStatus();
-
-        // Asks for the current location
-        try {
-        mLocationManager.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER, 0, 0, this);
-        } catch(SecurityException e) {
-            // It should not happen
-        }
-
-        Location location = getLastKnownLocation();
-        onLocationChanged(location);
     }
 
     private void checkGPSStatus() {
@@ -185,26 +156,9 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
                     REQUEST_LOCATION);
         }
 
-        // Checks if the GPS is enabled
-        if(!mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-            startActivity(intent);
-        }
+
     }
 
-    private void checkWifiStatus() {
-        // Makes sure that WiFi is enabled
-
-        boolean permGranted =
-                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_WIFI_STATE)
-                        == PackageManager.PERMISSION_GRANTED;
-
-        // Asks for permission
-        if(!permGranted)
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_WIFI_STATE},
-                    REQUEST_WIFI_SCAN);
-    }
 
     public void getMapLocation(View v) {
         //TODO
@@ -225,80 +179,18 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
             case REQUEST_LOCATION: {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    Location location = null;
-
-                    location = getLastKnownLocation();
-                    onLocationChanged(location);
-
-                    try {
-                        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
-                    } catch(SecurityException e) {
-                        // It should not happen because permission was granted
-                        e.printStackTrace();
+                    if (locBinder != null) {
+                        locBinder.reevaluatePermission();
                     }
+                    checkGPSStatus();
                 }
             }
         }
     }
 
-    @Override
-    public void onLocationChanged(Location location) {
-        Toast t = Toast.makeText(this, "Location changed", Toast.LENGTH_SHORT);
-        t.show();
-
-        if (location != null) {
-            latitude = location.getLatitude();
-            longitude = location.getLongitude();
-
-            EditText et = (EditText) findViewById(R.id.latitude);
-            et.setText(String.valueOf(latitude));
-            et = (EditText) findViewById(R.id.longitude);
-            et.setText(String.valueOf(longitude));
-        }
-    }
-
-    @Override
-    public void onStatusChanged(String s, int i, Bundle bundle) { }
-
-    @Override
-    public void onProviderEnabled(String s) { }
-
-    @Override
-    public void onProviderDisabled(String s) { }
 
 
-    private Location getLastKnownLocation() {
-        mLocationManager = (LocationManager)getApplicationContext().getSystemService(LOCATION_SERVICE);
-        List<String> providers = mLocationManager.getProviders(true);
-        Location bestLocation = null;
-        for (String provider : providers) {
-            try {
-                Location l = mLocationManager.getLastKnownLocation(provider);
-                if (l == null) {
-                    continue;
-                }
-                if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
-                    // Found best last known location: %s", l);
-                    bestLocation = l;
-                }
-            } catch (SecurityException e) {
-                // wont happen
-            }
 
-        }
-        return bestLocation;
-    }
-
-    @Override
-    public void onPeersAvailable(SimWifiP2pDeviceList peers) {
-        ssids.clear();
-        for (SimWifiP2pDevice device : peers.getDeviceList()) {
-            ssids.add(device.deviceName);
-        }
-        arrayAdapter.notifyDataSetChanged();
-        checkIfSsidsEmpty();
-    }
 
     @Override
     public void createLocationComplete() {
@@ -330,34 +222,18 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
     }
 
 
-    public class SimWifiP2pBroadcastReceiver extends BroadcastReceiver {
 
-        @Override
-        public void onReceive(android.content.Context context, Intent intent) {
-            String action = intent.getAction();
-            if (SimWifiP2pBroadcast.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) {
-                Toast.makeText(context, "Peers changed",
-                        Toast.LENGTH_SHORT).show();
-                mManager.requestPeers(mChannel, NewLocationActivity.this);
-
-            }
-        }
-    }
 
     private ServiceConnection mConnection = new ServiceConnection() {
-        // callbacks for service binding, passed to bindService()
-
         @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            mManager = new SimWifiP2pManager(new Messenger(service));
-            mChannel = mManager.initialize(getApplication(), getMainLooper(), null);
-            mManager.requestPeers(mChannel, NewLocationActivity.this);
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            locBinder = (PeriodicLocationService.PeriodicLocationBinder) service;
+            locBinder.registerClient(NewLocationActivity.this);
         }
 
         @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mManager = null;
-            mChannel = null;
+        public void onServiceDisconnected(ComponentName name) {
+            locBinder = null;
         }
     };
 
@@ -406,5 +282,30 @@ public class NewLocationActivity extends ActivityWithDrawer implements LocationL
                 super.onClick(v);
         }
 
+    }
+
+    public void getCurrentLocation(View view) {
+        if (locBinder != null) {
+            gpsLocation = locBinder.getLastGPSLocation();
+        }
+
+        if (gpsLocation != null) {
+            mLatitudeEditText.setText(String.valueOf(gpsLocation.getLatitude()));
+            mLongitudeEditText.setText(String.valueOf(gpsLocation.getLongitude()));
+        }
+    }
+
+    @Override
+    public void onGPSLocationUpdate(FullLocation location) {
+        gpsLocation = location;
+    }
+
+    @Override
+    public void onWifiLocationUpdate(FullLocation location) {
+        wifiLocation = location;
+        ssids.clear();
+        ssids.addAll(location.getSsids());
+        arrayAdapter.notifyDataSetChanged();
+        checkIfSsidsEmpty();
     }
 }

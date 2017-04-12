@@ -294,6 +294,10 @@ public class PeriodicLocationService extends Service implements LocationListener
         public void unregisterClient(Callback callback) {
             clients.remove(callback);
         }
+
+        public void reevaluatePermission() {
+            requestLocation();
+        }
     }
 
     public interface Callback {
