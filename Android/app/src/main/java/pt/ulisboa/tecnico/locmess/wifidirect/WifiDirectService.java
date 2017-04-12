@@ -17,6 +17,7 @@ import android.os.IBinder;
 import android.os.Messenger;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,36 +31,42 @@ import pt.inesc.termite.wifidirect.SimWifiP2pInfo;
 import pt.inesc.termite.wifidirect.SimWifiP2pManager;
 import pt.inesc.termite.wifidirect.service.SimWifiP2pService;
 import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocketManager;
+import pt.ulisboa.tecnico.locmess.PeriodicLocationService;
+import pt.ulisboa.tecnico.locmess.data.entities.FullLocation;
 import pt.ulisboa.tecnico.locmess.data.entities.MuleMessage;
 import pt.ulisboa.tecnico.locmess.data.entities.MuleMessageFilter;
+import pt.ulisboa.tecnico.locmess.data.entities.ReceivedMessage;
 
 /**
  * Created by goncalo on 25-03-2017.
  */
 
-public class WifiDirectService extends Service implements WifiP2pManager.PeerListListener, SimWifiP2pBroadcastReceiver.Callback, WifiDirectServerWorkerThread.Callback, SimWifiP2pManager.GroupInfoListener, WifiDirectClientThread.Callback {
+public class WifiDirectService extends Service implements SimWifiP2pBroadcastReceiver.Callback, WifiDirectServerWorkerThread.Callback, SimWifiP2pManager.GroupInfoListener, WifiDirectClientThread.Callback {
 
     private static final String LOG_TAG = WifiDirectService.class.getSimpleName();
     public final static String EXTRA_COMMAND_KEY = "command";
     public final static int COMMAND_START = 1;
     public final static int COMMAND_UPDATE_PEERS = 2;
     public final static int COMMAND_STOP = 3;
-    private static final int COMMAND_SEND_MESSAGE = 4;
+    public static final int COMMAND_SEND_MESSAGE = 4;
     private static final int PORT = 10001;
 
     // wifi direct service
     private Messenger mService;
     private SimWifiP2pManager mManager;
     private SimWifiP2pManager.Channel mChannel;
-    private boolean mBound = false;
 
     // wifi direct thread
     WifiDirectThread wdThread;
     private Collection<SimWifiP2pDevice> devices;
+//    private List<String> availableDevices;
     private SimWifiP2pBroadcastReceiver mReceiver;
 
     // protocol
     private Policy routingPolicy = new Policy();
+
+    //location stuff
+    private PeriodicLocationService.PeriodicLocationBinder locBinder;
 
     @Override
     public void onCreate() {
@@ -78,11 +85,16 @@ public class WifiDirectService extends Service implements WifiP2pManager.PeerLis
         // start wifi direct
         Intent intent = new Intent(this, SimWifiP2pService.class);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-        mBound = true;
 
         wdThread = new WifiDirectThread(this, PORT);
         wdThread.start();
 
+        // data structures initialization
+//        availableDevices = new ArrayList<>();
+
+        // location stuff
+        intent = new Intent(this, PeriodicLocationService.class);
+        bindService(intent, anotherConnection, Context.BIND_AUTO_CREATE);
 //        serverThread = new WifiDirectThread();
     }
 
@@ -100,7 +112,7 @@ public class WifiDirectService extends Service implements WifiP2pManager.PeerLis
                 // do nothing
                 break;
             case COMMAND_SEND_MESSAGE:
-                // to do
+                mManager.requestGroupInfo(mChannel, this);
                 break;
             case COMMAND_STOP:
                 // stop worker thread
@@ -115,6 +127,7 @@ public class WifiDirectService extends Service implements WifiP2pManager.PeerLis
         wdThread.exit();
         unregisterReceiver(mReceiver);
         unbindService(mConnection);
+        unbindService(anotherConnection);
         super.onDestroy();
     }
 
@@ -133,8 +146,8 @@ public class WifiDirectService extends Service implements WifiP2pManager.PeerLis
             mService = new Messenger(service);
             mManager = new SimWifiP2pManager(mService);
             mChannel = mManager.initialize(getApplication(), getMainLooper(), null);
-            mBound = true;
             mManager.requestGroupInfo(mChannel, WifiDirectService.this);
+//            mManager.requestPeers(mChannel, WifiDirectService.this);
 
         }
 
@@ -143,7 +156,18 @@ public class WifiDirectService extends Service implements WifiP2pManager.PeerLis
             mService = null;
             mManager = null;
             mChannel = null;
-            mBound = false;
+        }
+    };
+
+    private ServiceConnection anotherConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            locBinder = (PeriodicLocationService.PeriodicLocationBinder) service;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            locBinder = null;
         }
     };
 
@@ -169,11 +193,10 @@ public class WifiDirectService extends Service implements WifiP2pManager.PeerLis
         m.moveToFirst();
         while (!m.isAfterLast()) {
             MuleMessage msgToSend = new MuleMessage(m, this);
-            if (msgToSend.getHops() < 2) {
-                MuleMessage message =  new MuleMessage(m, this);
-                Request request = new Request(Request.REQUEST_MULE_MESSAGE, message.getJson());
+            if (msgToSend.getHops() < 2 && msgToSend.getEndDate().after(new Date()) && msgToSend.getStartDate().before(new Date())) {
+                Request request = new Request(Request.REQUEST_MULE_MESSAGE, msgToSend.getJson());
                 for (SimWifiP2pDevice device : this.devices) {
-                    if (routingPolicy.shouldSendToPeer(device, message)) {
+                    if (routingPolicy.shouldSendToPeer(device, msgToSend)) {
                         WifiDirectClientThread t = new WifiDirectClientThread(device.getVirtIp(), PORT, request, this);
                         t.start();
                     }
@@ -187,25 +210,33 @@ public class WifiDirectService extends Service implements WifiP2pManager.PeerLis
     }
 
 
-    @Override
-    public void onPeersAvailable(WifiP2pDeviceList peers) {
-
-    }
 
     @Override
     public void onGroupChanged(SimWifiP2pInfo ginfo) {
+        Log.i(LOG_TAG, "group changed");
         mManager.requestGroupInfo(mChannel, this);
     }
 
     @Override
+    public void onPeersChanged() {
+        Log.i(LOG_TAG, "peers changed");
+//        mManager.requestPeers(mChannel, this);
+    }
+
+    @Override
     public Response onNewMessage(Request message) {
+        Log.i(LOG_TAG, "received new message " + message.toString());
         switch(message.id) {
             case Request.REQUEST_MULE_MESSAGE:
                 MuleMessage m = (MuleMessage) message.getContent();
                 m.setHops(m.getHops()+1); // 1 more hop!
                 m.save(this);
-
-
+                if ((getCurrentWifiLocation().isInside(m.getFullLocation()) || getCurrentGPSLocation().isInside(m.getFullLocation()) )
+                        && m.amIallowedToReceiveThisMessage(this)) {
+                    ReceivedMessage rm = m.toReceived();
+                    rm.save(this);
+                    Log.i(LOG_TAG,  "Received new decentralized message " + message.toString());
+                }
                 return new Response(true);
             default:
                 return new Response(false); // protocol unknown
@@ -214,6 +245,28 @@ public class WifiDirectService extends Service implements WifiP2pManager.PeerLis
     @Override
     public Request onNewResponse(Response response) {
         Log.i(LOG_TAG, "received response " + response.success);
+        return null;
+    }
+
+//    @Override
+//    public void onPeersAvailable(SimWifiP2pDeviceList simWifiP2pDeviceList) {
+//        for (SimWifiP2pDevice device : simWifiP2pDeviceList.getDeviceList()){
+//            availableDevices.add(device.deviceName);
+//        }
+//    }
+
+    public FullLocation getCurrentWifiLocation() {
+        if (locBinder != null) {
+            return locBinder.getLastWifiLocation();
+        }
+        return new FullLocation("mylocation", new ArrayList<String>());
+    }
+
+    public FullLocation getCurrentGPSLocation() {
+        if (locBinder != null) {
+            return locBinder.getLastGPSLocation();
+        }
+        // todo: return mock location
         return null;
     }
 }

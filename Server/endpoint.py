@@ -72,8 +72,11 @@ def send_locations():
     print("IN: " + str(req) + "\n")
     out.flush()
 
-    if "session_id" in req and "gps" in req and "ssids" and are_gps(req["gps"]):
-        return db.search_messages(req["session_id"], req["gps"], req["ssids"])
+    if "session_id" in req and "locations" in req:
+        res = db.search_messages(req["session_id"], req["locations"])
+        print("OUT: " + str(res) + "\n")
+        out.flush()
+        return res
 
     return create_error_json(error_keys_not_in_json)
 

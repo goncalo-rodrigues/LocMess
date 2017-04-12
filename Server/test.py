@@ -23,20 +23,26 @@ print "Filter creation result: " + str(db.set_my_filter(signup_res["session_id"]
 print "Second filter creation result: " + str(db.set_my_filter(signup_res2["session_id"], {"key": "TestKey", "value": "TestValue"}))
 print "Getting filters: " + str(db.get_keys(signup_res["session_id"]))
 print "Filter removal result: " + str(db.remove_filter(signup_res["session_id"], {"key": "TestKey", "value": "TestValue"}))
+print "Second filter removal result: " + str(db.remove_filter(signup_res2["session_id"], {"key": "TestKey", "value": "TestValue"}))
 print "\n======================================\n"
 
 # Message tests
 print "Message filter creation result: " + str(db.set_my_filter(signup_res2["session_id"], {"key": "MessageKey", "value": "MessageValue"}))
-res_dict = create_msg_dict("1", "a", "Barco", 123, 132, "This is the content of a possible message",
-                           [{"key": "MessageKey", "value": "MessageValue", "is_whitelist":True}])
+print "Message filter creation result: " + str(db.set_my_filter(signup_res["session_id"], {"key": "MessageKey", "value": "MessageValue"}))
+res_dict = create_msg_dict("1", "b", "Barco", 123, 132, "This is the content of a possible message",
+                           [{"key": "MessageKey", "value": "MessageValue", "is_whitelist":True},
+                            {"key": "TestKey", "value": "TestValue", "is_whitelist": True}])
 
 print "Message: " + str(res_dict)
-print "Message creation result: " + str(db.post_message(signup_res["session_id"], res_dict))
-print "Message deletion result: " + str(db.delete_msg(signup_res["session_id"], "1"))
+print "Message deletion result: " + str(db.delete_msg(signup_res2["session_id"], "1"))
+print "Message creation result: " + str(db.post_message(signup_res2["session_id"], res_dict))
 
 print "\n======================================\n"
 
-print "Location search result: " + str(db.get_matching_locs(38.7367125, -9.1395701))
+# Send location tests
+print "Resulting messages: " + str(db.search_messages(signup_res["session_id"],
+[{"lat": 38.7366761, "long": -9.1384762, "ssids": ["A", "B", "E"], "timestamp": 199923499234},
+ {"lat": 12, "long": 13, "ssids": [], "timestamp": 130}]))
 
 print "\n======================================\n"
 

@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.locmess;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -39,6 +40,7 @@ import pt.ulisboa.tecnico.locmess.serverrequests.GetLocationInfoTask;
 import pt.ulisboa.tecnico.locmess.serverrequests.PostMessageTask;
 import pt.ulisboa.tecnico.locmess.serverrequests.RequestExistentFiltersTask;
 import pt.ulisboa.tecnico.locmess.serverrequests.RequestLocationsTask;
+import pt.ulisboa.tecnico.locmess.wifidirect.WifiDirectService;
 
 import static java.lang.Math.random;
 
@@ -427,10 +429,12 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
                 endD,filters, 0);
         muleM.save(this);
 
-        //TODO make a change in created messages in order to distinguish ad-oc from centralized
         CreatedMessage messageAdOc = new CreatedMessage(id,messageText, username, location, startDate.getTime(), endDate.getTime(), false);
         messageAdOc.save(this);
         Toast.makeText(this, "Ad-oc message", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(this, WifiDirectService.class);
+        intent.putExtra(WifiDirectService.EXTRA_COMMAND_KEY, WifiDirectService.COMMAND_SEND_MESSAGE);
+        startService(intent);
         finish();
     }
 
