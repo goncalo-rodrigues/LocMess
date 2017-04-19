@@ -3,7 +3,9 @@ package pt.ulisboa.tecnico.locmess.data.entities;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import java.util.Date;
 
@@ -15,6 +17,8 @@ import pt.ulisboa.tecnico.locmess.data.LocmessDbHelper;
  */
 
 public class ReceivedMessage extends Message {
+    private static final String LOG_TAG = ReceivedMessage.class.getSimpleName();
+
     public ReceivedMessage(String id, String messageText, String author, String location, Date startDate, Date endDate, boolean centralized) {
         super(id, messageText, author, location, startDate, endDate, centralized);
     }
@@ -35,7 +39,12 @@ public class ReceivedMessage extends Message {
         values.put(LocmessContract.MessageTable.COLUMN_NAME_ENDDATE, getEndDate().toString());
         values.put(LocmessContract.MessageTable.COLUMN_NAME_LOCATION, getLocation());
         values.put(LocmessContract.MessageTable.COLUMN_NAME_CENTRALIZED, isCentralized());
-        db.insert(LocmessContract.MessageTable.TABLE_NAME, null, values);
+        try {
+            db.insert(LocmessContract.MessageTable.TABLE_NAME, null, values);
+        } catch (SQLiteConstraintException e) {
+            Log.e(LOG_TAG, e.toString());
+        }
+
         db.close();
     }
 

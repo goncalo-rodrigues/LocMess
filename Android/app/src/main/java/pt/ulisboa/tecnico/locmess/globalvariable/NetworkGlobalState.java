@@ -38,9 +38,9 @@ public class NetworkGlobalState extends Application{
     }
 
     public String getId() {
-        if (id == null) {
-            return "this.is.a.fake.128-byte.id.just.for.test.purposes.if.you.see.this.string.anywhere.please.report.to.someone.who.developed.the.app";
-        }
+//        if (id == null) {
+//            return "this.is.a.fake.128-byte.id.just.for.test.purposes.if.you.see.this.string.anywhere.please.report.to.someone.who.developed.the.app";
+//        }
         return id;
     }
 

@@ -35,12 +35,12 @@
     <string name="create">Create</string>
     <string name="send">Send</string>
     <string name="centralized">Centralized</string>
-    <string name="adOc">ad-oc</string>
+    <string name="adOc">Ad-hoc</string>
     <string name="distribution">Distribution</string>
     <string name="error_pass_not_equal">The inserted passwords dont mach!!</string>
     <string name="empty_user">The username cant be empty!!</string>
-    <string name="empty_pass">the password cant be empty!!</string>
-    <string name="no_internet">Couldnt conect to the server</string>
+    <string name="empty_pass">The password cant be empty!!</string>
+    <string name="no_internet">Couldn\'t connect to the server</string>
     <string name="user_already_exists">User already exists</string>
     <string name="wrong_credentials">Username or Password incorrect</string>
     <string name="waiting_for_server">Waiting for Server</string>

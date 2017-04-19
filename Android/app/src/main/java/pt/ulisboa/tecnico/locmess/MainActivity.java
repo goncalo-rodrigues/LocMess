@@ -117,7 +117,6 @@ public class MainActivity extends ActivityWithDrawer implements BaseMessageFragm
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     checkGPSStatus();
-                    // TODO
                 } else {
                     Toast.makeText(this, "Please accept gps permission", Toast.LENGTH_LONG).show();
                     Intent myIntent = new Intent(this, PeriodicLocationService.class);

@@ -3,7 +3,9 @@ package pt.ulisboa.tecnico.locmess.data.entities;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import pt.ulisboa.tecnico.locmess.data.LocmessContract;
 import pt.ulisboa.tecnico.locmess.data.LocmessDbHelper;
@@ -13,6 +15,7 @@ import pt.ulisboa.tecnico.locmess.data.LocmessDbHelper;
  */
 
 public class ProfileKeyValue {
+    private static final String LOG_TAG = ProfileKeyValue.class.getSimpleName();
     private String key;
     private String value;
 
@@ -34,7 +37,12 @@ public class ProfileKeyValue {
         ContentValues values = new ContentValues();
         values.put(LocmessContract.ProfileKeyValue.COLUMN_NAME_KEY, getKey());
         values.put(LocmessContract.ProfileKeyValue.COLUMN_NAME_VALUE, getValue());
-        db.insert(LocmessContract.ProfileKeyValue.TABLE_NAME, null, values);
+        try {
+            db.insert(LocmessContract.ProfileKeyValue.TABLE_NAME, null, values);
+        } catch (SQLiteConstraintException e) {
+            Log.e(LOG_TAG, e.toString());
+        }
+
         db.close();
     }
 

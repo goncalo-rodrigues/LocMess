@@ -31,6 +31,7 @@ import pt.inesc.termite.wifidirect.SimWifiP2pInfo;
 import pt.inesc.termite.wifidirect.SimWifiP2pManager;
 import pt.inesc.termite.wifidirect.service.SimWifiP2pService;
 import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocketManager;
+import pt.ulisboa.tecnico.locmess.NotificationsHelper;
 import pt.ulisboa.tecnico.locmess.PeriodicLocationService;
 import pt.ulisboa.tecnico.locmess.data.entities.FullLocation;
 import pt.ulisboa.tecnico.locmess.data.entities.MuleMessage;
@@ -235,6 +236,7 @@ public class WifiDirectService extends Service implements SimWifiP2pBroadcastRec
                         && m.amIallowedToReceiveThisMessage(this)) {
                     ReceivedMessage rm = m.toReceived();
                     rm.save(this);
+                    NotificationsHelper.startNewMessageNotification(this);
                     Log.i(LOG_TAG,  "Received new decentralized message " + message.toString());
                 }
                 return new Response(true);
@@ -267,6 +269,6 @@ public class WifiDirectService extends Service implements SimWifiP2pBroadcastRec
             return locBinder.getLastGPSLocation();
         }
         // todo: return mock location
-        return null;
+        return new FullLocation("fakelocation", 1000, 1000, 0);
     }
 }
