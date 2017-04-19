@@ -1,4 +1,5 @@
 import MySQLdb
+import time
 import Crypto.Random.random
 from json_creator import *
 
@@ -77,7 +78,7 @@ class Database:
         id = self.__create_session(cursor, username)
         cursor.close()
         self.conn.commit()
-        return create_json(["session_id"], [id])
+        return create_json(["session_id", "timestamp"], [id, int(time.time())])
 
     def login(self, username, password):
         cursor = self.conn.cursor()
@@ -96,7 +97,7 @@ class Database:
         id = self.__create_session(cursor, username)
         cursor.close()
         self.conn.commit()
-        return create_json(["session_id", "filters"], [id, self.__get_login_filters(id)])
+        return create_json(["session_id", "filters", "timestamp"], [id, self.__get_login_filters(id), int(time.time())])
 
     def __get_login_filters(self, session_id):
         cursor = self.conn.cursor()

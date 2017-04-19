@@ -128,7 +128,10 @@ def get_location_info():
     out.flush()
 
     if "session_id" in req and "location" in req:
-        return db.get_location_info(req["session_id"], req["location"])
+        res = db.get_location_info(req["session_id"], req["location"])
+        print("OUT: " + str(res) + "\n")
+        out.flush()
+        return res
 
     return create_error_json(error_keys_not_in_json)
 
