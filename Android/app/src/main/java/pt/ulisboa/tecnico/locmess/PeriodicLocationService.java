@@ -42,6 +42,7 @@ import pt.inesc.termite.wifidirect.SimWifiP2pDeviceList;
 import pt.inesc.termite.wifidirect.SimWifiP2pManager;
 import pt.inesc.termite.wifidirect.service.SimWifiP2pService;
 import pt.ulisboa.tecnico.locmess.data.LocmessContract;
+import pt.ulisboa.tecnico.locmess.data.entities.Message;
 import pt.ulisboa.tecnico.locmess.data.entities.FullLocation;
 import pt.ulisboa.tecnico.locmess.data.entities.ReceivedMessage;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
@@ -199,7 +200,11 @@ public class PeriodicLocationService extends Service implements LocationListener
     }
 
     @Override
-    public void OnSendComplete() {
+    public void OnSendComplete(ArrayList<ReceivedMessage> messages) {
+        //TODO Gonçalo the messages are here delete the next and do what you want
+        for(Message m: messages)
+            m.save(this);
+
         Toast.makeText(this, "Send to server complete", Toast.LENGTH_SHORT).show();
     }
 

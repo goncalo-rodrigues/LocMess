@@ -86,8 +86,9 @@
                 <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:id="@+id/latitude"/>
+                    android:inputType="numberDecimal"
+                    android:id="@+id/latitude"
+                    />
             </LinearLayout>
 
             <LinearLayout
@@ -100,12 +101,13 @@
                     android:text="@string/longitude"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/longitude_text" />
+                    android:id="@+id/longitude_text"
+                    />
 
                 <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="text"
+                    android:inputType="numberDecimal"
                     android:id="@+id/longitude"/>
             </LinearLayout>
 
@@ -124,7 +126,7 @@
                 <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="text"
+                    android:inputType="numberDecimal"
                     android:id="@+id/radius"/>
             </LinearLayout>
 

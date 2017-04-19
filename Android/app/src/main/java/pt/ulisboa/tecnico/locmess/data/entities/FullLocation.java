@@ -95,6 +95,19 @@ public class FullLocation extends Location{
     public void save(Context ctx) {
         LocmessDbHelper helper = new LocmessDbHelper(ctx);
         SQLiteDatabase db = helper.getWritableDatabase();
+        // delete previous entries
+        db.delete(LocmessContract.FullLocationTable.TABLE_NAME,
+                LocmessContract.FullLocationTable.COLUMN_NAME_LOCATION + " = ?",
+                new String[] {getLocation()});
+
+        if (isGps()) {
+            ContentValues values = new ContentValues();
+            values.put(LocmessContract.FullLocationTable.COLUMN_NAME_LOCATION, getLocation());
+            values.put(LocmessContract.FullLocationTable.COLUMN_NAME_LATITUDE, latitude);
+            values.put(LocmessContract.FullLocationTable.COLUMN_NAME_LONGITUDE, longitude);
+            values.put(LocmessContract.FullLocationTable.COLUMN_NAME_RADIUS, radius);
+            db.insert(LocmessContract.FullLocationTable.TABLE_NAME, null, values);
+        }
         for (String ssid : ssids) {
             ContentValues values = new ContentValues();
             values.put(LocmessContract.FullLocationTable.COLUMN_NAME_LOCATION, getLocation());
@@ -111,6 +124,7 @@ public class FullLocation extends Location{
     public void delete(Context ctx) {
         LocmessDbHelper helper = new LocmessDbHelper(ctx);
         SQLiteDatabase db = helper.getWritableDatabase();
+
         db.delete(LocmessContract.FullLocationTable.TABLE_NAME,
                 LocmessContract.FullLocationTable.COLUMN_NAME_LOCATION + " = ?",
                 new String[] {getLocation()});
@@ -184,10 +198,31 @@ public class FullLocation extends Location{
     public boolean isInside(FullLocation anotherLoc) {
         // compare apples to apples and oranges to oranges
         if (anotherLoc.isGps() && this.isGps()) {
-            throw new RuntimeException("Not yet implemented");
+            double distance = computeDistance(getLatitude(), getLongitude(), anotherLoc.getLatitude(), anotherLoc.getLongitude());
+            return distance < anotherLoc.getRadius();
         } else if (anotherLoc.isWifi() && this.isWifi()) {
             return !Collections.disjoint(this.ssids, anotherLoc.getSsids());
         }
         return false;
+    }
+
+    private double computeDistance(double lat1, double lon1, double lat2, double lon2) {
+        // haversine formula taken from http://andrew.hedges.name/experiments/haversine/
+        double R = 6371000; // earth's radius
+        lat1 = Math.toRadians(lat1);
+        lat2 = Math.toRadians(lat2);
+        lon1 = Math.toRadians(lon1);
+        lon2 = Math.toRadians(lon2);
+//        dlon = lon2 - lon1
+        double dlon = lon2 - lon1;
+//        dlat = lat2 - lat1
+        double dlat = lat2 - lat1;
+//        a = (sin(dlat/2))^2 + cos(lat1) * cos(lat2) * (sin(dlon/2))^2
+        double a = Math.sin(dlat/2) * Math.sin(dlat/2) + Math.cos(lat1) * Math.cos(lat2) *  Math.sin(dlon/2) * Math.sin(dlon/2);
+//        c = 2 * atan2( sqrt(a), sqrt(1-a) )
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+//        d = R * c (where R is the radius of the Earth)
+        double d = R * c;
+        return d;
     }
 }
