@@ -66,7 +66,7 @@ public class SendMyLocationTask extends AsyncTask<Void, String,String>{
                 return error;
             }
 
-            numberMessages =data.getInt("Nmessages");
+            numberMessages =data.getInt("n_messages");
             return "ok";
 
         }catch (JSONException e) {
