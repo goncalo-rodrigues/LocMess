@@ -196,7 +196,11 @@ public class PeriodicLocationService extends Service implements LocationListener
         for (Callback client: clients) {
             client.onWifiLocationUpdate(new FullLocation("mylocation", new ArrayList<>(ssids)));
         }
-        updates.add(new TimestampedLocation(ssids, mostRecentLocation.getLatitude(), mostRecentLocation.getLongitude()));
+        if (mostRecentLocation != null)
+            updates.add(new TimestampedLocation(ssids, mostRecentLocation.getLatitude(), mostRecentLocation.getLongitude()));
+        else
+            updates.add(new TimestampedLocation(ssids, 0, 0));
+
     }
 
     @Override

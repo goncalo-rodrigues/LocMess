@@ -229,6 +229,7 @@ public class NewLocationActivity extends ActivityWithDrawer implements  View.OnC
         public void onServiceConnected(ComponentName name, IBinder service) {
             locBinder = (PeriodicLocationService.PeriodicLocationBinder) service;
             locBinder.registerClient(NewLocationActivity.this);
+            onWifiLocationUpdate(locBinder.getLastWifiLocation());
         }
 
         @Override

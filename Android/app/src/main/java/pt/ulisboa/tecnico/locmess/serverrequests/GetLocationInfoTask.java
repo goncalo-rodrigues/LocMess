@@ -77,9 +77,12 @@ public class GetLocationInfoTask extends AsyncTask<Void, String, String>{
 
             if (data.opt("gps") != null) {
                 JSONObject gpsJson = data.getJSONObject("gps");
-                lat = gpsJson.getDouble("lat");
-                longitude = gpsJson.getDouble("long");
-                radius = gpsJson.getInt("radius");
+                if (data.opt("lat") != null)
+                    lat = gpsJson.getDouble("lat");
+                if (data.opt("long") != null)
+                    longitude = gpsJson.getDouble("long");
+                if (data.opt("radius") != null)
+                    radius = gpsJson.getInt("radius");
             }
 
             return "ok";
@@ -122,7 +125,7 @@ public class GetLocationInfoTask extends AsyncTask<Void, String, String>{
     @Override
     protected void onPostExecute(String result) {
         //TODO see the possible errors and handle them
-        if (result.equals("ok")) {
+        if ("ok".equals(result)) {
             if (lat != null) {
                 FullLocation flocation = new FullLocation(location,lat,longitude,radius);
                 callback.OnGetLocationInfoComplete(flocation);

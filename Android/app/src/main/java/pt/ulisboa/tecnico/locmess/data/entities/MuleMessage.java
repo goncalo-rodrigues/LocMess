@@ -3,6 +3,7 @@ package pt.ulisboa.tecnico.locmess.data.entities;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.Nullable;
 import android.util.JsonReader;
@@ -159,7 +160,12 @@ public class MuleMessage extends Message {
         values.put(LocmessContract.MuleMessageTable.COLUMN_NAME_LOCATION, getLocation());
         values.put(LocmessContract.MuleMessageTable.COLUMN_NAME_HOPS, getHops());
         values.put(LocmessContract.MuleMessageTable.COLUMN_NAME_TIMESTAMP, (new Date()).getTime());
-        db.insert(LocmessContract.MuleMessageTable.TABLE_NAME, null, values);
+        try {
+            db.insert(LocmessContract.MuleMessageTable.TABLE_NAME, null, values);
+        } catch (SQLiteConstraintException e) {
+            Log.e(LOG_TAG, e.toString());
+        }
+
         for (MuleMessageFilter f : getFilters(null)) {
             f.save(ctx);
         }

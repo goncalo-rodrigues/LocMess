@@ -65,6 +65,19 @@ def request_locations():
     return create_error_json(error_keys_not_in_json)
 
 
+@app.route("/get_messages", methods=['POST'])
+def get_messages():
+    req = request.get_json()
+
+    print("IN: " + str(req) + "\n")
+    out.flush()
+
+    if "session_id" in req and "locations" in req:
+        return db.search_messages(req["session_id"], req["locations"])
+
+    return create_error_json(error_keys_not_in_json)
+
+
 @app.route("/send_locations", methods=['POST'])
 def send_locations():
     req = request.get_json()
@@ -73,10 +86,7 @@ def send_locations():
     out.flush()
 
     if "session_id" in req and "locations" in req:
-        res = db.search_messages(req["session_id"], req["locations"])
-        print("OUT: " + str(res) + "\n")
-        out.flush()
-        return res
+        return db.count_messages(req["session_id"], req["locations"])
 
     return create_error_json(error_keys_not_in_json)
 
