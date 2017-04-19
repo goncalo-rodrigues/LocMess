@@ -14,6 +14,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Date;
 
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 
@@ -64,6 +65,12 @@ public class RegisterTask extends AsyncTask<String, String,String> {
                 return "conetionError";
 
             id=data.getString("session_id");
+
+            int timestamp;
+            if(data.opt("timestamp") != null){
+                timestamp = data.getInt("timestamp");
+                globalState.setSessionTimestamp(new Date(timestamp));
+            }
 
             globalState.setUsername(username);
             globalState.setId(id);

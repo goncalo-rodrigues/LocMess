@@ -11,6 +11,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Date;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -84,6 +85,12 @@ public class LoginTask extends AsyncTask<String, String,String> {
                     pkv = new ProfileKeyValue(key, value);
                     pkv.save(caller);
                 }
+            }
+
+            int timestamp;
+            if(data.opt("timestamp") != null){
+                timestamp = data.getInt("timestamp");
+                globalState.setSessionTimestamp(new Date(timestamp));
             }
 
 
