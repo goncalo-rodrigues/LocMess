@@ -31,7 +31,7 @@ print "Message filter creation result: " + str(db.set_my_filter(signup_res2["ses
 print "Message filter creation result: " + str(db.set_my_filter(signup_res["session_id"], {"key": "MessageKey", "value": "MessageValue"}))
 res_dict = create_msg_dict("1", "b", "Barco", 123, 132, "This is the content of a possible message",
                            [{"key": "MessageKey", "value": "MessageValue", "is_whitelist":True},
-                            {"key": "TestKey", "value": "TestValue", "is_whitelist": True}])
+                            {"key": "TestKey", "value": "TestValue", "is_whitelist": False}])
 
 print "Message: " + str(res_dict)
 print "Message deletion result: " + str(db.delete_msg(signup_res2["session_id"], "1"))
@@ -42,7 +42,11 @@ print "\n======================================\n"
 # Send location tests
 print "Resulting messages: " + str(db.search_messages(signup_res["session_id"],
 [{"lat": 38.7366761, "long": -9.1384762, "ssids": ["A", "B", "E"], "timestamp": 199923499234},
- {"lat": 12, "long": 13, "ssids": [], "timestamp": 130}]))
+ {"lat": 12, "long": 13, "ssids": ["Barco"], "timestamp": 130}]))
+
+print "Resulting messages: " + str(db.count_messages(signup_res["session_id"],
+[{"lat": 38.7366761, "long": -9.1384762, "ssids": ["A", "B", "E"], "timestamp": 199923499234},
+ {"lat": 12, "long": 13, "ssids": ["Barco"], "timestamp": 130}]))
 
 print "\n======================================\n"
 
