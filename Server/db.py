@@ -555,5 +555,11 @@ class Database:
         cursor.close()
         return create_json(["messages"], [list(result)])
 
+    def count_messages(self, session_id, loc_lst):
+        msgs = self.search_messages(session_id, loc_lst)
+        out_json = loads(msgs)
+
+        return create_json(["n_messages"], [len(out_json["messages"])])
+
     def close(self):
         self.conn.close()
