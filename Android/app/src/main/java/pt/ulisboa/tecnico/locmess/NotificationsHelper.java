@@ -23,10 +23,12 @@ public class NotificationsHelper {
 
         //the intent that is started when the notification is clicked
         Intent notificationIntent = new Intent(context, MainActivity.class);
+        notificationIntent.putExtra("notification", true);
 //        notificationIntent.putExtra(Constants.NOTIFICATION_ID_EXTRA,notificationId);
 //        notificationIntent.putExtra(BluetoothDevice.EXTRA_DEVICE, connection);
         PendingIntent pendingNotificationIntent = PendingIntent.getActivity(context, notificationId,
                 notificationIntent, 0);
+
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context)
                 .setSmallIcon(R.drawable.ic_logo)

@@ -2,6 +2,7 @@ package pt.ulisboa.tecnico.locmess;
 
 import android.Manifest;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
@@ -42,13 +43,22 @@ import pt.ulisboa.tecnico.locmess.data.entities.MuleMessageFilter;
 import pt.ulisboa.tecnico.locmess.data.entities.ReceivedMessage;
 import pt.ulisboa.tecnico.locmess.wifidirect.WifiDirectService;
 
-public class MainActivity extends ActivityWithDrawer implements BaseMessageFragment.Callback, TabLayout.OnTabSelectedListener{
+public class MainActivity extends ActivityWithDrawer implements BaseMessageFragment.Callback, TabLayout.OnTabSelectedListener, PeriodicLocationService.Callback {
 
     private static final int REQUEST_LOCATION = 1;
     private Pager adapter;
     private TabLayout tabLayout;
     private ViewPager viewPager;
-    private IBinder binder;
+    private PeriodicLocationService.PeriodicLocationBinder locBinder;
+    private boolean mBound = false;
+
+    @Override
+    protected void onDestroy() {
+        if (mBound) {
+            unbindService(mConnection);
+        }
+        super.onDestroy();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +71,7 @@ public class MainActivity extends ActivityWithDrawer implements BaseMessageFragm
 
         //Adding adapter to pager
         viewPager.setAdapter(adapter);
+
 
         //Adding onTabSelectedListener to swipe views
         tabLayout.addOnTabSelectedListener(this);
@@ -78,9 +89,11 @@ public class MainActivity extends ActivityWithDrawer implements BaseMessageFragm
 
         checkGPSStatus();
 
-        MuleMessage m = new MuleMessage("id2", "text", "author", new FullLocation("loc1", 0, 0, 0), (new Date()), new Date(), new ArrayList<MuleMessageFilter>(), 0);
-        m.save(this);
-        MuleMessage.deleteUseless(this);
+        Bundle extras = getIntent().getExtras();
+        if (extras != null && extras.get("notification") != null) {
+            bindService(new Intent(this, PeriodicLocationService.class), mConnection, Context.BIND_AUTO_CREATE);
+        }
+
         super.onCreate(savedInstanceState);
     }
 
@@ -142,5 +155,37 @@ public class MainActivity extends ActivityWithDrawer implements BaseMessageFragm
     @Override
     public void onRemove(Message message) {
 
+    }
+
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mBound = true;
+            locBinder = (PeriodicLocationService.PeriodicLocationBinder) service;
+            locBinder.getMessages();
+            locBinder.registerClient(MainActivity.this);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            locBinder = null;
+            mBound = false;
+        }
+    };
+
+    @Override
+    public void onGPSLocationUpdate(FullLocation location) {
+
+    }
+
+    @Override
+    public void onWifiLocationUpdate(FullLocation location) {
+
+    }
+
+    @Override
+    public void onNewMessagesInDb() {
+        adapter.getNewMessagesTab().restartLoader();
     }
 }

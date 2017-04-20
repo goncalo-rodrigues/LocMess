@@ -46,10 +46,11 @@ import pt.ulisboa.tecnico.locmess.data.entities.Message;
 import pt.ulisboa.tecnico.locmess.data.entities.FullLocation;
 import pt.ulisboa.tecnico.locmess.data.entities.ReceivedMessage;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
+import pt.ulisboa.tecnico.locmess.serverrequests.GetMessagesTask;
 import pt.ulisboa.tecnico.locmess.serverrequests.SendMyLocationTask;
 import pt.ulisboa.tecnico.locmess.serverrequests.SendMyLocationTask.SendMyLocationsTaskCallBack;
 
-public class PeriodicLocationService extends Service implements LocationListener, SimWifiP2pManager.PeerListListener,SendMyLocationsTaskCallBack{
+public class PeriodicLocationService extends Service implements LocationListener, SimWifiP2pManager.PeerListListener,SendMyLocationsTaskCallBack, GetMessagesTask.GetMessagesCallBack {
     private LocationManager mLocationManager;
     private long minTimeMs = 1000 * 30; // 30 seconds
     private float minDistance = 0;
@@ -209,6 +210,9 @@ public class PeriodicLocationService extends Service implements LocationListener
         /*for(String mid: messagesIDs)
             m.save(this);*/
 
+        if (numberMessages > 0) {
+            NotificationsHelper.startNewMessageNotification(this);
+        }
         Toast.makeText(this, "Location Send: "+numberMessages+" available", Toast.LENGTH_SHORT).show();
     }
 
@@ -307,10 +311,34 @@ public class PeriodicLocationService extends Service implements LocationListener
         public void reevaluatePermission() {
             requestLocation();
         }
+
+        public void getMessages() {
+            ArrayList<TimestampedLocation> locations = new ArrayList<>();
+            locations.add(new TimestampedLocation(ssids, mostRecentLocation.getLatitude(), mostRecentLocation.getLongitude()));
+            GetMessagesTask task = new GetMessagesTask(PeriodicLocationService.this, PeriodicLocationService.this, locations);
+            task.execute();
+        }
+
+
     }
 
+    @Override
+    public void OnGetMessagesComplete(ArrayList<ReceivedMessage> messages) {
+        for (ReceivedMessage m: messages) {
+            m.save(PeriodicLocationService.this);
+        }
+        for (Callback client: clients) {
+            client.onNewMessagesInDb();
+        }
+    }
+
+    @Override
+    public void OnGetMessagesError(String error) {
+
+    }
     public interface Callback {
         void onGPSLocationUpdate(FullLocation location);
         void onWifiLocationUpdate(FullLocation location);
+        void onNewMessagesInDb();
     }
 }
