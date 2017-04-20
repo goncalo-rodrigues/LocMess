@@ -17,15 +17,17 @@ public class Utils {
 
     private static int counter = 0;
     public static String buildMessageId(Context ctx, boolean centralized) {
-        ByteBuffer buffer = ByteBuffer.allocate(1+128+8+4);
+        ByteBuffer buffer = ByteBuffer.allocate(1+128+10+4);
         buffer.put((byte) (centralized ? 0 : 1));
         byte[] session_id =( (NetworkGlobalState) ctx.getApplicationContext()).getId().getBytes();
         buffer.put(session_id);
-        long timestamp = ( (NetworkGlobalState) ctx.getApplicationContext()).getSessionTimestamp().getTime();
-        buffer.putLong(timestamp);
-        buffer.putInt(counter++);
-
         try {
+        //"EEE MMM dd HH:mm:ss zzz yyyy"
+            String timestamp = String.valueOf(( (NetworkGlobalState) ctx.getApplicationContext()).getSessionTimestamp().getTime() / 1000);
+            buffer.put(String.format("%10s", timestamp).replace(' ', '0').getBytes("US-ASCII"));
+            buffer.putInt(counter++);
+
+
             return new String(buffer.array(), "US-ASCII");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();

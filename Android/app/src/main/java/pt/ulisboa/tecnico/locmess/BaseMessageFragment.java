@@ -25,12 +25,13 @@ import pt.ulisboa.tecnico.locmess.data.CustomCursorLoader;
 import pt.ulisboa.tecnico.locmess.data.entities.CreatedMessage;
 import pt.ulisboa.tecnico.locmess.data.entities.Message;
 import pt.ulisboa.tecnico.locmess.data.entities.ReceivedMessage;
+import pt.ulisboa.tecnico.locmess.serverrequests.DeleteMessageTask;
 
 /**
  * Created by goncalo on 17-03-2017.
  */
 
-public class BaseMessageFragment extends Fragment implements MessagesAdapter.Callback, LoaderManager.LoaderCallbacks<Cursor> {
+public class BaseMessageFragment extends Fragment implements MessagesAdapter.Callback, LoaderManager.LoaderCallbacks<Cursor>,DeleteMessageTask.DeleteMessageCallBack {
     private static final String LOG_TAG = BaseMessageFragment.class.getSimpleName();
     private MessagesAdapter messagesAdapter;
     private LinearLayoutManager mLayoutManager;
@@ -94,7 +95,11 @@ public class BaseMessageFragment extends Fragment implements MessagesAdapter.Cal
             ((Callback) getActivity()).onRemove(message);
         }
         message.delete(getContext());
-        getLoaderManager().restartLoader(0, null, this);
+        restartLoader();
+        if (mType == TYPE_ARG_CREATED) {
+            DeleteMessageTask task = new DeleteMessageTask(this, getContext());
+            task.execute(message.getId());
+        }
     }
 
 
@@ -128,6 +133,25 @@ public class BaseMessageFragment extends Fragment implements MessagesAdapter.Cal
     public void onLoaderReset(android.support.v4.content.Loader<Cursor> loader) {
         messagesAdapter.setData(null);
         messagesAdapter.notifyDataSetChanged();
+    }
+
+    public void restartLoader() {
+        getLoaderManager().restartLoader(0, null, this);
+    }
+
+    @Override
+    public void deleteMessageComplete() {
+
+    }
+
+    @Override
+    public void deleteMessageErrorResponse() {
+
+    }
+
+    @Override
+    public void OnNoInternetConnection() {
+
     }
 
     public interface Callback {

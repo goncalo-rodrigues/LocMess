@@ -56,9 +56,15 @@ public class DeleteMessageTask extends AsyncTask<String, String, String>{
 
             //parse and get json elements, ok/nok
             JSONObject data = new JSONObject(result);
-            String resp = data.getString("resp");
+            if (data.opt("resp") != null) {
+                String resp = data.getString("resp");
+                return resp;
+            }
+            if (data.opt("error") != null) {
+                String error = data.getString("error");
+                return error;
+            }
 
-            return resp;
 
         }catch (JSONException e) {e.printStackTrace();
         }catch (IOException e) {

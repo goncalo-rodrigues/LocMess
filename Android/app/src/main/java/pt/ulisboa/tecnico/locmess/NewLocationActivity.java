@@ -309,4 +309,9 @@ public class NewLocationActivity extends ActivityWithDrawer implements  View.OnC
         arrayAdapter.notifyDataSetChanged();
         checkIfSsidsEmpty();
     }
+
+    @Override
+    public void onNewMessagesInDb() {
+        
+    }
 }
