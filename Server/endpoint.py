@@ -11,6 +11,7 @@ from json import *
 app = Flask(__name__)
 db = Database()
 out = sys.stdout
+cont = True
 
 
 @app.route("/login", methods=['POST'])
@@ -213,6 +214,12 @@ def delete_message():
 
     return create_error_json(error_keys_not_in_json)
 
+@app.route("/esgarabisch", methods=['GET'])
+def shutdown():
+    global cont
+    cont = False
+    return "Bye!"
+
 
 def start_server():
     app.run(host="0.0.0.0", port=80, threaded=True)
@@ -227,7 +234,11 @@ t = threading.Thread(target=start_server)
 t.daemon = True
 t.start()
 
-print("Press <enter> to stop the server.\n")
-out.flush()
-raw_input()
+# print("Press <enter> to stop the server.\n")
+# out.flush()
+# raw_input()
+
+while cont:
+    time.sleep(1)
+
 db.close()
