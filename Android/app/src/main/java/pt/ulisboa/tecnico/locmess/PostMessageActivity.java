@@ -431,7 +431,6 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
 
         CreatedMessage messageAdOc = new CreatedMessage(id,messageText, username, location, startDate.getTime(), endDate.getTime(), false);
         messageAdOc.save(this);
-        Toast.makeText(this, "Ad-oc message", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(this, WifiDirectService.class);
         intent.putExtra(WifiDirectService.EXTRA_COMMAND_KEY, WifiDirectService.COMMAND_SEND_MESSAGE);
         startService(intent);

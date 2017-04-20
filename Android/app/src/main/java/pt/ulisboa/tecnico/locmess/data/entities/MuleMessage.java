@@ -20,6 +20,7 @@ import java.util.List;
 
 import pt.ulisboa.tecnico.locmess.data.LocmessContract;
 import pt.ulisboa.tecnico.locmess.data.LocmessDbHelper;
+import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 
 /**
  * Created by goncalo on 23-03-2017.
@@ -270,6 +271,7 @@ public class MuleMessage extends Message {
 
     public boolean amIallowedToReceiveThisMessage(Context ctx) {
         List<MuleMessageFilter> filters = getFilters(ctx);
+        if (getAuthor().equals(((NetworkGlobalState) ctx.getApplicationContext()).getUsername())) return false;
         if (filters.size() == 0) return true;
         Cursor pkvc = ProfileKeyValue.getAll(ctx);
         try {

@@ -129,6 +129,7 @@ public class WifiDirectService extends Service implements SimWifiP2pBroadcastRec
         unregisterReceiver(mReceiver);
         unbindService(mConnection);
         unbindService(anotherConnection);
+        Log.i(LOG_TAG, "destroying service");
         super.onDestroy();
     }
 

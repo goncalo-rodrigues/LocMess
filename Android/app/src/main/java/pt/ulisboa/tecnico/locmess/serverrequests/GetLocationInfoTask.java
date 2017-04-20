@@ -77,11 +77,11 @@ public class GetLocationInfoTask extends AsyncTask<Void, String, String>{
 
             if (data.opt("gps") != null) {
                 JSONObject gpsJson = data.getJSONObject("gps");
-                if (data.opt("lat") != null)
+                if (gpsJson.opt("lat") != null)
                     lat = gpsJson.getDouble("lat");
-                if (data.opt("long") != null)
+                if (gpsJson.opt("long") != null)
                     longitude = gpsJson.getDouble("long");
-                if (data.opt("radius") != null)
+                if (gpsJson.opt("radius") != null)
                     radius = gpsJson.getInt("radius");
             }
 
