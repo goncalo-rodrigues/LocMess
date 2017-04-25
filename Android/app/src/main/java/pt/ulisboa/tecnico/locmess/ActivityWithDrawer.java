@@ -246,6 +246,8 @@ public abstract class ActivityWithDrawer extends AppCompatActivity implements Dr
     public void onBackPressed() {
         if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
             mDrawerLayout.closeDrawer(GravityCompat.START);
+        } else if(isTaskRoot()) {
+            moveTaskToBack(true);
         } else {
             super.onBackPressed();
         }

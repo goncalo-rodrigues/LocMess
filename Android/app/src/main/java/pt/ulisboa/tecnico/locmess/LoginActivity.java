@@ -40,10 +40,7 @@ public class LoginActivity extends AppCompatActivity implements LoginTask.LoginT
         errorViewTv.setText("");
         waitingBallPb = (ProgressBar) findViewById(R.id.waiting_ball);
 
-
-
         super.onCreate(savedInstanceState);
-
     }
 
 
@@ -56,6 +53,7 @@ public class LoginActivity extends AppCompatActivity implements LoginTask.LoginT
         //this is the method that will be caled when the reponse from the server is received
         Toast.makeText(this, "Loged in,server answer:"+id, Toast.LENGTH_LONG).show();
         Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
     }
 

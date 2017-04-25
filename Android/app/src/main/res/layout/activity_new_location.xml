@@ -33,7 +33,7 @@
             android:layout_below="@id/newlocation_name_tv" />
 
         <TextView
-            android:text="Coordinates:"
+            android:text="@string/coordinates"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-condensed"
@@ -156,14 +156,18 @@
             </LinearLayout>
 
         </LinearLayout>
+
         <Button
-            android:text="@string/create"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
             android:id="@+id/newlocation_create_bt"
             style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_alignParentBottom="true"/>
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_gravity="bottom"
+            android:layout_toEndOf="@+id/chose_gps"
+            android:layout_toRightOf="@+id/chose_gps"
+            android:text="@string/create"
+            android:textColor="@color/colorWhite" />
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"

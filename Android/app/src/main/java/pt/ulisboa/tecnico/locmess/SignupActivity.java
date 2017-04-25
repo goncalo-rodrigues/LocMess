@@ -54,8 +54,10 @@ public class SignupActivity extends AppCompatActivity implements RegisterTask.Re
         registerBt.setVisibility(View.VISIBLE);
         Toast.makeText(this, "Registed ,server answer:"+id, Toast.LENGTH_LONG).show();
         Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
     }
+
     @Override
     public void OnUserAlreadyExists(String error){
         waitingBallPb.setVisibility(View.GONE);
