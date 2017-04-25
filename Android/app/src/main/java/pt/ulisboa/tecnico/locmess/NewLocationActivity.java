@@ -159,15 +159,6 @@ public class NewLocationActivity extends ActivityWithDrawer implements  View.OnC
 
     }
 
-
-    public void getMapLocation(View v) {
-        //TODO
-
-        String uri = "geo:0,0?q=ist"; //TODO: Remove the hardcoded string!!!
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-        startActivity(intent);
-    }
-
     /*
     Methods used for getting the gps location
      */
@@ -187,10 +178,6 @@ public class NewLocationActivity extends ActivityWithDrawer implements  View.OnC
             }
         }
     }
-
-
-
-
 
     @Override
     public void createLocationComplete() {
@@ -257,6 +244,12 @@ public class NewLocationActivity extends ActivityWithDrawer implements  View.OnC
                 CreateLocationTask task = new CreateLocationTask(this, this);
                 FullLocation loc;
                 String name = mNameEditText.getText().toString();
+
+                if(name.equals("")) {
+                    Toast.makeText(this, R.string.invalid_fields_gps, Toast.LENGTH_LONG).show();
+                    break;
+                }
+
                 if (mRadioGroup.getCheckedRadioButtonId() == R.id.gps) {
                     try {
                         loc = new FullLocation(name, getLatitude(), getLongitude(), getRadius());

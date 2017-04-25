@@ -66,7 +66,7 @@
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:visibility="gone"
             android:id="@+id/chose_gps"
             android:layout_below="@id/newlocation_radiogroup">
@@ -130,32 +130,18 @@
                     android:id="@+id/radius"/>
             </LinearLayout>
 
-            <LinearLayout
-                android:orientation="horizontal"
+            <Button
+                android:text="@string/use_my_location"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <Button
-                    android:text="@string/use_my_location"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/my_location_bt"
-                    android:layout_weight="1"
-                    style="@style/Widget.AppCompat.Button"
-                    android:onClick="getCurrentLocation"/>
-
-                <Button
-                    android:text="@string/choose_from_map"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/map_location_bt"
-                    android:layout_weight="1"
-                    style="@style/Widget.AppCompat.Button"
-                    android:onClick="getMapLocation" />
-
-            </LinearLayout>
+                android:layout_height="wrap_content"
+                android:id="@+id/my_location_bt"
+                style="@style/Widget.AppCompat.Button"
+                android:onClick="getCurrentLocation"/>
 
         </LinearLayout>
+
+        <!--android:layout_toEndOf="@+id/chose_gps"-->
+        <!--android:layout_toRightOf="@+id/chose_gps"-->
 
         <Button
             android:id="@+id/newlocation_create_bt"
@@ -164,8 +150,6 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_gravity="bottom"
-            android:layout_toEndOf="@+id/chose_gps"
-            android:layout_toRightOf="@+id/chose_gps"
             android:text="@string/create"
             android:textColor="@color/colorWhite" />
         <FrameLayout
