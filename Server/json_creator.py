@@ -14,6 +14,7 @@ error_filter_not_found = "The provided key-value pair was not found."
 error_duplicate_msg = "The given message was duplicated."
 error_storing_msg = "There was an error when storing the message."
 error_msg_not_found = "The given message was not found."
+error_commit = "There was an error when completing the transaction."
 
 
 def create_dict(keys, vals):

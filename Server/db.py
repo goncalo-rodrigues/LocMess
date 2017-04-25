@@ -119,6 +119,7 @@ class Database:
             val = row[1]
             result.append({"key": key, "value": val})
 
+        cursor.close()
         return result
 
     def logout(self, session_id):
@@ -292,6 +293,7 @@ class Database:
         for row in q_res:
             result.append(row[0])
 
+        cursor.close()
         return create_json(["keys"], [result])
 
     def get_values_key(self, session_id, key):
@@ -309,6 +311,7 @@ class Database:
         for row in q_res:
             result.append(row[0])
 
+        cursor.close()
         return create_json(["values"], [result])
 
     def remove_filter(self, session_id, filter):
@@ -479,6 +482,7 @@ class Database:
         return result
 
     # TODO: Check if the stuff exists before using it
+    # TODO: Do not send repeated messages to the same users!!!
 
     def search_messages(self, session_id, loc_lst):
         cursor = self.conn.cursor()
@@ -560,7 +564,12 @@ class Database:
         msgs = self.search_messages(session_id, loc_lst)
         out_json = loads(msgs)
 
-        return create_json(["n_messages"], [len(out_json["messages"])])
+        if "error" not in out_json:
+            result = create_json(["n_messages"], [len(out_json["messages"])])
+        else:
+            result = msgs
+
+        return result
 
     def close(self):
         self.conn.close()
