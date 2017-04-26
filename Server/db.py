@@ -119,6 +119,7 @@ class Database:
             val = row[1]
             result.append({"key": key, "value": val})
 
+        cursor.close()
         return result
 
     def logout(self, session_id):
@@ -292,6 +293,7 @@ class Database:
         for row in q_res:
             result.append(row[0])
 
+        cursor.close()
         return create_json(["keys"], [result])
 
     def get_values_key(self, session_id, key):
@@ -309,6 +311,7 @@ class Database:
         for row in q_res:
             result.append(row[0])
 
+        cursor.close()
         return create_json(["values"], [result])
 
     def remove_filter(self, session_id, filter):
@@ -438,7 +441,6 @@ class Database:
                 filter = {}
                 filter["key"] = row2[0]
                 filter["value"] = row2[1]
-
                 filter["is_whitelist"] = False if row2[2] == "\x00" else True
                 filters.append(filter)
 
@@ -478,9 +480,7 @@ class Database:
         cursor.close()
         return result
 
-    # TODO: Check if the stuff exists before using it
-
-    def search_messages(self, session_id, loc_lst):
+    def __search_messages(self, session_id, loc_lst):
         cursor = self.conn.cursor()
 
         # Sequence: lat, long, lat, timestamp, timestamp
@@ -502,7 +502,9 @@ class Database:
                   (SELECT COUNT(DISTINCT MF.FilterID) FROM MessageFilters AS MF \
                   WHERE MF.MessageID = M.MessageID AND MF.Whitelist = 1)"
 
-        q_having = ") HAVING (" + q_white + ") AND (" + q_black + ")"
+        q_not_delivered = "M.MessageID NOT IN (SELECT DM.MessageID FROM DeliveredMessages AS DM WHERE DM.Username = %s)"
+
+        q_having = ") HAVING (" + q_white + ") AND (" + q_black + ") AND (" + q_not_delivered + ")"
 
         q_gps = None
         q_ssids = None
@@ -541,14 +543,14 @@ class Database:
 
         if q_gps is not None:
             q_gps += q_having
-            gps.extend([user, user])
+            gps.extend([user, user, user])
             q_res = self.__get_msgid_gps(q_gps, gps)
             if q_res is not None:
                 result.extend(q_res)
 
         if q_ssids is not None:
             q_ssids += q_having
-            ssids.extend([user, user])
+            ssids.extend([user, user, user])
             q_res = self.__get_msgid_ssid(q_ssids, ssids)
             if q_res is not None:
                 result.extend(q_res)
@@ -556,11 +558,35 @@ class Database:
         cursor.close()
         return create_json(["messages"], [list(result)])
 
-    def count_messages(self, session_id, loc_lst):
-        msgs = self.search_messages(session_id, loc_lst)
+    def filtered_delivery(self, session_id, loc_lst):
+        msgs = self.__search_messages(session_id, loc_lst)
         out_json = loads(msgs)
 
-        return create_json(["n_messages"], [len(out_json["messages"])])
+        if "messages" in out_json:
+            cursor = self.conn.cursor()
+
+            # There will be one user, because __search_messages was successful
+            self.__select(cursor, "Username", ["Sessions"], ["SessionID = %s"], [session_id])
+            user = cursor.fetchone()
+            for el in out_json["messages"]:
+                try:
+                    self.__insert(cursor, "DeliveredMessages", ["Username", "MessageID"], [user, el["id"]])
+                except MySQLdb.Error:
+                    # There was someone that sent this message to this user
+                    continue
+            cursor.close()
+            self.conn.commit()
+
+        return msgs
+
+    def count_messages(self, session_id, loc_lst):
+        msgs = self.__search_messages(session_id, loc_lst)
+        out_json = loads(msgs)
+
+        if "messages" in out_json:
+            msgs = create_json(["n_messages"], [len(out_json["messages"])])
+
+        return msgs
 
     def close(self):
         self.conn.close()

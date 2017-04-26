@@ -14,6 +14,7 @@ error_filter_not_found = "The provided key-value pair was not found."
 error_duplicate_msg = "The given message was duplicated."
 error_storing_msg = "There was an error when storing the message."
 error_msg_not_found = "The given message was not found."
+error_commit = "There was an error when completing the transaction."
 
 
 def create_dict(keys, vals):
@@ -63,3 +64,21 @@ def is_message(something):
     return "id" in something and "username" in something and "location" in something and "start_date" in something \
            and "end_date" in something and "content" in something and "filters" in something and \
            are_filters(something["filters"])
+
+
+def are_locations(something):
+    try:
+        for el in something:
+            if "lat" in el and isinstance(el["lat"], float) and \
+                "long" in el and isinstance(el["long"], float) and \
+                "timestamp" in el and isinstance(el["timestamp"], long) and \
+                "ssids" in el:
+                for ssid in el["ssids"]:
+                    if not isinstance(ssid, str):
+                        return False
+            else:
+                return False
+    except:
+        return False
+
+    return True

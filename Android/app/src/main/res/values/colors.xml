@@ -51,6 +51,6 @@
     <color name="colorSecondaryText">#757575</color>
     <color name="icons">#FFFFFF</color>
     <color name="divider">#BDBDBD</color>
-    <color name="colorWhite">#FFFFFF</color>
+    <color name="colorWhite">#ffffff</color>
     <color name="colorLightGray">#E6E6E6</color>
 </resources>

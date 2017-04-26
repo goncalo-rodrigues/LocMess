@@ -73,8 +73,8 @@ def get_messages():
     print("IN: " + str(req) + "\n")
     out.flush()
 
-    if "session_id" in req and "locations" in req:
-        return db.search_messages(req["session_id"], req["locations"])
+    if "session_id" in req and "locations" in req and are_locations(req["locations"]):
+        return db.filtered_delivery(req["session_id"], req["locations"])
 
     return create_error_json(error_keys_not_in_json)
 
@@ -86,7 +86,7 @@ def send_locations():
     print("IN: " + str(req) + "\n")
     out.flush()
 
-    if "session_id" in req and "locations" in req:
+    if "session_id" in req and "locations" in req and are_locations(req["locations"]):
         return db.count_messages(req["session_id"], req["locations"])
 
     return create_error_json(error_keys_not_in_json)
