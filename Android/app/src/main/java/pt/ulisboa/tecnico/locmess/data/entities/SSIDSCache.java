@@ -63,7 +63,7 @@ public class SSIDSCache {
         return exists;
     }
 
-    public static void insert(String name, Context ctx) {
+    public static void insertOrUpdate(String name, Context ctx) {
         Date date = new Date();
         LocmessDbHelper helper = new LocmessDbHelper(ctx);
         SQLiteDatabase db = helper.getWritableDatabase();
@@ -78,6 +78,13 @@ public class SSIDSCache {
         }
         db.close();
     }
+
+    public static void insertOrUpdate(List<String> names, Context ctx) {
+        for (String name: names) {
+            insertOrUpdate(name, ctx);
+        }
+    }
+
 
     public static void removeAllBefore(Date date, Context ctx) {
         LocmessDbHelper helper = new LocmessDbHelper(ctx);

@@ -31,8 +31,11 @@ import android.widget.Toast;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.concurrent.RunnableFuture;
 
 import pt.ulisboa.tecnico.locmess.adapters.MessagesAdapter;
 import pt.ulisboa.tecnico.locmess.adapters.Pager;
@@ -42,6 +45,7 @@ import pt.ulisboa.tecnico.locmess.data.entities.Message;
 import pt.ulisboa.tecnico.locmess.data.entities.MuleMessage;
 import pt.ulisboa.tecnico.locmess.data.entities.MuleMessageFilter;
 import pt.ulisboa.tecnico.locmess.data.entities.ReceivedMessage;
+import pt.ulisboa.tecnico.locmess.data.entities.SSIDSCache;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 import pt.ulisboa.tecnico.locmess.wifidirect.WifiDirectService;
 
@@ -103,6 +107,7 @@ public class MainActivity extends ActivityWithDrawer implements BaseMessageFragm
             bindService(new Intent(this, PeriodicLocationService.class), mConnection, Context.BIND_AUTO_CREATE);
         }
 
+        deleteStuffFromDB.start();
         super.onCreate(savedInstanceState);
     }
 
@@ -197,4 +202,16 @@ public class MainActivity extends ActivityWithDrawer implements BaseMessageFragm
     public void onNewMessagesInDb() {
         adapter.getNewMessagesTab().restartLoader();
     }
+
+    private Thread deleteStuffFromDB = new Thread(new Runnable() {
+
+        @Override
+        public void run() {
+            Calendar cal = GregorianCalendar.getInstance();
+            cal.setTime(new Date());
+            cal.add(Calendar.DAY_OF_YEAR, -7);
+            Date beforeDate = cal.getTime();
+            SSIDSCache.removeAllBefore(beforeDate, MainActivity.this);
+        }
+    });
 }

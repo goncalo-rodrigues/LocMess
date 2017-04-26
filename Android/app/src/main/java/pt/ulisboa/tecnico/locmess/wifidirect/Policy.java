@@ -9,8 +9,10 @@ import java.util.HashSet;
 import java.util.Objects;
 
 import pt.inesc.termite.wifidirect.SimWifiP2pDevice;
+import pt.ulisboa.tecnico.locmess.data.entities.FullLocation;
 import pt.ulisboa.tecnico.locmess.data.entities.MuleMessage;
 import pt.ulisboa.tecnico.locmess.data.entities.Point;
+import pt.ulisboa.tecnico.locmess.data.entities.SSIDSCache;
 
 /**
  * Created by goncalo on 10-04-2017.
@@ -32,8 +34,15 @@ public class Policy {
     }
 
     public boolean shouldKeepMessage(MuleMessage message, Context ctx) {
-
-//        Cursor paths = Point.getAllPaths(ctx);
+        FullLocation msgLocation = message.getFullLocation();
+        if (msgLocation.isWifi()) {
+            if (SSIDSCache.existsAtLeastOne(msgLocation.getSsids(), ctx)) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            //        Cursor paths = Point.getAllPaths(ctx);
 //        Point targetPoint = Point.fromLatLon(
 //                message.getFullLocation().getLatitude(), message.getFullLocation().getLongitude());
 //        double radius = Math.pow(message.getFullLocation().getRadius(), 2);
@@ -43,7 +52,8 @@ public class Policy {
 //                return true;
 //            }
 //        }
-        return false;
+            return true;
+        }
     }
 
     private class MessageDevicePair {

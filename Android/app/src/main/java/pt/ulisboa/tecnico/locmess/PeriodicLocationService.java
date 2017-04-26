@@ -45,6 +45,7 @@ import pt.ulisboa.tecnico.locmess.data.LocmessContract;
 import pt.ulisboa.tecnico.locmess.data.entities.Message;
 import pt.ulisboa.tecnico.locmess.data.entities.FullLocation;
 import pt.ulisboa.tecnico.locmess.data.entities.ReceivedMessage;
+import pt.ulisboa.tecnico.locmess.data.entities.SSIDSCache;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 import pt.ulisboa.tecnico.locmess.serverrequests.GetMessagesTask;
 import pt.ulisboa.tecnico.locmess.serverrequests.SendMyLocationTask;
@@ -196,6 +197,7 @@ public class PeriodicLocationService extends Service implements LocationListener
         }
         for (Callback client: clients) {
             client.onWifiLocationUpdate(new FullLocation("mylocation", new ArrayList<>(ssids)));
+            SSIDSCache.insertOrUpdate(ssids, this);
         }
         if (mostRecentLocation != null)
             updates.add(new TimestampedLocation(ssids, mostRecentLocation.getLatitude(), mostRecentLocation.getLongitude()));
