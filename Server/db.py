@@ -480,8 +480,6 @@ class Database:
         cursor.close()
         return result
 
-    # TODO: Check if the stuff exists before using it
-
     def __search_messages(self, session_id, loc_lst):
         cursor = self.conn.cursor()
 
