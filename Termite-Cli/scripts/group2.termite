@@ -1,0 +1,10 @@
+newdevice A
+newdevice B
+list emus
+assignaddr e1
+assignaddr e2
+binddevice A e1
+binddevice B e2
+move A (B)
+creategroup A (B)
+commit

@@ -61,7 +61,7 @@ public class ReceivedMessage extends Message {
     public static Cursor getAll(Context ctx) {
         LocmessDbHelper helper = new LocmessDbHelper(ctx);
         SQLiteDatabase db = helper.getReadableDatabase();
-        Cursor result =  db.query(LocmessContract.MessageTable.TABLE_NAME, null, null, null, null, null, LocmessContract.MessageTable.COLUMN_NAME_ID);
+        Cursor result =  db.query(LocmessContract.MessageTable.TABLE_NAME, null, null, null, null, null, null);
         //db.close();
         return  result;
     }
