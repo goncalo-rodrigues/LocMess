@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class LocmessDbHelper extends SQLiteOpenHelper {
 
-    public static final int DATABASE_VERSION = 7;
+    public static final int DATABASE_VERSION = 9;
     public static final String DATABASE_NAME = "Locmess.db";
 
     public LocmessDbHelper(Context context) {
@@ -28,6 +28,7 @@ public class LocmessDbHelper extends SQLiteOpenHelper {
         db.execSQL(LocmessContract.SQL_CREATE_PROFILE_KEYVAL_TBL);
         db.execSQL(LocmessContract.SQL_CREATE_FULL_LOCATION_TBL);
         db.execSQL(LocmessContract.SQL_CREATE_POINT_TBL);
+        db.execSQL(LocmessContract.SQL_CREATE_SSIDS_CACHE_TBL);
     }
 
     @Override
@@ -40,6 +41,7 @@ public class LocmessDbHelper extends SQLiteOpenHelper {
         db.execSQL(LocmessContract.SQL_DELETE_PROFILE_KEYVAL_TBL);
         db.execSQL(LocmessContract.SQL_DELETE_FULL_LOCATION_TBL);
         db.execSQL(LocmessContract.SQL_DELETE_POINT_TBL);
+        db.execSQL(LocmessContract.SQL_DELETE_SSIDS_CACHE_TBL);
         onCreate(db);
     }
 

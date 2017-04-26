@@ -22,6 +22,7 @@ public final class LocmessContract {
         public static final String COLUMN_NAME_STARTDATE = "startdate";
         public static final String COLUMN_NAME_ENDDATE = "enddate";
         public static final String COLUMN_NAME_CENTRALIZED = "centralized";
+        public static final String COLUMN_NAME_TIMESTAMP = "timestamp";
     }
 
     public static class CreatedMessageTable extends MessageTable {
@@ -45,6 +46,12 @@ public final class LocmessContract {
     public static class LocationTable implements BaseColumns {
         public static final String TABLE_NAME = "locations";
         public static final String COLUMN_NAME_LOCATION = "location";
+    }
+
+    public static class SSIDSCacheTable implements BaseColumns {
+        public static final String TABLE_NAME = "ssids_cache";
+        public static final String COLUMN_NAME_NAME = "name";
+        public static final String COLUMN_NAME_LAST_SEEN = "last_seen";
     }
 
     public static class FullLocationTable implements BaseColumns {
@@ -86,6 +93,7 @@ public final class LocmessContract {
                     MessageTable.COLUMN_NAME_LOCATION + " TEXT," +
                     MessageTable.COLUMN_NAME_STARTDATE + " TEXT," +
                     MessageTable.COLUMN_NAME_CENTRALIZED + " INTEGER," +
+                    MessageTable.COLUMN_NAME_TIMESTAMP + " INTEGER," +
                     MessageTable.COLUMN_NAME_ENDDATE + " TEXT); ";
     public static final String SQL_CREATE_CREATED_MESSAGE_TBL =
     "CREATE TABLE " + CreatedMessageTable.TABLE_NAME + " (" +
@@ -94,6 +102,7 @@ public final class LocmessContract {
                     CreatedMessageTable.COLUMN_NAME_AUTHOR + " TEXT," +
                     CreatedMessageTable.COLUMN_NAME_LOCATION + " TEXT," +
                     CreatedMessageTable.COLUMN_NAME_STARTDATE + " TEXT," +
+                    CreatedMessageTable.COLUMN_NAME_TIMESTAMP + " INTEGER," +
                     CreatedMessageTable.COLUMN_NAME_CENTRALIZED + " INTEGER," +
                     CreatedMessageTable.COLUMN_NAME_ENDDATE + " TEXT);";
     public static final String SQL_CREATE_MULE_MESSAGE_TBL =
@@ -133,10 +142,10 @@ public final class LocmessContract {
                     Point.COLUMN_NAME_X + " REAL," +
                     Point.COLUMN_NAME_Y + " REAL," +
                     Point.COLUMN_NAME_TIMESTAMP + " TEXT," +
-                    Point.COLUMN_NAME_NEXT + "INTEGER," +
-                    Point._ID + " INTEGER PRIMARY KEY)," +
+                    Point.COLUMN_NAME_NEXT + " INTEGER," +
+                    Point._ID + " INTEGER PRIMARY KEY," +
                     "FOREIGN KEY(" + Point.COLUMN_NAME_NEXT + ") REFERENCES " +
-                    Point.TABLE_NAME + "(" + Point._ID + ");";
+                    Point.TABLE_NAME + "(" + Point._ID + "));";
 
     public static final String SQL_CREATE_FULL_LOCATION_TBL =
             "CREATE TABLE " + FullLocationTable.TABLE_NAME + " (" +
@@ -146,6 +155,12 @@ public final class LocmessContract {
                     FullLocationTable.COLUMN_NAME_SSID + " TEXT," +
                     FullLocationTable.COLUMN_NAME_LOCATION + " TEXT," +
                     FullLocationTable._ID + " INTEGER PRIMARY KEY);";
+
+    public static final String SQL_CREATE_SSIDS_CACHE_TBL =
+            "CREATE TABLE " + SSIDSCacheTable.TABLE_NAME + " (" +
+                    SSIDSCacheTable.COLUMN_NAME_NAME + " TEXT," +
+                    SSIDSCacheTable.COLUMN_NAME_LAST_SEEN + " INTEGER," +
+                    SSIDSCacheTable._ID + " INTEGER PRIMARY KEY);";
 
     public static final String SQL_DELETE_MESSAGE_TBL =
             "DROP TABLE IF EXISTS " + MessageTable.TABLE_NAME;
@@ -163,4 +178,6 @@ public final class LocmessContract {
             "DROP TABLE IF EXISTS " + FullLocationTable.TABLE_NAME;
     public static final String SQL_DELETE_POINT_TBL =
             "DROP TABLE IF EXISTS " + Point.TABLE_NAME;
+    public static final String SQL_DELETE_SSIDS_CACHE_TBL =
+            "DROP TABLE IF EXISTS " + SSIDSCacheTable.TABLE_NAME;
 }

@@ -208,7 +208,7 @@ public class MuleMessage extends Message {
     }
 
     public static Cursor getAll(Context ctx) {
-        return getAll(ctx, LocmessContract.MessageTable.COLUMN_NAME_ID);
+        return getAll(ctx, LocmessContract.MuleMessageTable.COLUMN_NAME_TIMESTAMP);
     }
 
     private static Cursor getAll(Context ctx, String orderBy) {
