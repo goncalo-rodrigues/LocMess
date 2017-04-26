@@ -257,6 +257,7 @@ public class PeriodicLocationService extends Service implements LocationListener
             Toast.makeText(this, "No location to send", Toast.LENGTH_SHORT).show();
             return;
         }
+        // TODO: add locations to build common paths
         ArrayList<TimestampedLocation> copy = new ArrayList<>(updates);
         updates = new ArrayList<>();
         new SendMyLocationTask(this,this,copy).execute();

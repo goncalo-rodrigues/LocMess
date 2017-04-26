@@ -47,6 +47,12 @@ public final class LocmessContract {
         public static final String COLUMN_NAME_LOCATION = "location";
     }
 
+    public static class SSIDSCacheTable implements BaseColumns {
+        public static final String TABLE_NAME = "ssids_cache";
+        public static final String COLUMN_NAME_NAME = "name";
+        public static final String COLUMN_NAME_LAST_SEEN = "last_seen";
+    }
+
     public static class FullLocationTable implements BaseColumns {
         public static final String TABLE_NAME = "full_locations";
         public static final String COLUMN_NAME_LOCATION = "location";
@@ -129,6 +135,12 @@ public final class LocmessContract {
                     FullLocationTable.COLUMN_NAME_LOCATION + " TEXT," +
                     FullLocationTable._ID + " INTEGER PRIMARY KEY);";
 
+    public static final String SQL_CREATE_SSIDS_CACHE_TBL =
+            "CREATE TABLE " + SSIDSCacheTable.TABLE_NAME + " (" +
+                    SSIDSCacheTable.COLUMN_NAME_NAME + " TEXT," +
+                    SSIDSCacheTable.COLUMN_NAME_LAST_SEEN + " INTEGER," +
+                    SSIDSCacheTable._ID + " INTEGER PRIMARY KEY);";
+
     public static final String SQL_DELETE_MESSAGE_TBL =
             "DROP TABLE IF EXISTS " + MessageTable.TABLE_NAME;
     public static final String SQL_DELETE_MESSAGE_FILTER_TBL =
@@ -143,4 +155,6 @@ public final class LocmessContract {
             "DROP TABLE IF EXISTS " + ProfileKeyValue.TABLE_NAME;
     public static final String SQL_DELETE_FULL_LOCATION_TBL =
             "DROP TABLE IF EXISTS " + FullLocationTable.TABLE_NAME;
+    public static final String SQL_DELETE_SSIDS_CACHE_TBL =
+            "DROP TABLE IF EXISTS " + SSIDSCacheTable.TABLE_NAME;
 }

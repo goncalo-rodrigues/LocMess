@@ -1,5 +1,7 @@
 package pt.ulisboa.tecnico.locmess.wifidirect;
 
+import android.content.Context;
+import android.database.Cursor;
 import android.util.Log;
 
 import java.util.Arrays;
@@ -8,13 +10,13 @@ import java.util.Objects;
 
 import pt.inesc.termite.wifidirect.SimWifiP2pDevice;
 import pt.ulisboa.tecnico.locmess.data.entities.MuleMessage;
+import pt.ulisboa.tecnico.locmess.data.entities.Point;
 
 /**
  * Created by goncalo on 10-04-2017.
  */
 
 public class Policy {
-
     private static final String LOG_TAG = Policy.class.getSimpleName();
     private HashSet<MessageDevicePair> alreadySent = new HashSet<>();
     // returns true if should send message to device
@@ -27,6 +29,21 @@ public class Policy {
             alreadySent.add(mdp);
             return true;
         }
+    }
+
+    public boolean shouldKeepMessage(MuleMessage message, Context ctx) {
+
+//        Cursor paths = Point.getAllPaths(ctx);
+//        Point targetPoint = Point.fromLatLon(
+//                message.getFullLocation().getLatitude(), message.getFullLocation().getLongitude());
+//        double radius = Math.pow(message.getFullLocation().getRadius(), 2);
+//        while (paths.moveToNext()) {
+//            Point path = new Point(path);
+//            if (targetPoint.distanceToPathSquared(path) < radius) {
+//                return true;
+//            }
+//        }
+        return false;
     }
 
     private class MessageDevicePair {

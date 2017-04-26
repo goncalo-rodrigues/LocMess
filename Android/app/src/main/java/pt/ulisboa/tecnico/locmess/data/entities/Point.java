@@ -22,7 +22,7 @@ public class Point {
         this.y = y;
     }
 
-    public double distanceToPath(Point originPoint) {
+    public double distanceToPathSquared(Point originPoint) {
         Point origin = new Point(0,0);
         Point currentPoint = originPoint;
         double bestDistance = 5000;

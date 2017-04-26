@@ -232,6 +232,7 @@ public class WifiDirectService extends Service implements SimWifiP2pBroadcastRec
             case Request.REQUEST_MULE_MESSAGE:
                 MuleMessage m = (MuleMessage) message.getContent();
                 m.setHops(m.getHops()+1); // 1 more hop!
+
                 m.save(this);
                 if ((getCurrentWifiLocation().isInside(m.getFullLocation()) || getCurrentGPSLocation().isInside(m.getFullLocation()) )
                         && m.amIallowedToReceiveThisMessage(this)) {
