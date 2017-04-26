@@ -74,7 +74,7 @@ def get_messages():
     out.flush()
 
     if "session_id" in req and "locations" in req:
-        return db.search_messages(req["session_id"], req["locations"])
+        return db.filtered_delivery(req["session_id"], req["locations"])
 
     return create_error_json(error_keys_not_in_json)
 

@@ -72,6 +72,14 @@ CREATE TABLE UserFilters (
 	FOREIGN KEY (FilterID) REFERENCES Filters(FilterID) ON DELETE CASCADE
 );
 
+CREATE TABLE DeliveredMessages (
+	Username CHARACTER(100) NOT NULL,
+	MessageID CHARACTER(255) NOT NULL,
+	PRIMARY KEY (Username, MessageID),
+	FOREIGN KEY (Username) REFERENCES Users(Username) ON DELETE CASCADE,
+	FOREIGN KEY (MessageID) REFERENCES Messages(MessageID) ON DELETE CASCADE
+);
+
 CREATE USER 'locmess_account'@'localhost' IDENTIFIED BY 'FDvlalaland129&&';
 
 GRANT SELECT,INSERT,UPDATE,DELETE ON cmu_locmess.* TO 'locmess_account'@'localhost';
