@@ -70,6 +70,14 @@ public final class LocmessContract {
         public static final String COLUMN_NAME_VALUE = "value";
     }
 
+    public static class Point implements BaseColumns {
+        public static final String TABLE_NAME = "point";
+        public static final String COLUMN_NAME_TIMESTAMP = "timestamp";
+        public static final String COLUMN_NAME_X = "x";
+        public static final String COLUMN_NAME_Y = "y";
+        public static final String COLUMN_NAME_NEXT = "next";
+    }
+
     public static final String SQL_CREATE_MESSAGE_TBL =
             "CREATE TABLE " + MessageTable.TABLE_NAME + " (" +
                     MessageTable.COLUMN_NAME_ID + " TEXT PRIMARY KEY," +
@@ -120,6 +128,16 @@ public final class LocmessContract {
                     "PRIMARY KEY ("
                     + MessageFilter.COLUMN_NAME_KEY + "," + MessageFilter.COLUMN_NAME_VALUE + "));";
 
+    public static final String SQL_CREATE_POINT_TBL =
+            "CREATE TABLE " + Point.TABLE_NAME + " (" +
+                    Point.COLUMN_NAME_X + " REAL," +
+                    Point.COLUMN_NAME_Y + " REAL," +
+                    Point.COLUMN_NAME_TIMESTAMP + " TEXT," +
+                    Point.COLUMN_NAME_NEXT + "INTEGER," +
+                    Point._ID + " INTEGER PRIMARY KEY)," +
+                    "FOREIGN KEY(" + Point.COLUMN_NAME_NEXT + ") REFERENCES " +
+                    Point.TABLE_NAME + "(" + Point._ID + ");";
+
     public static final String SQL_CREATE_FULL_LOCATION_TBL =
             "CREATE TABLE " + FullLocationTable.TABLE_NAME + " (" +
                     FullLocationTable.COLUMN_NAME_LATITUDE + " REAL," +
@@ -143,4 +161,6 @@ public final class LocmessContract {
             "DROP TABLE IF EXISTS " + ProfileKeyValue.TABLE_NAME;
     public static final String SQL_DELETE_FULL_LOCATION_TBL =
             "DROP TABLE IF EXISTS " + FullLocationTable.TABLE_NAME;
+    public static final String SQL_DELETE_POINT_TBL =
+            "DROP TABLE IF EXISTS " + Point.TABLE_NAME;
 }

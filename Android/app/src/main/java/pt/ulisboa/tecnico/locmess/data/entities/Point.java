@@ -1,5 +1,7 @@
 package pt.ulisboa.tecnico.locmess.data.entities;
 
+import java.util.Date;
+
 /**
  * Created by goncalo on 26-04-2017.
  */
@@ -7,6 +9,7 @@ package pt.ulisboa.tecnico.locmess.data.entities;
 public class Point {
     public double x;
     public double y;
+    public Date ts;
     public Point nextPoint;
 
     public Point(double x, double y) {
@@ -14,13 +17,13 @@ public class Point {
         this.y = y;
     }
 
-    public boolean distanceToPath(Point originPoint) {
-        Point currentPoint = originPoint;
-        while (currentPoint != null)  {
-            double distance = distanceToPointSquared(currentPoint);
-
-        }
-    }
+//    public boolean distanceToPath(Point originPoint) {
+//        Point currentPoint = originPoint;
+//        while (currentPoint != null)  {
+//            double distance = distanceToPointSquared(currentPoint);
+//
+//        }
+//    }
 
     public double distanceToPointSquared(Point point) {
         return Math.pow(point.x - x,2) + Math.pow(point.y - y, 2);

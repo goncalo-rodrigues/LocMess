@@ -45,7 +45,16 @@ class Database:
 
     def __create_random_str(self, length):
         class_random = Crypto.Random.random.StrongRandom()
-        lst_rand = [chr(class_random.getrandbits(7)) for _ in range(length)]
+        lst_rand = []
+
+        i = 0
+        while i < length:
+            try:
+                lst_rand.append(chr(class_random.getrandbits(7)).encode("utf8"))
+                i += 1
+            except UnicodeDecodeError:
+                print "Invalid char for session_id!"
+
         return "".join(lst_rand)
 
     def __create_session(self, cursor, username):
@@ -524,7 +533,7 @@ class Database:
 
             if "lat" in loc and "long" in loc:
                 if q_gps is None:
-                    q_gps = "M.Username != %s AND G.Location = M.Location AND ( 1 "
+                    q_gps = "M.Username != %s AND G.Location = M.Location AND ( 0 "
                     gps.extend(user)
                 q_gps += haversine_formula
 
@@ -532,7 +541,7 @@ class Database:
 
             if len(loc["ssids"]) > 0:
                 if q_ssids is None:
-                    q_ssids = "M.Username != %s AND W.Location = M.Location AND ( 1 "
+                    q_ssids = "M.Username != %s AND W.Location = M.Location AND ( 0 "
                     ssids.extend(user)
 
                 for ssid in loc["ssids"]:
