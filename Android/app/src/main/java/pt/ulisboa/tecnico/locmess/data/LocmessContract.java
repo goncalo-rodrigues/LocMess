@@ -22,6 +22,7 @@ public final class LocmessContract {
         public static final String COLUMN_NAME_STARTDATE = "startdate";
         public static final String COLUMN_NAME_ENDDATE = "enddate";
         public static final String COLUMN_NAME_CENTRALIZED = "centralized";
+        public static final String COLUMN_NAME_TIMESTAMP = "timestamp";
     }
 
     public static class CreatedMessageTable extends MessageTable {
@@ -84,6 +85,7 @@ public final class LocmessContract {
                     MessageTable.COLUMN_NAME_LOCATION + " TEXT," +
                     MessageTable.COLUMN_NAME_STARTDATE + " TEXT," +
                     MessageTable.COLUMN_NAME_CENTRALIZED + " INTEGER," +
+                    MessageTable.COLUMN_NAME_TIMESTAMP + " INTEGER," +
                     MessageTable.COLUMN_NAME_ENDDATE + " TEXT); ";
     public static final String SQL_CREATE_CREATED_MESSAGE_TBL =
     "CREATE TABLE " + CreatedMessageTable.TABLE_NAME + " (" +
@@ -92,6 +94,7 @@ public final class LocmessContract {
                     CreatedMessageTable.COLUMN_NAME_AUTHOR + " TEXT," +
                     CreatedMessageTable.COLUMN_NAME_LOCATION + " TEXT," +
                     CreatedMessageTable.COLUMN_NAME_STARTDATE + " TEXT," +
+                    CreatedMessageTable.COLUMN_NAME_TIMESTAMP + " INTEGER," +
                     CreatedMessageTable.COLUMN_NAME_CENTRALIZED + " INTEGER," +
                     CreatedMessageTable.COLUMN_NAME_ENDDATE + " TEXT);";
     public static final String SQL_CREATE_MULE_MESSAGE_TBL =
