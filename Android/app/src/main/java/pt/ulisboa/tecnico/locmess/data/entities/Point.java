@@ -11,8 +11,8 @@ public class Point {
     public double y;
     public Point nextPoint;
 
-    private static final double STANDARD_PARALLELS_COSINE = 0.98730310495;
-    private static final double STANDARD_PARALLELS = -9.1400166;
+    private static final double STANDARD_PARALLELS_COSINE = 0.77995433338;
+    private static final double STANDARD_PARALLELS = 38.7436056;
 
 
 
@@ -88,16 +88,16 @@ public class Point {
     }
 
     public static Point fromLatLon(double lat, double lon) {
-        double x = lat * STANDARD_PARALLELS_COSINE;
-        double y = lon - STANDARD_PARALLELS;
+        double x = lon * STANDARD_PARALLELS_COSINE;
+        double y = lat - STANDARD_PARALLELS;
         return new Point(x, y);
     }
 
-    public double getLat() {
+    public double getLon() {
         return x / STANDARD_PARALLELS_COSINE;
     }
 
-    public double getLon() {
+    public double getLat() {
         return y + STANDARD_PARALLELS;
     }
     @Override
