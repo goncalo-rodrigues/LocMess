@@ -13,6 +13,7 @@ public class Point {
 
     private static final double STANDARD_PARALLELS_COSINE = 0.77995433338;
     private static final double STANDARD_PARALLELS = 38.7436056;
+    private static final double UNIT_DISTANCE = 86.81831160375718;
 
 
 
@@ -42,12 +43,12 @@ public class Point {
             currentPoint = currentPoint.nextPoint;
         }
 
-        return bestDistance;
+        return bestDistance*UNIT_DISTANCE*UNIT_DISTANCE;
     }
 
     public void aggregatePoints() {
         double maxD = 1;
-        maxD = Math.pow(maxD, 2);
+        maxD = Math.pow(maxD / UNIT_DISTANCE, 2);
         Point a = this;
         Point b = nextPoint;
         if (b == null) {
