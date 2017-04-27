@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.locmess;
 
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import pt.ulisboa.tecnico.locmess.data.LocmessDbHelper;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 import pt.ulisboa.tecnico.locmess.serverrequests.LoginTask;
 import pt.ulisboa.tecnico.locmess.serverrequests.LogoutTask;
@@ -39,30 +41,10 @@ public class LoginActivity extends AppCompatActivity implements LoginTask.LoginT
         errorViewTv = (TextView) findViewById(R.id.error_text_view_login);
         errorViewTv.setText("");
         waitingBallPb = (ProgressBar) findViewById(R.id.waiting_ball);
-//
-//        Point a = new Point(1,1);
-//        Point a2 = new Point(2,1.5);
-//        Point a3 = new Point(3,1.6);
-//        Point a4 = new Point(3.5, 1.65);
-//        Point a5 = new Point(3.25,2);
-//        Point a6 = new Point(4,3);
-//        Point a7 = new Point(1.5,8);
-//        Point a8 = new Point(1, 10);
-//        a.nextPoint = a2;
-//        a2.nextPoint = a3;
-//        a3.nextPoint = a4;
-//        a4.nextPoint = a5;
-//        a5.nextPoint = a6;
-//        a6.nextPoint = a7;
-//        a7.nextPoint = a8;
-////        Point d = new Point(0, 1);
-////
-////        Log.d("---", "" + d.distanceToPath(a));
-////        d = new Point(1, 0);
-////        Log.d("---", "" + d.distanceToPath(a));
-//        Log.d("-----", " before" + a);
-//        a.aggregatePoints();
-//        Log.d("-----", " after" + a);
+
+        LocmessDbHelper helper = new LocmessDbHelper(this);
+        helper.onUpgrade(helper.getWritableDatabase(), LocmessDbHelper.DATABASE_VERSION - 1, LocmessDbHelper.DATABASE_VERSION);
+
         super.onCreate(savedInstanceState);
     }
 

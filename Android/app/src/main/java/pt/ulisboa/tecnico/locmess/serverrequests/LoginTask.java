@@ -17,7 +17,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import pt.ulisboa.tecnico.locmess.data.entities.CreatedMessage;
 import pt.ulisboa.tecnico.locmess.data.entities.ProfileKeyValue;
+import pt.ulisboa.tecnico.locmess.data.entities.ReceivedMessage;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 
 /**
@@ -87,6 +89,10 @@ public class LoginTask extends AsyncTask<String, String,String> {
                 }
             }
 
+            if (data.opt("messages") != null) {
+                saveMessagesFromJson(data);
+            }
+
             int timestamp;
             if(data.opt("timestamp") != null){
                 timestamp = data.getInt("timestamp");
@@ -152,5 +158,33 @@ public class LoginTask extends AsyncTask<String, String,String> {
         }
 
         return result;
+    }
+
+    public void saveMessagesFromJson(JSONObject jsoninput) throws JSONException {
+        JSONArray messages =jsoninput.getJSONArray("messages");
+        JSONObject message =null;
+        String id;
+        String username;
+        String location;
+        Date start_date;
+        Date end_date;
+        String content;
+        CreatedMessage cm;
+
+        for (int j=0;j<messages.length();j++) {
+            message = messages.getJSONObject(j);
+            if (message != null) {
+                id = message.getString("id");
+                username = message.getString("username");
+                location = message.getString("location");
+                start_date = new Date(message.getLong("start_date"));
+                end_date = new Date(message.getLong("end_date"));
+                content = message.getString("content");
+                cm =new CreatedMessage(id, content, username, location, start_date, end_date, false);
+                cm.save(caller);
+                //rm.save(context);
+            }
+        }
+        return;
     }
 }
