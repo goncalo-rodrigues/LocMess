@@ -88,7 +88,12 @@ public class MuleMessage extends Message {
                     break;
             }
         }
+
         reader.endObject();
+
+        for (MuleMessageFilter f: filters) {
+            f.setMessageId(id);
+        }
         init(id, messageText, author, location, startDate, endDate, filters, hops);
     }
 

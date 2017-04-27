@@ -78,7 +78,7 @@ public class LoginTask extends AsyncTask<String, String,String> {
 
             if (data.opt("filters") != null) {
                 filters = data.getJSONArray("filters");
-                for (int j = 0; j < filters.length() - 1; j++) {
+                for (int j = 0; j < filters.length(); j++) {
                     filter = filters.getJSONObject(j);
                     key = filter.getString("key");
                     value = filter.getString("value");
