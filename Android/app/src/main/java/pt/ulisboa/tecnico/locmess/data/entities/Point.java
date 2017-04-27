@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.locmess.data.entities;
 
+import java.util.Date;
 import android.util.Log;
 
 /**
@@ -9,6 +10,7 @@ import android.util.Log;
 public class Point {
     public double x;
     public double y;
+    public Date ts;
     public Point nextPoint;
 
     private static final double STANDARD_PARALLELS_COSINE = 0.77995433338;
@@ -21,6 +23,14 @@ public class Point {
         this.x = x;
         this.y = y;
     }
+
+//    public boolean distanceToPath(Point originPoint) {
+//        Point currentPoint = originPoint;
+//        while (currentPoint != null)  {
+//            double distance = distanceToPointSquared(currentPoint);
+//
+//        }
+//    }
 
     public double distanceToPathSquared(Point originPoint) {
         Point origin = new Point(0,0);

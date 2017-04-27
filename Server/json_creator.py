@@ -74,7 +74,7 @@ def are_locations(something):
                 "timestamp" in el and isinstance(el["timestamp"], long) and \
                 "ssids" in el:
                 for ssid in el["ssids"]:
-                    if not isinstance(ssid, str):
+                    if not isinstance(ssid, unicode):
                         return False
             else:
                 return False
