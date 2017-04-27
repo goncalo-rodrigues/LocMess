@@ -1,17 +1,10 @@
 package pt.ulisboa.tecnico.locmess.serverrequests;
 
-
 import android.content.Context;
 import android.os.AsyncTask;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
 import java.net.URL;
 
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
@@ -45,7 +38,7 @@ public class LogoutTask extends AsyncTask<Void, String, String>{
 
             //open the conection to the server and send
             URL url = new URL(URL_SERVER+"/logout");
-            result= makeHTTPResquest(url,jsoninputs);
+            result = CommonConnectionFunctions.makeHTTPResquest(url,jsoninputs);
 
             //parse and get json elements, ok/nok
             JSONObject data = new JSONObject(result);
@@ -61,30 +54,6 @@ public class LogoutTask extends AsyncTask<Void, String, String>{
 
         //never reach here unless we get an error parsing the json
         return null;
-    }
-
-
-    protected String makeHTTPResquest(URL url,JSONObject jsoninputs) throws IOException {
-        HttpURLConnection urlConnection= (HttpURLConnection) url.openConnection();
-        urlConnection.setRequestMethod("POST");
-        urlConnection.setRequestProperty("Content-Type","application/json");
-        urlConnection.setConnectTimeout(10000);
-        urlConnection.setReadTimeout(10000);
-        urlConnection.connect();
-
-        OutputStreamWriter   out = new   OutputStreamWriter(urlConnection.getOutputStream());
-        out.write(jsoninputs.toString());
-        out.flush();
-        out.close();
-
-        BufferedReader buffer = new BufferedReader( new InputStreamReader(urlConnection.getInputStream(),"utf-8"));
-        String result ="";
-        String line ;
-        while((line=buffer.readLine())!=null) {
-            result += line;// +"\n";
-        }
-
-        return result;
     }
 
 

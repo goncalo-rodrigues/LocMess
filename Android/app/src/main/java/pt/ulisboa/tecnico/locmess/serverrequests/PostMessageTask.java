@@ -26,10 +26,8 @@ import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 
 public class PostMessageTask extends AsyncTask<Void, String,String>{
     private PostMessageTaskCallBack callback;
-    //private static final String URL_SERVER = "http://requestb.in/16z80wa1";
     private static final String URL_SERVER = "http://locmess.duckdns.org";
     NetworkGlobalState globalState;
-    String errorToReturn = "";
     //Variables to send
     private String username;
     private String location;
@@ -39,9 +37,6 @@ public class PostMessageTask extends AsyncTask<Void, String,String>{
     private ArrayList<Pair> whitelisted;
     private ArrayList<Pair> blackListed;
     private String messageID;
-
-
-
 
 
     public PostMessageTask(PostMessageTaskCallBack ltcb, Context context,String username,
@@ -107,47 +102,24 @@ public class PostMessageTask extends AsyncTask<Void, String,String>{
 
             //open the conection to the server and send
             URL url = new URL(URL_SERVER+"/post_message");
-            result= makeHTTPResquest(url,jsoninputs);
-            return result; //TODO REMOVE
+            result = CommonConnectionFunctions.makeHTTPResquest(url,jsoninputs);
+
             //parse and get json elements, can be an array of locations or a error message
-/*
             JSONObject data = new JSONObject(result);
-            String resp = data.getString("resp");
+            String resp ="nok";
+            if(data.opt("resp")!=null)
+                resp = data.getString("resp");
 
             return resp;
-*/
-        }catch (JSONException e) {e.printStackTrace();
+
+        }catch (JSONException e) {
+            e.printStackTrace();
+            return "nok";
         }catch (IOException e) {
             e.printStackTrace();
             return "conetionError";
         }
 
-        //never reach here unless we get an error parsing the json
-        return null;
-
-    }
-
-    protected String makeHTTPResquest(URL url,JSONObject jsoninputs) throws IOException {
-        HttpURLConnection urlConnection= (HttpURLConnection) url.openConnection();
-        urlConnection.setRequestMethod("POST");
-        urlConnection.setRequestProperty("Content-Type","application/json");
-        urlConnection.setConnectTimeout(10000);
-        urlConnection.setReadTimeout(10000);
-        urlConnection.connect();
-
-        OutputStreamWriter   out = new   OutputStreamWriter(urlConnection.getOutputStream());
-        out.write(jsoninputs.toString());
-        out.flush();
-        out.close();
-
-        BufferedReader buffer = new BufferedReader( new InputStreamReader(urlConnection.getInputStream(),"utf-8"));
-        String result ="";
-        String line ;
-        while((line=buffer.readLine())!=null) {
-            result += line;// +"\n";
-        }
-
-        return result;
     }
 
 

@@ -3,25 +3,12 @@ package pt.ulisboa.tecnico.locmess.serverrequests;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Pair;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Date;
-
-import pt.ulisboa.tecnico.locmess.PeriodicLocationService;
-import pt.ulisboa.tecnico.locmess.data.entities.FullLocation;
-import pt.ulisboa.tecnico.locmess.data.entities.ReceivedMessage;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 import pt.ulisboa.tecnico.locmess.PeriodicLocationService.TimestampedLocation;
 
@@ -31,14 +18,10 @@ import pt.ulisboa.tecnico.locmess.PeriodicLocationService.TimestampedLocation;
 
 public class SendMyLocationTask extends AsyncTask<Void, String,String>{
     private SendMyLocationsTaskCallBack callback;
-    //private static final String URL_SERVER = "http://requestb.in/16z80wa1";
     private static final String URL_SERVER = "http://locmess.duckdns.org";
     NetworkGlobalState globalState;
-    private ArrayList<Pair> gpsCoordiantes;
-    private ArrayList<String> ssids;
     ArrayList<TimestampedLocation> locations;
     Context context;
-    ArrayList<String> messagesIDs = new ArrayList<>();
     int numberMessages;
 
     public SendMyLocationTask(SendMyLocationsTaskCallBack ltcb, Context context, ArrayList<TimestampedLocation> locations){
@@ -56,7 +39,7 @@ public class SendMyLocationTask extends AsyncTask<Void, String,String>{
         try{
             URL url = new URL(URL_SERVER+"/send_locations");
             JSONObject jsoninputs = createJsonMessage(locations);
-            result= makeHTTPResquest(url,jsoninputs);
+            result= CommonConnectionFunctions.makeHTTPResquest(url,jsoninputs);
 
             //parse and get json elements, can be the number of messages or a error message
             JSONObject data = new JSONObject(result);
@@ -80,36 +63,12 @@ public class SendMyLocationTask extends AsyncTask<Void, String,String>{
 
     @Override
     protected void onPostExecute(String result) {
-        //TODO see the possible errors and handle them
         if (!result.equals("ok"))
             callback.OnErrorResponse(result);
         else
             callback.OnSendComplete(numberMessages);
 
         super.onPostExecute(result);
-    }
-
-    protected String makeHTTPResquest(URL url,JSONObject jsoninputs) throws IOException {
-        HttpURLConnection urlConnection= (HttpURLConnection) url.openConnection();
-        urlConnection.setRequestMethod("POST");
-        urlConnection.setRequestProperty("Content-Type","application/json");
-        urlConnection.setConnectTimeout(10000);
-        urlConnection.setReadTimeout(10000);
-        urlConnection.connect();
-
-        OutputStreamWriter   out = new   OutputStreamWriter(urlConnection.getOutputStream());
-        out.write(jsoninputs.toString());
-        out.flush();
-        out.close();
-
-        BufferedReader buffer = new BufferedReader( new InputStreamReader(urlConnection.getInputStream(),"utf-8"));
-        String result ="";
-        String line ;
-        while((line=buffer.readLine())!=null) {
-            result += line;// +"\n";
-        }
-
-        return result;
     }
 
 
@@ -140,8 +99,5 @@ public class SendMyLocationTask extends AsyncTask<Void, String,String>{
         void OnSendComplete(int numberMessages);
         void OnErrorResponse(String error);
     }
-
-
-
 
 }

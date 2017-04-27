@@ -3,19 +3,11 @@ package pt.ulisboa.tecnico.locmess.serverrequests;
 
 import android.content.Context;
 import android.os.AsyncTask;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
-
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 
 /**
@@ -26,7 +18,7 @@ public class RegisterTask extends AsyncTask<String, String,String> {
     private RegisteTaskCallBack callback;
     private String result;
     NetworkGlobalState globalState;
-    //private static final String URL_SERVER = "http://requestb.in/16z80wa1";
+
 
     private static final String URL_SERVER = "http://locmess.duckdns.org";
 
@@ -53,7 +45,7 @@ public class RegisterTask extends AsyncTask<String, String,String> {
 
             url = new URL(URL_SERVER+"/signup");
 
-            response=makeHTTPResquest(url,jsoninputs);
+            response = CommonConnectionFunctions.makeHTTPResquest(url,jsoninputs);
 
             JSONObject data = new JSONObject(response);
 
@@ -72,6 +64,8 @@ public class RegisterTask extends AsyncTask<String, String,String> {
                 globalState.setSessionTimestamp(new Date(timestamp));
             }
 
+            //TODO Colect the created messages from the server
+
             globalState.setUsername(username);
             globalState.setId(id);
             return id;
@@ -85,8 +79,8 @@ public class RegisterTask extends AsyncTask<String, String,String> {
 
         response = "|"+response+"|";
         return response;
-
     }
+
 
     @Override
     protected void onPostExecute(String result) {
@@ -107,26 +101,4 @@ public class RegisterTask extends AsyncTask<String, String,String> {
         void OnNoInternetConnection();
     }
 
-    protected String makeHTTPResquest(URL url,JSONObject jsoninputs) throws IOException {
-        HttpURLConnection urlConnection= (HttpURLConnection) url.openConnection();
-        urlConnection.setRequestMethod("POST");
-        urlConnection.setRequestProperty("Content-Type","application/json");
-        urlConnection.setConnectTimeout(10000);
-        urlConnection.setReadTimeout(10000);
-        urlConnection.connect();
-
-        OutputStreamWriter   out = new   OutputStreamWriter(urlConnection.getOutputStream());
-        out.write(jsoninputs.toString());
-        out.flush();
-        out.close();
-
-        BufferedReader buffer = new BufferedReader( new InputStreamReader(urlConnection.getInputStream(),"utf-8"));
-        String result ="";
-        String line ;
-        while((line=buffer.readLine())!=null) {
-            result += line;// +"\n";
-        }
-
-        return result;
-    }
 }

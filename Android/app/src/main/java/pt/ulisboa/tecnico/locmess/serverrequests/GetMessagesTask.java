@@ -1,22 +1,14 @@
 package pt.ulisboa.tecnico.locmess.serverrequests;
 
-
 import android.content.Context;
 import android.os.AsyncTask;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
-
 import pt.ulisboa.tecnico.locmess.PeriodicLocationService.TimestampedLocation;
 import pt.ulisboa.tecnico.locmess.data.entities.ReceivedMessage;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
@@ -27,7 +19,6 @@ import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 
 public class GetMessagesTask extends AsyncTask<Void, String,String>{
     private GetMessagesCallBack callback;
-    //private static final String URL_SERVER = "http://requestb.in/16z80wa1";
     private static final String URL_SERVER = "http://locmess.duckdns.org";
     NetworkGlobalState globalState;
     ArrayList<TimestampedLocation> locations;
@@ -50,7 +41,7 @@ public class GetMessagesTask extends AsyncTask<Void, String,String>{
         try{
             URL url = new URL(URL_SERVER+"/get_messages");
             JSONObject jsoninputs = createJsonMessage(locations);
-            result= makeHTTPResquest(url,jsoninputs);
+            result= CommonConnectionFunctions.makeHTTPResquest(url,jsoninputs);
 
             //parse and get json elements, can be an array of locations or a error message
             JSONObject data = new JSONObject(result);
@@ -86,30 +77,6 @@ public class GetMessagesTask extends AsyncTask<Void, String,String>{
     }
 
 
-    protected String makeHTTPResquest(URL url,JSONObject jsoninputs) throws IOException {
-        HttpURLConnection urlConnection= (HttpURLConnection) url.openConnection();
-        urlConnection.setRequestMethod("POST");
-        urlConnection.setRequestProperty("Content-Type","application/json");
-        urlConnection.setConnectTimeout(10000);
-        urlConnection.setReadTimeout(10000);
-        urlConnection.connect();
-
-        OutputStreamWriter   out = new   OutputStreamWriter(urlConnection.getOutputStream());
-        out.write(jsoninputs.toString());
-        out.flush();
-        out.close();
-
-        BufferedReader buffer = new BufferedReader( new InputStreamReader(urlConnection.getInputStream(),"utf-8"));
-        String result ="";
-        String line ;
-        while((line=buffer.readLine())!=null) {
-            result += line;// +"\n";
-        }
-
-        return result;
-    }
-
-
     public void saveMessagesFromJson(JSONObject jsoninput) throws JSONException {
         JSONArray messages =jsoninput.getJSONArray("messages");
         JSONObject message =null;
@@ -140,7 +107,6 @@ public class GetMessagesTask extends AsyncTask<Void, String,String>{
 
 
     private JSONObject createJsonMessage(ArrayList<TimestampedLocation> locations) throws JSONException {
-        String result ="";
         JSONObject jsoninputs = new JSONObject();
         JSONArray jsonLocations = new JSONArray();
 
@@ -167,8 +133,5 @@ public class GetMessagesTask extends AsyncTask<Void, String,String>{
         void OnGetMessagesComplete(ArrayList<ReceivedMessage> messages);
         void OnGetMessagesError(String error);
     }
-
-
-
 
 }

@@ -1,22 +1,13 @@
 package pt.ulisboa.tecnico.locmess.serverrequests;
 
-
 import android.content.Context;
 import android.os.AsyncTask;
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import pt.ulisboa.tecnico.locmess.data.entities.ProfileKeyValue;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 
@@ -26,7 +17,6 @@ import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 
 public class LoginTask extends AsyncTask<String, String,String> {
     private LoginTaskCallBack callback;
-    private String result;
     //private static final String URL_SERVER = "http://requestb.in/16z80wa1";
     private static final String URL_SERVER = "http://locmess.duckdns.org";
     NetworkGlobalState globalState;
@@ -58,14 +48,12 @@ public class LoginTask extends AsyncTask<String, String,String> {
             //open the conection to the server and send
             URL url = new URL(URL_SERVER+"/login");
 
-            response=makeHTTPResquest(url,jsoninputs);
+            response = CommonConnectionFunctions.makeHTTPResquest(url,jsoninputs);
 
             JSONObject data = new JSONObject(response);
             JSONArray filters = new JSONArray();
-            JSONObject filter = null;
+            JSONObject filter;
             ProfileKeyValue pkv;
-
-
 
             if (data.opt("error") != null) {
                  return  data.getString("error");
@@ -93,6 +81,7 @@ public class LoginTask extends AsyncTask<String, String,String> {
                 globalState.setSessionTimestamp(new Date(timestamp));
             }
 
+            //TODO Colect the created messages from the server
 
             globalState.setId(id);
             globalState.setUsername(username);
@@ -104,10 +93,6 @@ public class LoginTask extends AsyncTask<String, String,String> {
             e.printStackTrace();
             return "conetionError";
         }
-
-
-        //response = "|"+response+"|";
-        //return response;
 
     }
 
@@ -130,27 +115,4 @@ public class LoginTask extends AsyncTask<String, String,String> {
         void OnWrongCredentials(String error);
     }
 
-
-    protected String makeHTTPResquest(URL url,JSONObject jsoninputs) throws IOException {
-        HttpURLConnection urlConnection= (HttpURLConnection) url.openConnection();
-        urlConnection.setRequestMethod("POST");
-        urlConnection.setRequestProperty("Content-Type","application/json");
-        urlConnection.setConnectTimeout(10000);
-        urlConnection.setReadTimeout(10000);
-        urlConnection.connect();
-
-        OutputStreamWriter   out = new   OutputStreamWriter(urlConnection.getOutputStream());
-        out.write(jsoninputs.toString());
-        out.flush();
-        out.close();
-
-        BufferedReader buffer = new BufferedReader( new InputStreamReader(urlConnection.getInputStream(),"utf-8"));
-        String result ="";
-        String line ;
-        while((line=buffer.readLine())!=null) {
-            result += line;// +"\n";
-        }
-
-        return result;
-    }
 }
