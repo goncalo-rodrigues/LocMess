@@ -1,5 +1,7 @@
 package pt.ulisboa.tecnico.locmess.data;
 
+import android.util.Log;
+
 import java.util.Date;
 
 /**
@@ -10,6 +12,7 @@ public class Point {
     public double x;
     public double y;
     public Point nextPoint;
+    public int i = 0;
 
     private static final double STANDARD_PARALLELS_COSINE = 0.77995433338;
     private static final double STANDARD_PARALLELS = 38.7436056;
@@ -18,6 +21,12 @@ public class Point {
 
 
     public Point(double x, double y) {
+        this.x = x;
+        this.y = y;
+    }
+
+
+    public Point(double x, double y, int i) {
         this.x = x;
         this.y = y;
     }
@@ -54,11 +63,11 @@ public class Point {
         return bestDistance*UNIT_DISTANCE*UNIT_DISTANCE;
     }
 
-    public void aggregatePoints() {
-        double maxD = 1;
-        maxD = Math.pow(maxD / UNIT_DISTANCE, 2);
+    public void aggregatePoints(double maxd) {
+        double maxD = Math.pow(maxd / UNIT_DISTANCE, 2);
         Point a = this;
         Point b = nextPoint;
+        Log.d("---", "Aggregating " + i);
         if (b == null) {
             return;
         }
@@ -73,16 +82,28 @@ public class Point {
             if (c == null) {
                 break;
             }
+
             Point ac = c.minus(a);
-            double distance = ac.sizeSquared(); // |x-a|^2
-            double dotProduct = ab.dot(ac); // |ax.ab|
-            double proj = dotProduct*dotProduct/vectorSize; // |ax.ab|^2/|ab|^2
-            double distanceToVector = distance - proj; // |ax|^2 - |ax.ab|^2/|ab|^2
+            double distance = ac.sizeSquared(); // |c-a|^2
+            double dotProduct = ab.dot(ac); // |ac.ab|
+            double proj = dotProduct*dotProduct/vectorSize; // |ac.ab|^2/|ab|^2
+            double distanceToVector = distance - proj; // |ac|^2 - |ac.ab|^2/|ab|^2
             currentD = distanceToVector;
+
+            if (currentD < maxD) {
+                Log.d("---", "Removing " + "("+prev.i + "). Distance to ab = " +
+                        distanceToVector + "a=" + "("+a.i + ")" +
+                "b=(" +b.i + ")" + " ab " + ab.toString() + " ac " + ac.toString());
+            } else {
+                Log.d("---", "Not removing " + "("+prev.i + "). Distance to ab = " +
+                        distanceToVector + "a=" + "("+a.i + ")" +
+                        "b=(" +b.i + ")" + " ab " + ab.toString() + " ac " + ac.toString());
+            }
         }
 
+        Log.d("---", "Aggregated " + i);
         this.nextPoint = prev;
-        prev.aggregatePoints();
+        prev.aggregatePoints(maxd);
 
     }
 
