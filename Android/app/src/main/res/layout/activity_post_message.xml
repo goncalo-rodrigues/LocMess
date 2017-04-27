@@ -71,15 +71,12 @@
                     android:text="@string/location" />
 
 
-                <AutoCompleteTextView
+                <com.toptoche.searchablespinnerlibrary.SearchableSpinner
                     android:id="@+id/send_m_location"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:background="@android:color/darker_gray"
-                    android:completionThreshold="1"
-                    android:hint="@string/location"
-                    android:maxLines="1" />
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
+                    android:background="@android:color/darker_gray" />
 
                 <TextView
                     android:id="@+id/message"
