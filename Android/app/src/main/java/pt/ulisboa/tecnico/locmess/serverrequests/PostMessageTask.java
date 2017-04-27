@@ -4,25 +4,15 @@ package pt.ulisboa.tecnico.locmess.serverrequests;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Pair;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
-
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 
-/**
- * Created by ant on 05-04-2017.
- */
 
 public class PostMessageTask extends AsyncTask<Void, String,String>{
     private PostMessageTaskCallBack callback;
@@ -65,9 +55,6 @@ public class PostMessageTask extends AsyncTask<Void, String,String>{
         JSONObject jsoninputs = new JSONObject();
         JSONObject jsonMessage = new JSONObject();
         JSONArray jsonFilters = new JSONArray();
-
-        /*{"id":"...", "username":"...", "location":"...", "start_date":XX, "end_date":YY, "content":"...",
- "filters":[{"key":"...", "value":"...", "is_whitelist": T/F }, ...]}*/
 
         try {
             jsoninputs.put("session_id", globalState.getId());
@@ -144,8 +131,5 @@ public class PostMessageTask extends AsyncTask<Void, String,String>{
         void onErrorResponse();
         void OnNoInternetConnection();
     }
-
-
-
-
+    
 }
