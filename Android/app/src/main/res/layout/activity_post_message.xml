@@ -9,199 +9,224 @@
     >
 
 
+
     <RelativeLayout
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingBottom="@dimen/activity_vertical_margin"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/activity_vertical_margin"
+
         >
 
+        <TextView
+            android:id="@+id/textView_noInternetConnection"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_centerInParent="true"
+            android:background="@android:color/holo_red_light"
+            android:paddingBottom="1dp"
+            android:paddingLeft="10dp"
+            android:text="@string/no_internet_connection_bar_Tex"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@android:color/black" />
+
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_alignBottom="@+id/textView_noInternetConnection"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/textView_noInternetConnection"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/warrning_no_internet"
+            android:background="@android:color/holo_red_light"
+            android:paddingBottom="1dp"/>
+
+
         <ScrollView
+            android:id="@+id/ScrolView1"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/ScrolView1"
-            android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true">
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="false"
+            android:layout_alignTop="@+id/textView_noInternetConnection"
+            android:paddingTop="30dp"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin">
 
             <LinearLayout
+                android:id="@+id/linearLayou1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:id="@+id/linearLayou1" >
+                android:orientation="vertical">
 
                 <TextView
-                    android:text="@string/location"
+                    android:id="@+id/textView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/textView" />
+                    android:text="@string/location" />
 
 
                 <AutoCompleteTextView
+                    android:id="@+id/send_m_location"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:maxLines="1"
-                    android:id="@+id/send_m_location"
+                    android:background="@android:color/darker_gray"
                     android:completionThreshold="1"
                     android:hint="@string/location"
-                    android:background="@android:color/darker_gray"
-                    />
+                    android:maxLines="1" />
 
                 <TextView
-                    android:text="@string/message"
+                    android:id="@+id/message"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/message" />
+                    android:text="@string/message" />
 
                 <EditText
-                    android:inputType="textMultiLine"
-                    android:gravity="start"
-                    android:textAlignment="textStart"
-                    android:minLines="3"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:scrollbars="vertical"
-                    android:ems="10"
                     android:id="@+id/messageText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/darker_gray"
+                    android:ems="10"
+                    android:gravity="start"
                     android:hint="@string/hintInsertMessage"
-                    android:background="@android:color/darker_gray"/>
+                    android:inputType="textMultiLine"
+                    android:minLines="3"
+                    android:scrollbars="vertical"
+                    android:textAlignment="textStart" />
 
                 <TextView
-                    android:text="@string/from"
+                    android:id="@+id/textView2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/textView2" />
+                    android:text="@string/from" />
 
                 <LinearLayout
-                    android:orientation="horizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
 
                     <Button
+                        android:id="@+id/start_date_button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="pick_date"
-                        android:id="@+id/start_date_button" />
+                        android:text="pick_date" />
 
                     <Button
+                        android:id="@+id/start_time_button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="pick_time"
-                        android:id="@+id/start_time_button"/>
-
-
+                        android:text="pick_time" />
 
 
                 </LinearLayout>
 
                 <TextView
-                    android:text="@string/to"
+                    android:id="@+id/textView3"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/textView3" />
+                    android:text="@string/to" />
 
                 <LinearLayout
-                    android:orientation="horizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
 
                     <Button
+                        android:id="@+id/end_date_button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="pick_date"
-                        android:id="@+id/end_date_button" />
+                        android:text="pick_date" />
 
                     <Button
+                        android:id="@+id/end_time_button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="pick_time"
-                        android:id="@+id/end_time_button"/>
+                        android:text="pick_time" />
 
 
                 </LinearLayout>
 
                 <TextView
-                    android:text="@string/distribution"
+                    android:id="@+id/textViewDistribution"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/textViewDistribution" />
+                    android:text="@string/distribution" />
 
                 <RadioGroup
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="horizontal"
-                    android:background="@color/colorLightGray">
-
+                    android:background="@color/colorLightGray"
+                    android:orientation="horizontal">
 
 
                     <RadioButton
-                        android:text="@string/centralized"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
                         android:id="@+id/radio_button_Centralized"
-                        android:layout_weight="1" />
-
-                    <RadioButton
-                        android:text="@string/adOc"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/centralized" />
+
+                    <RadioButton
                         android:id="@+id/radio_button_adOc"
-                        android:layout_weight="1" />
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/adOc" />
                 </RadioGroup>
 
 
-
                 <TextView
-                    android:text="@string/filters"
+                    android:id="@+id/textView4"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/textView4"
-                    android:layout_weight="1" />
+                    android:layout_weight="1"
+                    android:text="@string/filters" />
 
 
                 <LinearLayout
-                    android:orientation="vertical"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:background="@android:color/darker_gray"
                     android:backgroundTint="@color/colorLightGray"
-                    android:background="@android:color/darker_gray">>
+                    android:orientation="vertical">>
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
+                        android:layout_marginBottom="8dp"
+                        android:orientation="horizontal">
+
                         <AutoCompleteTextView
+                            android:id="@+id/send_m_new_key_autotv"
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:maxLines="1"
-                            android:id="@+id/send_m_new_key_autotv"
                             android:completionThreshold="1"
                             android:hint="@string/key"
-                            />
+                            android:maxLines="1" />
 
                         <EditText
+                            android:id="@+id/send_m_new_value_tv"
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:maxLines="1"
-                            android:id="@+id/send_m_new_value_tv"
-                            android:hint="@string/value"/>
+                            android:hint="@string/value"
+                            android:maxLines="1" />
 
 
                         <ImageButton
+                            android:id="@+id/send_m_add_keyval_bt"
+                            style="@style/Base.Widget.AppCompat.Button.Borderless"
                             android:layout_width="35dp"
                             android:layout_height="match_parent"
-                            android:src="@drawable/ic_add_black"
-                            style="@style/Base.Widget.AppCompat.Button.Borderless"
-                            android:id="@+id/send_m_add_keyval_bt"
                             android:background="?android:selectableItemBackground"
-                            />
+                            android:src="@drawable/ic_add_black" />
 
                     </LinearLayout>
 
@@ -211,28 +236,27 @@
                         android:orientation="horizontal">
 
 
-
                         <RadioButton
-                            android:text="@string/witheList"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
                             android:id="@+id/radio_button_white"
-                            android:layout_weight="1" />
-
-                        <RadioButton
-                            android:text="@string/blackList"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/witheList" />
+
+                        <RadioButton
                             android:id="@+id/radio_button_black"
-                            android:layout_weight="1" />
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/blackList" />
                     </RadioGroup>
 
                 </LinearLayout>
 
                 <android.support.v7.widget.RecyclerView
+                    android:id="@+id/send_message_key_value_list"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:id="@+id/send_message_key_value_list">
+                    android:layout_height="match_parent">
 
                 </android.support.v7.widget.RecyclerView>
 

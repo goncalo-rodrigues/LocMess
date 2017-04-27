@@ -15,6 +15,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.ScrollView;
@@ -80,6 +81,9 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
     private Button endTimeButton;
     private Button endDateButton;
 
+    private TextView noConectionTV;
+    private ImageView noConectionIV;
+
     private Calendar startDate;
     private Calendar endDate;
     private boolean start;
@@ -125,6 +129,7 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
             }
         });
 
+        // Place where the message is going to be inserted
         messageTextET = (EditText) findViewById(R.id.messageText);
 
         //Date and time selector
@@ -190,6 +195,10 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
 
         globalState = (NetworkGlobalState) getApplicationContext();
 
+        noConectionTV = (TextView) findViewById(R.id.textView_noInternetConnection);
+        noConectionIV = (ImageView) findViewById(R.id.imageView2);
+        setConectionOK();
+        setScreenWaiting();
         super.onCreate(savedInstanceState);
     }
 
@@ -393,11 +402,21 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
     }
 
 
-
     private void setScreenNormal(){
         waiting = false;
         progressBarSending.setVisibility(View.GONE);
         fullScreen.setVisibility(View.VISIBLE);
+    }
+
+
+    private void setConectionOK(){
+        noConectionTV.setVisibility(View.GONE);
+        noConectionIV.setVisibility(View.GONE);
+    }
+
+    private void setConectionFailed(){
+        noConectionTV.setVisibility(View.VISIBLE);
+        noConectionIV.setVisibility(View.VISIBLE);
     }
 
 //----------------------------------------------------------------------------------------
@@ -407,6 +426,7 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
     public void PostMessageComplete() {
         message.save(this);
         Toast.makeText(this, "Completed post message", Toast.LENGTH_SHORT).show();
+        setConectionOK();
         finish();
     }
 
@@ -414,6 +434,7 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
     public void onErrorResponse() {
         Toast.makeText(this, "No error in request response", Toast.LENGTH_SHORT).show();
         setScreenNormal();
+        setConectionOK();
     }
 
     @Override
@@ -441,12 +462,14 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
     public void OnGetInfoErrorResponse(String error) {
         Toast.makeText(this, "ERROR:"+error, Toast.LENGTH_SHORT).show();
         setScreenNormal();
+        setConectionOK();
     }
 
     @Override
     public void OnNoInternetConnection() {
         Toast.makeText(this, "No Internet connection", Toast.LENGTH_SHORT).show();
         setScreenNormal();
+        setConectionFailed();
     }
 
     @Override
@@ -455,7 +478,7 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
         keysListAdapter.clear();
         keysListAdapter.addAll(filterKeys);
         keysListAdapter.notifyDataSetChanged();
-
+        setConectionOK();
         Toast.makeText(this, "Received filters"+filters, Toast.LENGTH_SHORT).show();
     }
 
@@ -466,7 +489,8 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
         locationListAdapter.addAll(locations);
         locationListAdapter.notifyDataSetChanged();
         Toast.makeText(this, "Received Locations"+locations.size(), Toast.LENGTH_SHORT).show();
-
+        setScreenNormal();
+        setConectionOK();
     }
 
     @Override

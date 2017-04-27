@@ -20,6 +20,7 @@ public class Point {
             double distance = distanceToPointSquared(currentPoint);
 
         }
+        return true;
     }
 
     public double distanceToPointSquared(Point point) {
