@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.JsonReader;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,6 +26,7 @@ import pt.ulisboa.tecnico.locmess.data.LocmessDbHelper;
 
 public class FullLocation extends Location{
 
+    private static final String LOG_TAG = FullLocation.class.getSimpleName();
     private double latitude;
     private double longitude;
     private double radius;
@@ -198,7 +200,9 @@ public class FullLocation extends Location{
     public boolean isInside(FullLocation anotherLoc) {
         // compare apples to apples and oranges to oranges
         if (anotherLoc.isGps() && this.isGps()) {
+
             double distance = computeDistance(getLatitude(), getLongitude(), anotherLoc.getLatitude(), anotherLoc.getLongitude());
+            Log.d(LOG_TAG, "gps location " + this.getLocation() + " is " + (distance < anotherLoc.getRadius() ? "" : " not ") + "inside " + anotherLoc.getLocation());
             return distance < anotherLoc.getRadius();
         } else if (anotherLoc.isWifi() && this.isWifi()) {
             return !Collections.disjoint(this.ssids, anotherLoc.getSsids());

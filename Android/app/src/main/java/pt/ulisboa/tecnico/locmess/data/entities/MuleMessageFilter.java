@@ -47,16 +47,13 @@ public class MuleMessageFilter {
         while (reader.hasNext()) {
             String name = reader.nextName();
             switch (name) {
-                case "messageId":
-                    messageId = reader.nextString();
-                    break;
                 case "key":
                     key = reader.nextString();
                     break;
                 case "value":
                     value = reader.nextString();
                     break;
-                case "blackList":
+                case "blacklist":
                     blackList = reader.nextBoolean();
                     break;
                 default:
@@ -66,7 +63,7 @@ public class MuleMessageFilter {
         }
         reader.endObject();
 
-        init(messageId, key, value, blackList);
+        init(null, key, value, blackList);
     }
 
     private void init(String messageId, String key, String value, boolean blackList) {
@@ -126,7 +123,6 @@ public class MuleMessageFilter {
     public JSONObject getJson() {
         JSONObject result = new JSONObject();
         try {
-            result.put("messageId", getMessageId());
             result.put("key", getKey());
             result.put("value", getValue());
             result.put("blacklist", isBlackList());

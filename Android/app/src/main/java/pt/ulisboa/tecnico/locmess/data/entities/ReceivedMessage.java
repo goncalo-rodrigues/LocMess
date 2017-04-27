@@ -39,6 +39,7 @@ public class ReceivedMessage extends Message {
         values.put(LocmessContract.MessageTable.COLUMN_NAME_ENDDATE, getEndDate().toString());
         values.put(LocmessContract.MessageTable.COLUMN_NAME_LOCATION, getLocation());
         values.put(LocmessContract.MessageTable.COLUMN_NAME_CENTRALIZED, isCentralized());
+        values.put(LocmessContract.MessageTable.COLUMN_NAME_TIMESTAMP, (new Date()).getTime());
         try {
             db.insert(LocmessContract.MessageTable.TABLE_NAME, null, values);
         } catch (SQLiteConstraintException e) {
@@ -61,7 +62,7 @@ public class ReceivedMessage extends Message {
     public static Cursor getAll(Context ctx) {
         LocmessDbHelper helper = new LocmessDbHelper(ctx);
         SQLiteDatabase db = helper.getReadableDatabase();
-        Cursor result =  db.query(LocmessContract.MessageTable.TABLE_NAME, null, null, null, null, null, null);
+        Cursor result =  db.query(LocmessContract.MessageTable.TABLE_NAME, null, null, null, null, null, LocmessContract.MessageTable.COLUMN_NAME_TIMESTAMP + " DESC");
         //db.close();
         return  result;
     }

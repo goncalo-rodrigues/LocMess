@@ -19,6 +19,7 @@ public abstract class Message {
     private String location;
     private Date startDate;
     private Date endDate;
+    private Date insertDate;
     private boolean centralized;
 
     protected Message() {
@@ -33,6 +34,9 @@ public abstract class Message {
         int stdate_idx = cursor.getColumnIndexOrThrow(LocmessContract.MessageTable.COLUMN_NAME_STARTDATE);
         int enddate_idx = cursor.getColumnIndexOrThrow(LocmessContract.MessageTable.COLUMN_NAME_ENDDATE);
         int centralized_idx = cursor.getColumnIndexOrThrow(LocmessContract.MessageTable.COLUMN_NAME_CENTRALIZED);
+        int date_idx = cursor.getColumnIndexOrThrow(LocmessContract.MessageTable.COLUMN_NAME_TIMESTAMP);
+
+        insertDate = new Date(cursor.getLong(date_idx));
 
         init(cursor.getString(id_idx), cursor.getString(txt_idx), cursor.getString(author_idx), cursor.getString(location_idx)
                 , new Date(cursor.getString(stdate_idx)), new Date(cursor.getString(enddate_idx)), cursor.getInt(centralized_idx) != 0);
@@ -111,5 +115,9 @@ public abstract class Message {
 
     public void setCentralized(boolean centralized) {
         this.centralized = centralized;
+    }
+
+    public Date getInsertDate() {
+        return insertDate;
     }
 }

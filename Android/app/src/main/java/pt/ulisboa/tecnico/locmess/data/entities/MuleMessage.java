@@ -88,7 +88,12 @@ public class MuleMessage extends Message {
                     break;
             }
         }
+
         reader.endObject();
+
+        for (MuleMessageFilter f: filters) {
+            f.setMessageId(id);
+        }
         init(id, messageText, author, location, startDate, endDate, filters, hops);
     }
 
@@ -208,7 +213,7 @@ public class MuleMessage extends Message {
     }
 
     public static Cursor getAll(Context ctx) {
-        return getAll(ctx, LocmessContract.MessageTable.COLUMN_NAME_ID);
+        return getAll(ctx, LocmessContract.MuleMessageTable.COLUMN_NAME_TIMESTAMP);
     }
 
     private static Cursor getAll(Context ctx, String orderBy) {
