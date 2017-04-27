@@ -1,17 +1,14 @@
 package pt.ulisboa.tecnico.locmess.wifidirect;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.util.Log;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Objects;
 
 import pt.inesc.termite.wifidirect.SimWifiP2pDevice;
 import pt.ulisboa.tecnico.locmess.data.entities.FullLocation;
 import pt.ulisboa.tecnico.locmess.data.entities.MuleMessage;
-import pt.ulisboa.tecnico.locmess.data.entities.Point;
 import pt.ulisboa.tecnico.locmess.data.entities.SSIDSCache;
 
 /**

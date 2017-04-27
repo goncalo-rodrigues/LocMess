@@ -1,7 +1,6 @@
-package pt.ulisboa.tecnico.locmess.data.entities;
+package pt.ulisboa.tecnico.locmess.data;
 
 import java.util.Date;
-import android.util.Log;
 
 /**
  * Created by goncalo on 26-04-2017.
@@ -10,7 +9,6 @@ import android.util.Log;
 public class Point {
     public double x;
     public double y;
-    public Date ts;
     public Point nextPoint;
 
     private static final double STANDARD_PARALLELS_COSINE = 0.77995433338;
