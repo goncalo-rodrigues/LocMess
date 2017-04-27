@@ -106,7 +106,8 @@ class Database:
         id = self.__create_session(cursor, username)
         cursor.close()
         self.conn.commit()
-        return create_json(["session_id", "filters", "timestamp"], [id, self.__get_login_filters(id), int(time.time())])
+        return create_json(["session_id", "filters", "messages", "timestamp"],
+                           [id, self.__get_login_filters(id), self.__get_created_messages(id), int(time.time())])
 
     def __get_login_filters(self, session_id):
         cursor = self.conn.cursor()
@@ -129,6 +130,24 @@ class Database:
             result.append({"key": key, "value": val})
 
         cursor.close()
+        return result
+
+    def __get_created_messages(self, session_id):
+        cursor = self.conn.cursor()
+
+        self.__select(cursor, "Username", ["Sessions"], ["SessionID = %s"], [session_id])
+        if cursor.rowcount == 0:
+            cursor.close()
+            return create_error_json(error_session_not_found)
+
+        user = cursor.fetchone()
+
+        self.__select(cursor, "M.MessageID, M.Username, M.Location, M.StartDate, M.EndDate, M.Content",
+                      ["Messages AS M"], ["M.Username = %s"], [user])
+        result = []
+        q_res = cursor.fetchall()
+        for row in q_res:
+            result.append(create_msg_dict(row[0], row[1], row[2], row[3], row[4], row[5], []))
         return result
 
     def logout(self, session_id):
