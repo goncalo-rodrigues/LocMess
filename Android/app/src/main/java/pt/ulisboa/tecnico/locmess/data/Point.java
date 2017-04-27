@@ -63,6 +63,8 @@ public class Point {
         return bestDistance*UNIT_DISTANCE*UNIT_DISTANCE;
     }
 
+
+
     public void aggregatePoints(double maxd) {
         double maxD = Math.pow(maxd / UNIT_DISTANCE, 2);
         Point a = this;
