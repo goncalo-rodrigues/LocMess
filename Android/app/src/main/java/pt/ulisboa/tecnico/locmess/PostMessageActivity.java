@@ -42,6 +42,7 @@ import pt.ulisboa.tecnico.locmess.serverrequests.PostMessageTask;
 import pt.ulisboa.tecnico.locmess.serverrequests.RequestExistentFiltersTask;
 import pt.ulisboa.tecnico.locmess.serverrequests.RequestLocationsTask;
 import pt.ulisboa.tecnico.locmess.wifidirect.WifiDirectService;
+import com.toptoche.searchablespinnerlibrary.SearchableSpinner;
 
 import static java.lang.Math.random;
 
@@ -61,7 +62,7 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;
 
-    private AutoCompleteTextView mLocationAtv;
+    private SearchableSpinner mLocationAtv;
 
     private EditText messageTextET;
 
@@ -116,18 +117,18 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
 
         //Locations
         getLocations();
-        mLocationAtv = (AutoCompleteTextView) findViewById(R.id.send_m_location);
+        mLocationAtv = (SearchableSpinner) findViewById(R.id.send_m_location);
         locationListAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, locationList);
         mLocationAtv.setAdapter(locationListAdapter);
         // show dropdown when focused
-        mLocationAtv.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        /*mLocationAtv.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
                     mLocationAtv.showDropDown();
                 }
             }
-        });
+        });*/
 
         // Place where the message is going to be inserted
         messageTextET = (EditText) findViewById(R.id.messageText);
@@ -348,7 +349,7 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
                     //Store the state that at the moment of send existed
                     messageText = messageTextET.getText().toString();
                     username = globalState.getUsername();
-                    location = mLocationAtv.getText().toString();
+                    location = ((String)mLocationAtv.getSelectedItem()).toString();
                     startD = startDate.getTime();
                     endD = endDate.getTime();
                     id = Utils.buildMessageId(this, !mAdOcRadio.isChecked());
