@@ -42,6 +42,7 @@ import pt.inesc.termite.wifidirect.SimWifiP2pDeviceList;
 import pt.inesc.termite.wifidirect.SimWifiP2pManager;
 import pt.inesc.termite.wifidirect.service.SimWifiP2pService;
 import pt.ulisboa.tecnico.locmess.data.LocmessContract;
+import pt.ulisboa.tecnico.locmess.data.Point;
 import pt.ulisboa.tecnico.locmess.data.entities.Message;
 import pt.ulisboa.tecnico.locmess.data.entities.FullLocation;
 import pt.ulisboa.tecnico.locmess.data.entities.ReceivedMessage;
@@ -53,8 +54,8 @@ import pt.ulisboa.tecnico.locmess.serverrequests.SendMyLocationTask.SendMyLocati
 
 public class PeriodicLocationService extends Service implements LocationListener, SimWifiP2pManager.PeerListListener,SendMyLocationsTaskCallBack, GetMessagesTask.GetMessagesCallBack {
     private LocationManager mLocationManager;
-    private long minTimeMs = 1000 * 30; // 30 seconds
-    private float minDistance = 0;
+    private long minTimeMs = 0; // 30 seconds
+    private float minDistance = 30;
     private Location mostRecentLocation;
     private List<TimestampedLocation> updates = new ArrayList<>();
     private boolean isRequestingLocation = false;
@@ -137,11 +138,36 @@ public class PeriodicLocationService extends Service implements LocationListener
         return mBinder;
     }
 
+    private Point temporaryStart = null;
+    private Point temporary = null;
+    private int i = 0;
     public void onLocationChanged(final Location loc)
     {
+
         if (loc != null) {
             Toast.makeText(this, "New location", Toast.LENGTH_SHORT).show();
             mostRecentLocation = loc;
+//            if (i < 100) {
+//                if (temporaryStart == null) {
+//                    temporaryStart = Point.fromLatLon(loc.getLatitude(), loc.getLongitude());
+//                    temporary = temporaryStart;
+//                    temporary.i = i;
+//                } else {
+//                    temporary.nextPoint = Point.fromLatLon(loc.getLatitude(), loc.getLongitude());
+//                    temporary = temporary.nextPoint;
+//                    temporary.i=i;
+//
+//                }
+//                i++;
+//            }
+//            if (i== 100) {
+//                Log.d("points before", temporaryStart.toString());
+//                temporaryStart.aggregatePoints(0.01);
+//                Log.d("points after", temporaryStart.toString());
+//                i++;
+//            }
+
+
             for (Callback client: clients) {
                 client.onGPSLocationUpdate(new FullLocation("mylocation", loc.getLatitude(), loc.getLongitude(), 0));
             }

@@ -8,16 +8,13 @@ import java.util.Date;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import pt.ulisboa.tecnico.locmess.data.entities.CreatedMessage;
 import pt.ulisboa.tecnico.locmess.data.entities.ProfileKeyValue;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 
-/**
- * Created by ant on 26-03-2017.
- */
 
 public class LoginTask extends AsyncTask<String, String,String> {
     private LoginTaskCallBack callback;
-    //private static final String URL_SERVER = "http://requestb.in/16z80wa1";
     private static final String URL_SERVER = "http://locmess.duckdns.org";
     NetworkGlobalState globalState;
     Context caller;
@@ -75,13 +72,15 @@ public class LoginTask extends AsyncTask<String, String,String> {
                 }
             }
 
+            if (data.opt("messages") != null) {
+                saveMessagesFromJson(data);
+            }
+
             int timestamp;
             if(data.opt("timestamp") != null){
                 timestamp = data.getInt("timestamp");
                 globalState.setSessionTimestamp(new Date(timestamp));
             }
-
-            //TODO Colect the created messages from the server
 
             globalState.setId(id);
             globalState.setUsername(username);
@@ -113,6 +112,35 @@ public class LoginTask extends AsyncTask<String, String,String> {
         void OnLoginComplete(String id);
         void OnNoInternetConnection();
         void OnWrongCredentials(String error);
+    }
+
+
+    public void saveMessagesFromJson(JSONObject jsoninput) throws JSONException {
+        JSONArray messages =jsoninput.getJSONArray("messages");
+        JSONObject message =null;
+        String id;
+        String username;
+        String location;
+        Date start_date;
+        Date end_date;
+        String content;
+        CreatedMessage cm;
+
+        for (int j=0;j<messages.length();j++) {
+            message = messages.getJSONObject(j);
+            if (message != null) {
+                id = message.getString("id");
+                username = message.getString("username");
+                location = message.getString("location");
+                start_date = new Date(message.getLong("start_date"));
+                end_date = new Date(message.getLong("end_date"));
+                content = message.getString("content");
+                cm =new CreatedMessage(id, content, username, location, start_date, end_date, false);
+                cm.save(caller);
+                //rm.save(context);
+            }
+        }
+        return;
     }
 
 }

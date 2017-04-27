@@ -14,5 +14,5 @@ done
 cat script | while read line
 do
 	echo $line
-	sleep 2
+	sleep 0.1
 done) | telnet localhost 5554

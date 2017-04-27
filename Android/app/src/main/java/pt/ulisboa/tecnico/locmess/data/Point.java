@@ -1,5 +1,7 @@
 package pt.ulisboa.tecnico.locmess.data;
 
+import android.util.Log;
+
 import java.util.Date;
 
 /**
@@ -22,13 +24,6 @@ public class Point {
         this.y = y;
     }
 
-//    public boolean distanceToPath(Point originPoint) {
-//        Point currentPoint = originPoint;
-//        while (currentPoint != null)  {
-//            double distance = distanceToPointSquared(currentPoint);
-//
-//        }
-//    }
 
     public double distanceToPathSquared(Point originPoint) {
         Point origin = new Point(0,0);
@@ -54,9 +49,10 @@ public class Point {
         return bestDistance*UNIT_DISTANCE*UNIT_DISTANCE;
     }
 
-    public void aggregatePoints() {
-        double maxD = 1;
-        maxD = Math.pow(maxD / UNIT_DISTANCE, 2);
+
+
+    public void aggregatePoints(double maxd) {
+        double maxD = Math.pow(maxd / UNIT_DISTANCE, 2);
         Point a = this;
         Point b = nextPoint;
         if (b == null) {
@@ -73,16 +69,18 @@ public class Point {
             if (c == null) {
                 break;
             }
+
             Point ac = c.minus(a);
-            double distance = ac.sizeSquared(); // |x-a|^2
-            double dotProduct = ab.dot(ac); // |ax.ab|
-            double proj = dotProduct*dotProduct/vectorSize; // |ax.ab|^2/|ab|^2
-            double distanceToVector = distance - proj; // |ax|^2 - |ax.ab|^2/|ab|^2
+            double distance = ac.sizeSquared(); // |c-a|^2
+            double dotProduct = ab.dot(ac); // |ac.ab|
+            double proj = dotProduct*dotProduct/vectorSize; // |ac.ab|^2/|ab|^2
+            double distanceToVector = distance - proj; // |ac|^2 - |ac.ab|^2/|ab|^2
             currentD = distanceToVector;
         }
 
+
         this.nextPoint = prev;
-        prev.aggregatePoints();
+        prev.aggregatePoints(maxd);
 
     }
 
