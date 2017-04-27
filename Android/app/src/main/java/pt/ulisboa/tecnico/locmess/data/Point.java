@@ -80,8 +80,10 @@ public class Point {
             double distanceToVector = distance - proj; // |ax|^2 - |ax.ab|^2/|ab|^2
             currentD = distanceToVector;
         }
+
         this.nextPoint = prev;
         prev.aggregatePoints();
+
     }
 
     public double sizeSquared() {
