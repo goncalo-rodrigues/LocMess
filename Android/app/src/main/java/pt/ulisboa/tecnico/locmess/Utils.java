@@ -1,12 +1,15 @@
 package pt.ulisboa.tecnico.locmess;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Date;
 
+import pt.ulisboa.tecnico.locmess.data.LocmessContract;
+import pt.ulisboa.tecnico.locmess.data.LocmessDbHelper;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 
 /**
@@ -33,5 +36,22 @@ public class Utils {
             e.printStackTrace();
         }
         return new String(buffer.array());
+    }
+
+    public static void clearDatabase(Context ctx){
+        LocmessDbHelper helper = new LocmessDbHelper(ctx);
+        SQLiteDatabase db = helper.getWritableDatabase();
+        db.execSQL(LocmessContract.SQL_DELETE_MESSAGE_TBL);
+        db.execSQL(LocmessContract.SQL_DELETE_MESSAGE_FILTER_TBL);
+        db.execSQL(LocmessContract.SQL_DELETE_CREATED_MESSAGE_TBL);
+        db.execSQL(LocmessContract.SQL_DELETE_LOCATION_TBL);
+        db.execSQL(LocmessContract.SQL_DELETE_PROFILE_KEYVAL_TBL);
+
+        db.execSQL(LocmessContract.SQL_CREATE_MESSAGE_TBL);
+        db.execSQL(LocmessContract.SQL_CREATE_CREATED_MESSAGE_TBL);
+        db.execSQL(LocmessContract.SQL_CREATE_MESSAGE_FILTER_TBL);
+        db.execSQL(LocmessContract.SQL_CREATE_LOCATION_TBL);
+        db.execSQL(LocmessContract.SQL_CREATE_PROFILE_KEYVAL_TBL);
+
     }
 }

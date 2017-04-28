@@ -44,6 +44,7 @@ import pt.ulisboa.tecnico.locmess.data.entities.FullLocation;
 import pt.ulisboa.tecnico.locmess.data.entities.Message;
 import pt.ulisboa.tecnico.locmess.data.entities.MuleMessage;
 import pt.ulisboa.tecnico.locmess.data.entities.MuleMessageFilter;
+import pt.ulisboa.tecnico.locmess.data.entities.PointEntity;
 import pt.ulisboa.tecnico.locmess.data.entities.ReceivedMessage;
 import pt.ulisboa.tecnico.locmess.data.entities.SSIDSCache;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
@@ -203,6 +204,7 @@ public class MainActivity extends ActivityWithDrawer implements BaseMessageFragm
         adapter.getNewMessagesTab().restartLoader();
     }
 
+
     private Thread deleteStuffFromDB = new Thread(new Runnable() {
 
         @Override
@@ -212,6 +214,7 @@ public class MainActivity extends ActivityWithDrawer implements BaseMessageFragm
             cal.add(Calendar.DAY_OF_YEAR, -7);
             Date beforeDate = cal.getTime();
             SSIDSCache.removeAllBefore(beforeDate, MainActivity.this);
+            PointEntity.removeAllBefore(beforeDate, MainActivity.this);
         }
     });
 }

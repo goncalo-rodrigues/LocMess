@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -45,6 +46,7 @@ import pt.ulisboa.tecnico.locmess.data.LocmessContract;
 import pt.ulisboa.tecnico.locmess.data.Point;
 import pt.ulisboa.tecnico.locmess.data.entities.Message;
 import pt.ulisboa.tecnico.locmess.data.entities.FullLocation;
+import pt.ulisboa.tecnico.locmess.data.entities.PointEntity;
 import pt.ulisboa.tecnico.locmess.data.entities.ReceivedMessage;
 import pt.ulisboa.tecnico.locmess.data.entities.SSIDSCache;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
@@ -138,34 +140,32 @@ public class PeriodicLocationService extends Service implements LocationListener
         return mBinder;
     }
 
-    private Point temporaryStart = null;
-    private Point temporary = null;
-    private int i = 0;
+    private long lastPoint = -1;
+
+    // in meters. if 2 locations are more than this distance apart, they are considered to be in different paths
+    private static final double MAX_DISTANCE = 1000;
+
     public void onLocationChanged(final Location loc)
     {
 
         if (loc != null) {
             Toast.makeText(this, "New location", Toast.LENGTH_SHORT).show();
+            if (mostRecentLocation == null || loc.distanceTo(mostRecentLocation) > MAX_DISTANCE) {
+                lastPoint = -1;
+            }
+
+            PointEntity p = new PointEntity(Point.fromLatLon(loc.getLatitude(), loc.getLongitude()));
+            lastPoint = p.save(this, lastPoint);
+
+            // for debug
+//            Cursor c = PointEntity.getAllPaths(this);
+//            Log.d("---", "number of paths: " +c.getCount());
+//            while (c.moveToNext()) {
+//                Log.d("---", (new PointEntity(c, this)).getPoint().toString());
+//            }
             mostRecentLocation = loc;
-//            if (i < 100) {
-//                if (temporaryStart == null) {
-//                    temporaryStart = PointTable.fromLatLon(loc.getLatitude(), loc.getLongitude());
-//                    temporary = temporaryStart;
-//                    temporary.i = i;
-//                } else {
-//                    temporary.nextPoint = PointTable.fromLatLon(loc.getLatitude(), loc.getLongitude());
-//                    temporary = temporary.nextPoint;
-//                    temporary.i=i;
-//
-//                }
-//                i++;
-//            }
-//            if (i== 100) {
-//                Log.d("points before", temporaryStart.toString());
-//                temporaryStart.aggregatePoints(0.01);
-//                Log.d("points after", temporaryStart.toString());
-//                i++;
-//            }
+
+
 
 
             for (Callback client: clients) {

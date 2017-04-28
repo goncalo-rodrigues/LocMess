@@ -73,7 +73,7 @@ public class PointEntity {
                 " WHERE " + LocmessContract.PointTable._ID + " NOT IN \n" +
                 "(SELECT DISTINCT " + LocmessContract.PointTable.COLUMN_NAME_NEXT +
                 " FROM " + LocmessContract.PointTable.TABLE_NAME +
-                " WHERE " + LocmessContract.PointTable.COLUMN_NAME_NEXT + " <> NULL )";
+                " WHERE " + LocmessContract.PointTable.COLUMN_NAME_NEXT + " <> 0 )";
         LocmessDbHelper helper = new LocmessDbHelper(ctx);
         SQLiteDatabase db = helper.getReadableDatabase();
         Cursor c = db.rawQuery(query, null);
@@ -85,6 +85,7 @@ public class PointEntity {
         if (point == null) {
             return;
         }
+
         if (id >= 0) {
             deletePath(ctx);
         }
@@ -165,7 +166,29 @@ public class PointEntity {
             int next_idx = c.getColumnIndexOrThrow(LocmessContract.PointTable.COLUMN_NAME_NEXT);
 
             currentId = c.isNull(next_idx) ? -1 : c.getLong(next_idx);
+
+            c.close();
         }
+
+        db.close();
         this.id = -1;
+    }
+
+    public static void removeAllBefore(Date date, Context ctx) {
+        LocmessDbHelper helper = new LocmessDbHelper(ctx);
+        SQLiteDatabase db = helper.getWritableDatabase();
+
+        db.delete(LocmessContract.PointTable.TABLE_NAME,
+                LocmessContract.PointTable.COLUMN_NAME_TIMESTAMP + " <= ?",
+                new String[] {String.valueOf(date.getTime())});
+        db.close();
+    }
+
+    public Point getPoint() {
+        return point;
+    }
+
+    public Date getTimestamp() {
+        return timestamp;
     }
 }

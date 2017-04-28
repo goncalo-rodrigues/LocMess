@@ -42,8 +42,7 @@ public class LoginActivity extends AppCompatActivity implements LoginTask.LoginT
         errorViewTv.setText("");
         waitingBallPb = (ProgressBar) findViewById(R.id.waiting_ball);
 
-        LocmessDbHelper helper = new LocmessDbHelper(this);
-        helper.onUpgrade(helper.getWritableDatabase(), LocmessDbHelper.DATABASE_VERSION - 1, LocmessDbHelper.DATABASE_VERSION);
+        Utils.clearDatabase(this);
 
         super.onCreate(savedInstanceState);
     }

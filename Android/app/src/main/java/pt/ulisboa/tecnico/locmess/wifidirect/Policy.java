@@ -1,14 +1,17 @@
 package pt.ulisboa.tecnico.locmess.wifidirect;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.util.Log;
 
 import java.util.Arrays;
 import java.util.HashSet;
 
 import pt.inesc.termite.wifidirect.SimWifiP2pDevice;
+import pt.ulisboa.tecnico.locmess.data.Point;
 import pt.ulisboa.tecnico.locmess.data.entities.FullLocation;
 import pt.ulisboa.tecnico.locmess.data.entities.MuleMessage;
+import pt.ulisboa.tecnico.locmess.data.entities.PointEntity;
 import pt.ulisboa.tecnico.locmess.data.entities.SSIDSCache;
 
 /**
@@ -40,17 +43,17 @@ public class Policy {
                 return false;
             }
         } else {
-            //        Cursor paths = PointTable.getAllPaths(ctx);
-//        PointTable targetPoint = PointTable.fromLatLon(
-//                message.getFullLocation().getLatitude(), message.getFullLocation().getLongitude());
-//        double radius = Math.pow(message.getFullLocation().getRadius(), 2);
-//        while (paths.moveToNext()) {
-//            PointTable path = new PointTable(path);
-//            if (targetPoint.distanceToPathSquared(path) < radius) {
-//                return true;
-//            }
-//        }
-            return true;
+            Cursor paths = PointEntity.getAllPaths(ctx);
+            Point targetPoint = Point.fromLatLon(
+                    message.getFullLocation().getLatitude(), message.getFullLocation().getLongitude());
+            double radius = Math.pow(message.getFullLocation().getRadius() + 30, 2);
+            while (paths.moveToNext()) {
+                PointEntity path = new PointEntity(paths, ctx);
+                if (targetPoint.distanceToPathSquared(path.getPoint()) < radius) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 

@@ -1,9 +1,5 @@
 package pt.ulisboa.tecnico.locmess.data;
 
-import android.util.Log;
-
-import java.util.Date;
-
 /**
  * Created by goncalo on 26-04-2017.
  */
@@ -15,7 +11,7 @@ public class Point {
 
     private static final double STANDARD_PARALLELS_COSINE = 0.77995433338;
     private static final double STANDARD_PARALLELS = 38.7436056;
-    private static final double UNIT_DISTANCE = 86.81831160375718;
+    private static final double UNIT_DISTANCE_METERS = 86818.31160375718;
 
 
 
@@ -46,13 +42,13 @@ public class Point {
             currentPoint = currentPoint.nextPoint;
         }
 
-        return bestDistance*UNIT_DISTANCE*UNIT_DISTANCE;
+        return bestDistance* UNIT_DISTANCE_METERS * UNIT_DISTANCE_METERS;
     }
 
 
 
     public void aggregatePoints(double maxd) {
-        double maxD = Math.pow(maxd / UNIT_DISTANCE, 2);
+        double maxD = Math.pow(maxd / UNIT_DISTANCE_METERS, 2);
         Point a = this;
         Point b = nextPoint;
         if (b == null) {

@@ -167,7 +167,7 @@ public abstract class ActivityWithDrawer extends AppCompatActivity implements Dr
     }
 
     private void logoutClear(){
-        clearDatabase();
+        Utils.clearDatabase(this);
         Intent intent;
         intent = new Intent(this, InitActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -176,22 +176,6 @@ public abstract class ActivityWithDrawer extends AppCompatActivity implements Dr
 
     }
 
-    private void clearDatabase(){
-        LocmessDbHelper helper = new LocmessDbHelper(this);
-        SQLiteDatabase db = helper.getWritableDatabase();
-        db.execSQL(LocmessContract.SQL_DELETE_MESSAGE_TBL);
-        db.execSQL(LocmessContract.SQL_DELETE_MESSAGE_FILTER_TBL);
-        db.execSQL(LocmessContract.SQL_DELETE_CREATED_MESSAGE_TBL);
-        db.execSQL(LocmessContract.SQL_DELETE_LOCATION_TBL);
-        db.execSQL(LocmessContract.SQL_DELETE_PROFILE_KEYVAL_TBL);
-
-        db.execSQL(LocmessContract.SQL_CREATE_MESSAGE_TBL);
-        db.execSQL(LocmessContract.SQL_CREATE_CREATED_MESSAGE_TBL);
-        db.execSQL(LocmessContract.SQL_CREATE_MESSAGE_FILTER_TBL);
-        db.execSQL(LocmessContract.SQL_CREATE_LOCATION_TBL);
-        db.execSQL(LocmessContract.SQL_CREATE_PROFILE_KEYVAL_TBL);
-
-    }
 
     /** Starts new activity **/
     @Override
