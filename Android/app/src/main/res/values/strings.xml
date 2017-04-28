@@ -51,4 +51,7 @@
     <string name="select_one_gps_wifi">Please select one of GPS or WIFI IDs</string>
     <string name="coordinates">Coordinates:</string>
     <string name="no_internet_connection_bar_Tex">No Internet Connection. Try again later</string>
+    <string name="notification_content">New messages are available at your location.</string>
+    <string name="notification_title">New message</string>
+    <string name="notification_ticker">New messages available</string>
 </resources>

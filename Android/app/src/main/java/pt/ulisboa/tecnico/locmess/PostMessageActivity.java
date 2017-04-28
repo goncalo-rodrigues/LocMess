@@ -70,7 +70,7 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
     private RadioButton mAdOcRadio;
 
     private AutoCompleteTextView mKeyAtv;
-    ArrayAdapter keysListAdapter;
+    ArrayAdapter<String> keysListAdapter;
     private TextView mValueTv;
     private RadioButton mblacklistedRadio;
     private RadioButton mWhitelistedRadio;

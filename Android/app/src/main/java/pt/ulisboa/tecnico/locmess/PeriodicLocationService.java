@@ -149,11 +149,11 @@ public class PeriodicLocationService extends Service implements LocationListener
             mostRecentLocation = loc;
 //            if (i < 100) {
 //                if (temporaryStart == null) {
-//                    temporaryStart = Point.fromLatLon(loc.getLatitude(), loc.getLongitude());
+//                    temporaryStart = PointTable.fromLatLon(loc.getLatitude(), loc.getLongitude());
 //                    temporary = temporaryStart;
 //                    temporary.i = i;
 //                } else {
-//                    temporary.nextPoint = Point.fromLatLon(loc.getLatitude(), loc.getLongitude());
+//                    temporary.nextPoint = PointTable.fromLatLon(loc.getLatitude(), loc.getLongitude());
 //                    temporary = temporary.nextPoint;
 //                    temporary.i=i;
 //
@@ -221,6 +221,7 @@ public class PeriodicLocationService extends Service implements LocationListener
         for (SimWifiP2pDevice device : peers.getDeviceList()) {
             ssids.add(device.deviceName);
         }
+
         for (Callback client: clients) {
             client.onWifiLocationUpdate(new FullLocation("mylocation", new ArrayList<>(ssids)));
             SSIDSCache.insertOrUpdate(ssids, this);

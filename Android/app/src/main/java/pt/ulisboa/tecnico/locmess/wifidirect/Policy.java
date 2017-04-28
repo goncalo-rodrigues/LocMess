@@ -31,6 +31,7 @@ public class Policy {
     }
 
     public boolean shouldKeepMessage(MuleMessage message, Context ctx) {
+        if (message.existsInDb(ctx)) return false;
         FullLocation msgLocation = message.getFullLocation();
         if (msgLocation.isWifi()) {
             if (SSIDSCache.existsAtLeastOne(msgLocation.getSsids(), ctx)) {
@@ -39,12 +40,12 @@ public class Policy {
                 return false;
             }
         } else {
-            //        Cursor paths = Point.getAllPaths(ctx);
-//        Point targetPoint = Point.fromLatLon(
+            //        Cursor paths = PointTable.getAllPaths(ctx);
+//        PointTable targetPoint = PointTable.fromLatLon(
 //                message.getFullLocation().getLatitude(), message.getFullLocation().getLongitude());
 //        double radius = Math.pow(message.getFullLocation().getRadius(), 2);
 //        while (paths.moveToNext()) {
-//            Point path = new Point(path);
+//            PointTable path = new PointTable(path);
 //            if (targetPoint.distanceToPathSquared(path) < radius) {
 //                return true;
 //            }

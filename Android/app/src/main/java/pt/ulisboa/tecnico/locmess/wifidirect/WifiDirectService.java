@@ -195,15 +195,7 @@ public class WifiDirectService extends Service implements SimWifiP2pBroadcastRec
         m.moveToFirst();
         while (!m.isAfterLast()) {
             MuleMessage msgToSend = new MuleMessage(m, this);
-            if (msgToSend.getHops() < 2 && msgToSend.getEndDate().after(new Date()) && msgToSend.getStartDate().before(new Date())) {
-                Request request = new Request(Request.REQUEST_MULE_MESSAGE, msgToSend.getJson());
-                for (SimWifiP2pDevice device : this.devices) {
-                    if (routingPolicy.shouldSendToPeer(device, msgToSend)) {
-                        WifiDirectClientThread t = new WifiDirectClientThread(device.getVirtIp(), PORT, request, this);
-                        t.start();
-                    }
-                }
-            }
+            sendMessageToEveryone(msgToSend);
             m.moveToNext();
         }
 //        MuleMessage m = new MuleMessage("id123", "content 123", "author 123", "location 123", new Date(), new Date(), new ArrayList<MuleMessageFilter>(), 0);
@@ -212,6 +204,17 @@ public class WifiDirectService extends Service implements SimWifiP2pBroadcastRec
     }
 
 
+    private void sendMessageToEveryone(MuleMessage msgToSend) {
+        if (msgToSend.getHops() < 2 && msgToSend.getEndDate().after(new Date()) && msgToSend.getStartDate().before(new Date())) {
+            Request request = new Request(Request.REQUEST_MULE_MESSAGE, msgToSend.getJson());
+            for (SimWifiP2pDevice device : this.devices) {
+                if (routingPolicy.shouldSendToPeer(device, msgToSend)) {
+                    WifiDirectClientThread t = new WifiDirectClientThread(device.getVirtIp(), PORT, request, this);
+                    t.start();
+                }
+            }
+        }
+    }
 
     @Override
     public void onGroupChanged(SimWifiP2pInfo ginfo) {
@@ -234,6 +237,7 @@ public class WifiDirectService extends Service implements SimWifiP2pBroadcastRec
                 m.setHops(m.getHops()+1); // 1 more hop!
                 if (routingPolicy.shouldKeepMessage(m, this)) {
                     m.save(this);
+                    sendMessageToEveryone(m);
                 }
 
                 if ((getCurrentWifiLocation().isInside(m.getFullLocation()) || getCurrentGPSLocation().isInside(m.getFullLocation()) )

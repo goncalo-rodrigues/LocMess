@@ -32,9 +32,9 @@ public class NotificationsHelper {
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context)
                 .setSmallIcon(R.drawable.ic_logo)
-                .setContentText("click to see message")
-                .setContentTitle("new message")
-                .setTicker("new message")
+                .setContentText(context.getString(R.string.notification_content))
+                .setContentTitle(context.getString(R.string.notification_title))
+                .setTicker(context.getString(R.string.notification_ticker))
                 .setDefaults(Notification.DEFAULT_ALL)
                 .setContentIntent(pendingNotificationIntent)
                 .setAutoCancel(true);

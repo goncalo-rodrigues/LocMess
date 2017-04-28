@@ -2,8 +2,6 @@ package pt.ulisboa.tecnico.locmess.data;
 
 import android.provider.BaseColumns;
 
-import pt.ulisboa.tecnico.locmess.data.entities.MuleMessage;
-
 /**
  * Created by goncalo on 23-03-2017.
  */
@@ -77,7 +75,7 @@ public final class LocmessContract {
         public static final String COLUMN_NAME_VALUE = "value";
     }
 
-    public static class Point implements BaseColumns {
+    public static class PointTable implements BaseColumns {
         public static final String TABLE_NAME = "point";
         public static final String COLUMN_NAME_TIMESTAMP = "timestamp";
         public static final String COLUMN_NAME_X = "x";
@@ -138,14 +136,14 @@ public final class LocmessContract {
                     + MessageFilter.COLUMN_NAME_KEY + "," + MessageFilter.COLUMN_NAME_VALUE + "));";
 
     public static final String SQL_CREATE_POINT_TBL =
-            "CREATE TABLE " + Point.TABLE_NAME + " (" +
-                    Point.COLUMN_NAME_X + " REAL," +
-                    Point.COLUMN_NAME_Y + " REAL," +
-                    Point.COLUMN_NAME_TIMESTAMP + " TEXT," +
-                    Point.COLUMN_NAME_NEXT + " INTEGER," +
-                    Point._ID + " INTEGER PRIMARY KEY," +
-                    "FOREIGN KEY(" + Point.COLUMN_NAME_NEXT + ") REFERENCES " +
-                    Point.TABLE_NAME + "(" + Point._ID + "));";
+            "CREATE TABLE " + PointTable.TABLE_NAME + " (" +
+                    PointTable.COLUMN_NAME_X + " REAL," +
+                    PointTable.COLUMN_NAME_Y + " REAL," +
+                    PointTable.COLUMN_NAME_TIMESTAMP + " INTEGER," +
+                    PointTable.COLUMN_NAME_NEXT + " INTEGER," +
+                    PointTable._ID + " INTEGER PRIMARY KEY," +
+                    "FOREIGN KEY(" + PointTable.COLUMN_NAME_NEXT + ") REFERENCES " +
+                    PointTable.TABLE_NAME + "(" + PointTable._ID + "));";
 
     public static final String SQL_CREATE_FULL_LOCATION_TBL =
             "CREATE TABLE " + FullLocationTable.TABLE_NAME + " (" +
@@ -177,7 +175,7 @@ public final class LocmessContract {
     public static final String SQL_DELETE_FULL_LOCATION_TBL =
             "DROP TABLE IF EXISTS " + FullLocationTable.TABLE_NAME;
     public static final String SQL_DELETE_POINT_TBL =
-            "DROP TABLE IF EXISTS " + Point.TABLE_NAME;
+            "DROP TABLE IF EXISTS " + PointTable.TABLE_NAME;
     public static final String SQL_DELETE_SSIDS_CACHE_TBL =
             "DROP TABLE IF EXISTS " + SSIDSCacheTable.TABLE_NAME;
 }

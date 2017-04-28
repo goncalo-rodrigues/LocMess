@@ -298,5 +298,17 @@ public class MuleMessage extends Message {
         return true;
     }
 
+    public boolean existsInDb(Context ctx) {
+        LocmessDbHelper helper = new LocmessDbHelper(ctx);
+        SQLiteDatabase db = helper.getReadableDatabase();
+        Cursor result =  db.query(LocmessContract.MuleMessageTable.TABLE_NAME, null,
+                LocmessContract.MuleMessageTable.COLUMN_NAME_ID + "=?",
+                new String[] {getId()}, null, null, null);
+        boolean exists = result.getCount() != 0;
+        result.close();
+        db.close();
+        return exists;
+    }
+
 
 }
