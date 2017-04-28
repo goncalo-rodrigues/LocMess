@@ -1,6 +1,8 @@
 package pt.ulisboa.tecnico.locmess;
 
 import android.Manifest;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +10,7 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -21,6 +24,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -53,11 +57,13 @@ import pt.ulisboa.tecnico.locmess.wifidirect.WifiDirectService;
 public class MainActivity extends ActivityWithDrawer implements BaseMessageFragment.Callback, TabLayout.OnTabSelectedListener, PeriodicLocationService.Callback {
 
     private static final int REQUEST_LOCATION = 1;
+    private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private Pager adapter;
     private TabLayout tabLayout;
     private ViewPager viewPager;
     private PeriodicLocationService.PeriodicLocationBinder locBinder;
     private boolean mBound = false;
+    private AlarmManager alarmMgr;
 
     @Override
     protected void onDestroy() {
@@ -109,6 +115,15 @@ public class MainActivity extends ActivityWithDrawer implements BaseMessageFragm
         }
 
         deleteStuffFromDB.start();
+
+        Log.d(LOG_TAG, getPackageName() + ".ALARM");
+
+        PendingIntent alarmIntent = PendingIntent.getBroadcast( this, 0, new Intent(getPackageName() + ".ALARM"), 0 );
+        alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                SystemClock.elapsedRealtime() + 1000,
+                AlarmManager.INTERVAL_DAY, alarmIntent);
+
         super.onCreate(savedInstanceState);
     }
 

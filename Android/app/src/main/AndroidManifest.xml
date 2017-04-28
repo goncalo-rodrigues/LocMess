@@ -50,17 +50,19 @@
             android:windowSoftInputMode="stateAlwaysHidden" />
         <activity android:name=".NewLocationActivity" />
 
-        <provider
-            android:name=".data.LocmessContentProvider"
-            android:authorities="pt.ulisboa.tecnico.locmess"
-            android:exported="false"></provider>
-
         <service android:name=".wifidirect.WifiDirectService" />
         <service android:name="pt.inesc.termite.wifidirect.service.SimWifiP2pService" />
         <service
             android:name=".PeriodicLocationService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
+
+        <receiver android:name=".AlarmReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="pt.ulisboa.tecnico.locmess.ALARM" >
+                </action>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

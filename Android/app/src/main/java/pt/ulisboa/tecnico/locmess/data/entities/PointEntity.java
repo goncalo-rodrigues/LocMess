@@ -92,6 +92,8 @@ public class PointEntity {
         LocmessDbHelper helper = new LocmessDbHelper(ctx);
         SQLiteDatabase db = helper.getWritableDatabase();
 
+        db.beginTransaction();
+
         ArrayList<ContentValues> allValues = new ArrayList<>();
         Point current = point;
         do {
@@ -109,6 +111,8 @@ public class PointEntity {
             values.put(LocmessContract.PointTable.COLUMN_NAME_NEXT, last_insert_id);
             last_insert_id = db.insert(LocmessContract.PointTable.TABLE_NAME, null, values);
         }
+
+        db.endTransaction();
 
         this.id = last_insert_id;
 
