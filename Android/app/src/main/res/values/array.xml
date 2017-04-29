@@ -4,6 +4,7 @@
         <item>Messages</item>
         <item>Locations</item>
         <item>Profile</item>
+        <item>DEBUG-Paths</item>
     </string-array>
 
     <string-array name="tab_names">

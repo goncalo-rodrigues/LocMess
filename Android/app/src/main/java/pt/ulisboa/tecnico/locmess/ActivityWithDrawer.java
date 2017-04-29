@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import pt.ulisboa.tecnico.locmess.adapters.DrawerListAdapter;
 import pt.ulisboa.tecnico.locmess.data.LocmessContract;
 import pt.ulisboa.tecnico.locmess.data.LocmessDbHelper;
+import pt.ulisboa.tecnico.locmess.data.entities.ProfileKeyValue;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 import pt.ulisboa.tecnico.locmess.serverrequests.LogoutTask;
 
@@ -66,6 +67,7 @@ public abstract class ActivityWithDrawer extends AppCompatActivity implements Dr
         mDrawerItems.add(new DrawerListAdapter.DrawerItem(mDrawerTitles[0], R.drawable.ic_message_black));
         mDrawerItems.add(new DrawerListAdapter.DrawerItem(mDrawerTitles[1], R.drawable.ic_place_black));
         mDrawerItems.add(new DrawerListAdapter.DrawerItem(mDrawerTitles[2], R.drawable.ic_person_black));
+        mDrawerItems.add(new DrawerListAdapter.DrawerItem(mDrawerTitles[3], R.drawable.ic_place_black));
 
 
         // setup recycler view
@@ -205,6 +207,11 @@ public abstract class ActivityWithDrawer extends AppCompatActivity implements Dr
                 startActivity(intent);
                 finish();
                 overridePendingTransition(0, 0);
+                break;
+            case 3:
+                intent = new Intent(this, MapsActivity.class);
+                startActivity(intent);
+                finish();
                 break;
         }
 

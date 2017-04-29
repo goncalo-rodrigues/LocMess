@@ -95,7 +95,7 @@ public class PointEntity {
         }
 
         if (id >= 0) {
-            deletePath(ctx);
+            deletePath(ctx, false);
         }
 
         Log.d(LOG_TAG, "Saving path...");
@@ -120,12 +120,20 @@ public class PointEntity {
             for (int i = allValues.size() - 2; i >=0; i--) {
                 ContentValues values = allValues.get(i);
                 values.put(LocmessContract.PointTable.COLUMN_NAME_NEXT, last_insert_id);
-                last_insert_id = db.insert(LocmessContract.PointTable.TABLE_NAME, null, values);
+                if (i>0 || this.id <= 0)
+                    last_insert_id = db.insert(LocmessContract.PointTable.TABLE_NAME, null, values);
+                else
+                    db.update(LocmessContract.PointTable.TABLE_NAME,
+                            values,
+                            LocmessContract.PointTable._ID + "=?",
+                            new String[] {String.valueOf(this.id)}
+                            );
             }
 
             db.setTransactionSuccessful();
 
-            this.id = last_insert_id;
+            if (this.id <= 0)
+                this.id = last_insert_id;
         } finally {
 
             db.endTransaction();
@@ -161,6 +169,9 @@ public class PointEntity {
     }
 
     public void deletePath(Context ctx) {
+        deletePath(ctx, true);
+    }
+    public void deletePath(Context ctx, boolean deleteOrigin) {
         LocmessDbHelper helper = new LocmessDbHelper(ctx);
         SQLiteDatabase db = helper.getWritableDatabase();
 
@@ -180,8 +191,11 @@ public class PointEntity {
                 break;
             }
 
-            db.delete(LocmessContract.PointTable.TABLE_NAME, LocmessContract.PointTable._ID + "=?",
-                    new String[] {String.valueOf(currentId)});
+            if (currentId != id || deleteOrigin) {
+                db.delete(LocmessContract.PointTable.TABLE_NAME, LocmessContract.PointTable._ID + "=?",
+                        new String[] {String.valueOf(currentId)});
+            }
+
 
             int next_idx = c.getColumnIndexOrThrow(LocmessContract.PointTable.COLUMN_NAME_NEXT);
 
@@ -191,7 +205,8 @@ public class PointEntity {
         }
 
         db.close();
-        this.id = -1;
+        if (deleteOrigin)
+            this.id = -1;
     }
 
     public static void removeAllBefore(Date date, Context ctx) {
