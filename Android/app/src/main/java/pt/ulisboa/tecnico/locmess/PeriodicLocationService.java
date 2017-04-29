@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Messenger;
+import android.support.annotation.IntDef;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.ArrayAdapter;
@@ -55,6 +56,7 @@ import pt.ulisboa.tecnico.locmess.serverrequests.SendMyLocationTask;
 import pt.ulisboa.tecnico.locmess.serverrequests.SendMyLocationTask.SendMyLocationsTaskCallBack;
 
 public class PeriodicLocationService extends Service implements LocationListener, SimWifiP2pManager.PeerListListener,SendMyLocationsTaskCallBack, GetMessagesTask.GetMessagesCallBack {
+    private static final String LOG_TAG = PeriodicLocationService.class.getSimpleName();
     private LocationManager mLocationManager;
     private long minTimeMs = 0; // 30 seconds
     private float minDistance = 10;
@@ -117,6 +119,12 @@ public class PeriodicLocationService extends Service implements LocationListener
         super.onCreate();
     }
 
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        requestLocation();
+        return super.onStartCommand(intent, flags, startId);
+    }
+
     private void requestLocation() {
         boolean permGranted =
                 ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_WIFI_STATE)
@@ -128,9 +136,13 @@ public class PeriodicLocationService extends Service implements LocationListener
                 Location location = getLastKnownLocation();
                 onLocationChanged(location);
                 isRequestingLocation = true;
+                Log.d(LOG_TAG, "requested location updates!");
             } catch(SecurityException e) {
+                Log.e(LOG_TAG, "GPS permissions not enabled!");
                 // It should not happen, hopefully
             }
+        } else {
+            Log.e(LOG_TAG, "GPS permissions not enabled!");
         }
 
     }
