@@ -6,7 +6,7 @@ do
 	coord=($(echo $line | grep -o -E "\-?[0-9]+\.[0-9]+"))
 	lat=$(echo ${coord[1]} | sed 's/\./,/g')
 	lon=$(echo ${coord[0]} | sed 's/\./,/g')
-	sleep 2
+	sleep 0.1
 	echo  "geo fix $lon $lat"
    # do something with $line here
 done) | telnet localhost 5554

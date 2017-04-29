@@ -53,6 +53,8 @@ public class Policy {
                     return true;
                 }
             }
+
+            paths.close();
             return false;
         }
     }

@@ -28,5 +28,7 @@ public class AlarmReceiver extends BroadcastReceiver {
             Log.d(LOG_TAG, "Resulting path " + p.getPoint().toString());
             p.savePath(context);
         }
+
+        c.close();
     }
 }

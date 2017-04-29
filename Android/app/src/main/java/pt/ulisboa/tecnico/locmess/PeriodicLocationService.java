@@ -57,7 +57,7 @@ import pt.ulisboa.tecnico.locmess.serverrequests.SendMyLocationTask.SendMyLocati
 public class PeriodicLocationService extends Service implements LocationListener, SimWifiP2pManager.PeerListListener,SendMyLocationsTaskCallBack, GetMessagesTask.GetMessagesCallBack {
     private LocationManager mLocationManager;
     private long minTimeMs = 0; // 30 seconds
-    private float minDistance = 30;
+    private float minDistance = 10;
     private Location mostRecentLocation;
     private List<TimestampedLocation> updates = new ArrayList<>();
     private boolean isRequestingLocation = false;

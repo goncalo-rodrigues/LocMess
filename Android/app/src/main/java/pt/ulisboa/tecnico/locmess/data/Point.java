@@ -107,6 +107,6 @@ public class Point {
     }
     @Override
     public String toString() {
-        return "("+x +","+y+")" + (nextPoint != null? "->"+nextPoint.toString() : "");
+        return "("+x +","+y+")" + (nextPoint != null? ","+nextPoint.toString() : "");
     }
 }

@@ -73,12 +73,20 @@ public class PointEntity {
                 " WHERE " + LocmessContract.PointTable._ID + " NOT IN \n" +
                 "(SELECT DISTINCT " + LocmessContract.PointTable.COLUMN_NAME_NEXT +
                 " FROM " + LocmessContract.PointTable.TABLE_NAME +
-                " WHERE " + LocmessContract.PointTable.COLUMN_NAME_NEXT + " <> 0 )";
+                " WHERE " + LocmessContract.PointTable.COLUMN_NAME_NEXT + " > 0 )";
         LocmessDbHelper helper = new LocmessDbHelper(ctx);
         SQLiteDatabase db = helper.getReadableDatabase();
         Cursor c = db.rawQuery(query, null);
         return c;
 
+    }
+
+    public static Cursor getAll(Context ctx) {
+        String query = "SELECT * FROM " + LocmessContract.PointTable.TABLE_NAME;
+        LocmessDbHelper helper = new LocmessDbHelper(ctx);
+        SQLiteDatabase db = helper.getReadableDatabase();
+        Cursor c = db.rawQuery(query, null);
+        return c;
     }
 
     public void savePath(Context ctx) {
@@ -89,34 +97,41 @@ public class PointEntity {
         if (id >= 0) {
             deletePath(ctx);
         }
+
+        Log.d(LOG_TAG, "Saving path...");
         LocmessDbHelper helper = new LocmessDbHelper(ctx);
         SQLiteDatabase db = helper.getWritableDatabase();
+        try {
+            db.beginTransaction();
 
-        db.beginTransaction();
+            ArrayList<ContentValues> allValues = new ArrayList<>();
+            Point current = point;
+            do {
+                ContentValues values = new ContentValues();
+                values.put(LocmessContract.PointTable.COLUMN_NAME_X, current.x);
+                values.put(LocmessContract.PointTable.COLUMN_NAME_Y, current.y);
+                values.put(LocmessContract.PointTable.COLUMN_NAME_TIMESTAMP, timestamp.getTime());
+                values.put(LocmessContract.PointTable.COLUMN_NAME_NEXT, (Integer) null);
+                allValues.add(values);
+            } while ((current = current.nextPoint) != null);
 
-        ArrayList<ContentValues> allValues = new ArrayList<>();
-        Point current = point;
-        do {
-            ContentValues values = new ContentValues();
-            values.put(LocmessContract.PointTable.COLUMN_NAME_X, current.x);
-            values.put(LocmessContract.PointTable.COLUMN_NAME_Y, current.y);
-            values.put(LocmessContract.PointTable.COLUMN_NAME_TIMESTAMP, timestamp.getTime());
-            allValues.add(values);
-        } while ((current = current.nextPoint) != null);
+            long last_insert_id = db.insert(LocmessContract.PointTable.TABLE_NAME, null, allValues.get(allValues.size()-1));
 
-        long last_insert_id = db.insert(LocmessContract.PointTable.TABLE_NAME, null, allValues.get(allValues.size()-1));
+            for (int i = allValues.size() - 2; i >=0; i--) {
+                ContentValues values = allValues.get(i);
+                values.put(LocmessContract.PointTable.COLUMN_NAME_NEXT, last_insert_id);
+                last_insert_id = db.insert(LocmessContract.PointTable.TABLE_NAME, null, values);
+            }
 
-        for (int i = allValues.size() - 2; i >=0; i--) {
-            ContentValues values = allValues.get(i);
-            values.put(LocmessContract.PointTable.COLUMN_NAME_NEXT, last_insert_id);
-            last_insert_id = db.insert(LocmessContract.PointTable.TABLE_NAME, null, values);
+            db.setTransactionSuccessful();
+
+            this.id = last_insert_id;
+        } finally {
+
+            db.endTransaction();
+            db.close();
         }
 
-        db.endTransaction();
-
-        this.id = last_insert_id;
-
-        db.close();
     }
 
     public long save(Context ctx, long prev) {
@@ -149,6 +164,7 @@ public class PointEntity {
         LocmessDbHelper helper = new LocmessDbHelper(ctx);
         SQLiteDatabase db = helper.getWritableDatabase();
 
+        Log.d(LOG_TAG, "Deleting path...");
         if (id == -1) {
             throw new RuntimeException("You cannot delete this path because it wasn't saved to the db");
         }
@@ -182,10 +198,11 @@ public class PointEntity {
         LocmessDbHelper helper = new LocmessDbHelper(ctx);
         SQLiteDatabase db = helper.getWritableDatabase();
 
-        db.delete(LocmessContract.PointTable.TABLE_NAME,
+        int rowsRemoved = db.delete(LocmessContract.PointTable.TABLE_NAME,
                 LocmessContract.PointTable.COLUMN_NAME_TIMESTAMP + " <= ?",
                 new String[] {String.valueOf(date.getTime())});
         db.close();
+        Log.d(LOG_TAG, "Removed " + rowsRemoved);
     }
 
     public Point getPoint() {

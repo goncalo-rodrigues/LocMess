@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.location.LocationManager;
 import android.os.IBinder;
 import android.os.SystemClock;
@@ -116,22 +117,16 @@ public class MainActivity extends ActivityWithDrawer implements BaseMessageFragm
 
         deleteStuffFromDB.start();
 
-        Log.d(LOG_TAG, getPackageName() + ".ALARM");
-
         PendingIntent alarmIntent = PendingIntent.getBroadcast( this, 0, new Intent(getPackageName() + ".ALARM"), 0 );
         alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                SystemClock.elapsedRealtime() + 1000,
+                SystemClock.elapsedRealtime() + AlarmManager.INTERVAL_DAY,
                 AlarmManager.INTERVAL_DAY, alarmIntent);
 
         super.onCreate(savedInstanceState);
     }
 
     protected void sendMessage(View v){
-//        ReceivedMessage m = new ReceivedMessage("1", "text", "author", "loc", new Date(), new Date());
-//        m.save(this);
-//        CreatedMessage m2 = new CreatedMessage("2", "text", "author", "loc", new Date(), new Date());
-//        m2.save(this);
         Intent intent = new Intent(this, PostMessageActivity.class);
         startActivity(intent);
     }

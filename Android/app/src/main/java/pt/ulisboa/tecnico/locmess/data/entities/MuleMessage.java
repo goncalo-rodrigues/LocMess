@@ -189,6 +189,7 @@ public class MuleMessage extends Message {
             count--;
 
         }
+        db.setTransactionSuccessful();
         db.endTransaction();
         query.close();
         db.close();
