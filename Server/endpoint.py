@@ -222,6 +222,11 @@ def shutdown():
 
 
 def start_server():
+    # HTTPS
+    # TODO: Add context here!!!
+    #app.run(host="0.0.0.0", port=443, threaded=True)
+
+    # HTTP
     app.run(host="0.0.0.0", port=80, threaded=True)
 
 
