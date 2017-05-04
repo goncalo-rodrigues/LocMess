@@ -65,6 +65,7 @@ public class Utils {
         SQLiteDatabase db = helper.getWritableDatabase();
         db.execSQL(LocmessContract.SQL_DELETE_MESSAGE_TBL);
         db.execSQL(LocmessContract.SQL_DELETE_MESSAGE_FILTER_TBL);
+        db.execSQL(LocmessContract.SQL_DELETE_MULE_MESSAGE_TBL);
         db.execSQL(LocmessContract.SQL_DELETE_CREATED_MESSAGE_TBL);
         db.execSQL(LocmessContract.SQL_DELETE_LOCATION_TBL);
         db.execSQL(LocmessContract.SQL_DELETE_PROFILE_KEYVAL_TBL);
@@ -72,6 +73,7 @@ public class Utils {
         db.execSQL(LocmessContract.SQL_CREATE_MESSAGE_TBL);
         db.execSQL(LocmessContract.SQL_CREATE_CREATED_MESSAGE_TBL);
         db.execSQL(LocmessContract.SQL_CREATE_MESSAGE_FILTER_TBL);
+        db.execSQL(LocmessContract.SQL_CREATE_MULE_MESSAGE_TBL);
         db.execSQL(LocmessContract.SQL_CREATE_LOCATION_TBL);
         db.execSQL(LocmessContract.SQL_CREATE_PROFILE_KEYVAL_TBL);
 
