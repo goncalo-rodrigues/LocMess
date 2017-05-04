@@ -223,11 +223,11 @@ def shutdown():
 
 def start_server():
     # HTTPS
-    # TODO: Add context here!!!
-    #app.run(host="0.0.0.0", port=443, threaded=True)
+    context = ('cert.pem', 'key.pem')
+    app.run(host="0.0.0.0", port=80, ssl_context=context, threaded=True)
 
     # HTTP
-    app.run(host="0.0.0.0", port=80, threaded=True)
+    # app.run(host="0.0.0.0", port=80, threaded=True)
 
 
 # Updates the DNS resolution to the current public ip

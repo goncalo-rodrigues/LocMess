@@ -10,7 +10,7 @@ else
 fi
 
 ssh -l "pi" $ip "mkdir locmess"
-scp *.py "pi@$ip:./locmess"
+scp *.py *.pem "pi@$ip:./locmess"
 tm=$(date +"%y-%m-%d_%H:%M:%S")
 log="server$tm.log"
 ssh -l "pi" $ip "cd locmess; chmod 777 *.py; /sbin/reboot"
