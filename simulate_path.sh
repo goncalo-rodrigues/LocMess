@@ -1,7 +1,12 @@
-#http://latlongtrace.com/?path=m%60mkF%7Czwv@?iBb@%7B@j@aCp@uAZ%7DAGcEYgB?eBgBuAoE?eE%5DeFIsEGwEz@wCbAmDjBgB%5C?nB?v@q@f@I%60A
+echo "Usage: ./simulate_path.sh <path_file> <avd_port>"
+echo ""
+
+# Put the arguments with more programmer friendly names
+path=$1
+port=$2
 
 rm -f script
-(cat eul_run.kml | while read line
+(cat $path | while read line
 do
 	coord=($(echo $line | grep -o -E "\-?[0-9]+\.[0-9]+"))
 	lat=$(echo ${coord[1]} | sed 's/\./,/g')
@@ -9,5 +14,4 @@ do
 	sleep 0.1
 	echo  "geo fix $lon $lat"
    # do something with $line here
-done) | telnet localhost 5554
-
+done) | telnet localhost $port
