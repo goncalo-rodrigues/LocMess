@@ -7,16 +7,38 @@ package pt.ulisboa.tecnico.locmess.globalvariable;
  */
 
 import android.app.Application;
+import android.util.Log;
 
+import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.Date;
 
 import javax.crypto.SecretKey;
 
+import pt.ulisboa.tecnico.locmess.Utils;
+
 public class NetworkGlobalState extends Application{
+    private static final String LOG_TAG = NetworkGlobalState.class.getSimpleName();
     private String id ;
     private SecretKey communication_Key;
     private String username;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        try {
+            Utils.loadCert(0, this);
+        } catch (Exception e){
+            Log.e(LOG_TAG, "Unable to load cert: " + e.getMessage());
+        }
+    }
+
     private Date sessionTimestamp;
+
+
 
     public Date getSessionTimestamp() {
         if (sessionTimestamp == null) {
