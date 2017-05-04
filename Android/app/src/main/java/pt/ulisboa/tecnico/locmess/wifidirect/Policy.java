@@ -21,8 +21,29 @@ import pt.ulisboa.tecnico.locmess.data.entities.SSIDSCache;
 public class Policy {
     private static final String LOG_TAG = Policy.class.getSimpleName();
     private HashSet<MessageDevicePair> alreadySent = new HashSet<>();
+    private WifiDirectService service;
+
+    public Policy(WifiDirectService service) {
+        this.service = service;
+    }
     // returns true if should send message to device
     public boolean shouldSendToPeer(SimWifiP2pDevice device, MuleMessage message) {
+        if (message.getHops() == 1) {
+            FullLocation wifiLocation = service.getCurrentWifiLocation();
+            FullLocation gpsLocation = service.getCurrentGPSLocation();
+            FullLocation msgLocation = message.getFullLocation();
+            if (!wifiLocation.isInside(msgLocation) &&
+                    !gpsLocation.isInside(msgLocation)) {
+                // I'm not currently in the location of the message, it's pointless to send it
+                Log.i(LOG_TAG, "Not sending message because hops==1 and I'm not in the location of the msg");
+                if (msgLocation.isWifi()) {
+                    Log.d(LOG_TAG, "locations:: mine:" + wifiLocation + " msg:" + msgLocation);
+                } else {
+                    Log.d(LOG_TAG, "locations:: mine:" + gpsLocation + " msg:" + msgLocation);
+                }
+                return false;
+            }
+        }
         MessageDevicePair mdp = new MessageDevicePair(device.deviceName, message.getId());
         if (alreadySent.contains(mdp)) {
             Log.d(LOG_TAG, "already sent to " + device.deviceName);
@@ -38,8 +59,10 @@ public class Policy {
         FullLocation msgLocation = message.getFullLocation();
         if (msgLocation.isWifi()) {
             if (SSIDSCache.existsAtLeastOne(msgLocation.getSsids(), ctx)) {
+                Log.i(LOG_TAG, "Keeping message because I've been in this location recently (ssid)");
                 return true;
             } else {
+                Log.i(LOG_TAG, "Discarding message because I haven't been in this location recently (ssid)");
                 return false;
             }
         } else {
@@ -50,10 +73,11 @@ public class Policy {
             while (paths.moveToNext()) {
                 PointEntity path = new PointEntity(paths, ctx);
                 if (targetPoint.distanceToPathSquared(path.getPoint()) < radius) {
+                    Log.i(LOG_TAG,  "Keeping message because I've been in this location recently (GPS)");
                     return true;
                 }
             }
-
+            Log.i(LOG_TAG,  "Discarding message because I haven't been in this location recently (GPS)");
             paths.close();
             return false;
         }

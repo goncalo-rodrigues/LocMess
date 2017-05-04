@@ -229,4 +229,9 @@ public class FullLocation extends Location{
         double d = R * c;
         return d;
     }
+
+    @Override
+    public String toString() {
+        return getJson().toString();
+    }
 }

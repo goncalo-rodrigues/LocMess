@@ -16,6 +16,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import pt.ulisboa.tecnico.locmess.data.LocmessContract;
@@ -280,21 +281,29 @@ public class MuleMessage extends Message {
         if (getAuthor().equals(((NetworkGlobalState) ctx.getApplicationContext()).getUsername())) return false;
         if (filters.size() == 0) return true;
         Cursor pkvc = ProfileKeyValue.getAll(ctx);
+        HashMap<String, ProfileKeyValue> pkvs = new HashMap<>();
         try {
             while (pkvc.moveToNext()) {
                 ProfileKeyValue pkv = new ProfileKeyValue(pkvc);
-                for (MuleMessageFilter f: filters) {
-                    if (pkv.getKey().equals(f.getKey())) {
-                        if (pkv.getValue().equals(f.getValue()) && f.isBlackList()) {
-                            return false;
-                        } else if (!pkv.getValue().equals(f.getValue()) && !f.isBlackList()) {
-                            return false;
-                        }
-                    }
-                }
+                pkvs.put(pkv.getKey(), pkv);
             }
         } finally {
             pkvc.close();
+        }
+
+        for (MuleMessageFilter f: filters) {
+            ProfileKeyValue pkv = pkvs.get(f.getKey());
+            if (!f.isBlackList()) {
+                // whitelist - if user doesn't have the key or if the value is different: do not accept
+                if (pkv == null || !pkv.getValue().equals(f.getValue())) {
+                    return false;
+                }
+            } else {
+                // blacklist - if the user has the key and the value is the same: do not accept
+                if (pkv != null && pkv.getValue().equals(f.getValue())) {
+                    return false;
+                }
+            }
         }
         return true;
     }

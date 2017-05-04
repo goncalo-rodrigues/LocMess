@@ -64,7 +64,7 @@ public class WifiDirectService extends Service implements SimWifiP2pBroadcastRec
     private SimWifiP2pBroadcastReceiver mReceiver;
 
     // protocol
-    private Policy routingPolicy = new Policy();
+    private Policy routingPolicy = new Policy(this);
 
     //location stuff
     private PeriodicLocationService.PeriodicLocationBinder locBinder;
