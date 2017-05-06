@@ -20,8 +20,8 @@ import pt.ulisboa.tecnico.locmess.Utils;
 public class CommonConnectionFunctions {
     public static String makeHTTPResquest(URL url, JSONObject jsoninputs) throws IOException {
         //TODO: uncomment this
-//        HttpsURLConnection urlConnection = Utils.openHTTPSConnection(url);
-        HttpURLConnection urlConnection= (HttpURLConnection) url.openConnection();
+        HttpsURLConnection urlConnection = Utils.openHTTPSConnection(url);
+//        HttpURLConnection urlConnection= (HttpURLConnection) url.openConnection();
         urlConnection.setRequestMethod("POST");
         urlConnection.setRequestProperty("Content-Type","application/json");
         urlConnection.setConnectTimeout(10000);

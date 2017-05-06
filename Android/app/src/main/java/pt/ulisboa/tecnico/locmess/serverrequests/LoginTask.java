@@ -15,7 +15,7 @@ import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 
 public class LoginTask extends AsyncTask<String, String,String> {
     private LoginTaskCallBack callback;
-    private static final String URL_SERVER = "http://locmess.duckdns.org";
+    private static final String URL_SERVER = "https://locmess.duckdns.org:80";
     NetworkGlobalState globalState;
     Context caller;
 

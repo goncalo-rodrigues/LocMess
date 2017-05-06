@@ -18,6 +18,7 @@ import java.util.Date;
 
 import javax.crypto.SecretKey;
 
+import pt.ulisboa.tecnico.locmess.R;
 import pt.ulisboa.tecnico.locmess.Utils;
 
 public class NetworkGlobalState extends Application{
@@ -30,7 +31,7 @@ public class NetworkGlobalState extends Application{
     public void onCreate() {
         super.onCreate();
         try {
-            Utils.loadCert(0, this);
+            Utils.loadCert(R.raw.cert, this);
         } catch (Exception e){
             Log.e(LOG_TAG, "Unable to load cert: " + e.getMessage());
         }
