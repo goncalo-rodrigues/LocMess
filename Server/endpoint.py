@@ -205,6 +205,20 @@ def post_message():
     return create_error_json(error_keys_not_in_json)
 
 
+@app.route("/sign_message", methods=['POST'])
+def sign_message():
+    req = request.get_json()
+
+    print("IN: " + str(req) + "\n")
+    out.flush()
+
+    if "session_id" in req and "msg" in req and is_message(req["msg"]):
+        # TODO: Sign the message with key.pem
+        return create_json(["signed_msg"], ["!!!BASE64 BLOB!!!"])
+
+    return create_error_json(error_keys_not_in_json)
+
+
 @app.route("/delete_message", methods=['POST'])
 def delete_message():
     req = request.get_json()

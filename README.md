@@ -1,2 +1,2 @@
 # LocMess
-* To stop the server, access the URL: http://locmess.duckdns.org/esgarabisch
+* To stop the server, access the URL: https://locmess.duckdns.org/esgarabisch
