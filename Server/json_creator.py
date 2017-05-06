@@ -53,7 +53,7 @@ def msg_to_str(msg):
     filters_str = ""
 
     for el in filters:
-        filters_str += el["key"] + el["value"] + "1" if el["is_whitelist"] else "0"
+        filters_str += el["key"] + el["value"] + ("1" if el["is_whitelist"] else "0")
 
     return id + username + location + str(start_date) + str(end_date) + content + filters_str
 
