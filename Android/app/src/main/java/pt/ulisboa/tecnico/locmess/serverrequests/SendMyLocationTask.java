@@ -18,7 +18,6 @@ import pt.ulisboa.tecnico.locmess.PeriodicLocationService.TimestampedLocation;
 
 public class SendMyLocationTask extends AsyncTask<Void, String,String>{
     private SendMyLocationsTaskCallBack callback;
-    private static final String URL_SERVER = "http://locmess.duckdns.org";
     NetworkGlobalState globalState;
     ArrayList<TimestampedLocation> locations;
     Context context;
@@ -37,9 +36,8 @@ public class SendMyLocationTask extends AsyncTask<Void, String,String>{
         String result ="";
 
         try{
-            URL url = new URL(URL_SERVER+"/send_locations");
             JSONObject jsoninputs = createJsonMessage(locations);
-            result= CommonConnectionFunctions.makeHTTPResquest(url,jsoninputs);
+            result= CommonConnectionFunctions.makeHTTPResquest("send_locations", jsoninputs);
 
             //parse and get json elements, can be the number of messages or a error message
             JSONObject data = new JSONObject(result);

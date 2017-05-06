@@ -12,7 +12,6 @@ import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 
 public class RemoveMyFilterTask extends AsyncTask<ProfileKeyValue, String, String>{
     private SetMyFilterTaskCallBack callback;
-    private static final String URL_SERVER = "http://locmess.duckdns.org";
     NetworkGlobalState globalState;
     ProfileKeyValue savedpkv;
 
@@ -41,8 +40,7 @@ public class RemoveMyFilterTask extends AsyncTask<ProfileKeyValue, String, Strin
             jsoninputs.put("filter",jsonfilter);
 
             //open the conection to the server and send
-            URL url = new URL(URL_SERVER+"/remove_filter");
-            result= CommonConnectionFunctions.makeHTTPResquest(url,jsoninputs);
+            result= CommonConnectionFunctions.makeHTTPResquest("remove_filter", jsoninputs);
 
             //parse and get json elements ok/nok
             JSONObject data = new JSONObject(result);

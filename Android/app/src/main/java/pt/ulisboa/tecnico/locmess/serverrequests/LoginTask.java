@@ -15,7 +15,6 @@ import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 
 public class LoginTask extends AsyncTask<String, String,String> {
     private LoginTaskCallBack callback;
-    private static final String URL_SERVER = "https://locmess.duckdns.org:80";
     NetworkGlobalState globalState;
     Context caller;
 
@@ -43,9 +42,7 @@ public class LoginTask extends AsyncTask<String, String,String> {
             jsoninputs.put("password", password);
 
             //open the conection to the server and send
-            URL url = new URL(URL_SERVER+"/login");
-
-            response = CommonConnectionFunctions.makeHTTPResquest(url,jsoninputs);
+            response = CommonConnectionFunctions.makeHTTPResquest("login",jsoninputs);
 
             JSONObject data = new JSONObject(response);
             JSONArray filters = new JSONArray();

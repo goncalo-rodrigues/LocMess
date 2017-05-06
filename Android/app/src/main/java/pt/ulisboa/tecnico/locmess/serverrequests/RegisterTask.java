@@ -19,9 +19,6 @@ public class RegisterTask extends AsyncTask<String, String,String> {
     private String result;
     NetworkGlobalState globalState;
 
-
-    private static final String URL_SERVER = "http://locmess.duckdns.org";
-
     public RegisterTask(RegisteTaskCallBack ltcb, Context context){
         globalState = (NetworkGlobalState) context.getApplicationContext();
         callback = ltcb;
@@ -40,12 +37,8 @@ public class RegisterTask extends AsyncTask<String, String,String> {
             jsoninputs.put("username", username);
             jsoninputs.put("password", password);
 
-        //open the conection to the server and send
-        URL url= null;
-
-            url = new URL(URL_SERVER+"/signup");
-
-            response = CommonConnectionFunctions.makeHTTPResquest(url,jsoninputs);
+            //open the conection to the server and send
+            response = CommonConnectionFunctions.makeHTTPResquest("signup", jsoninputs);
 
             JSONObject data = new JSONObject(response);
 

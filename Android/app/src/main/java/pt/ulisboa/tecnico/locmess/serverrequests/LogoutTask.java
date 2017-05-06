@@ -15,8 +15,6 @@ import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 
 public class LogoutTask extends AsyncTask<Void, String, String>{
     private LogoutCallBack callback;
-    //private static final String URL_SERVER = "http://requestb.in/16z80wa1";
-    private static final String URL_SERVER = "http://locmess.duckdns.org";
     NetworkGlobalState globalState;
 
 
@@ -37,8 +35,7 @@ public class LogoutTask extends AsyncTask<Void, String, String>{
             jsoninputs.put("session_id", globalState.getId());
 
             //open the conection to the server and send
-            URL url = new URL(URL_SERVER+"/logout");
-            result = CommonConnectionFunctions.makeHTTPResquest(url,jsoninputs);
+            result = CommonConnectionFunctions.makeHTTPResquest("logout", jsoninputs);
 
             //parse and get json elements, ok/nok
             JSONObject data = new JSONObject(result);

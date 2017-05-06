@@ -15,8 +15,6 @@ import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 
 public class DeleteMessageTask extends AsyncTask<String, String, String>{
     private DeleteMessageCallBack callback;
-    //private static final String URL_SERVER = "http://requestb.in/16z80wa1";
-    private static final String URL_SERVER = "http://locmess.duckdns.org";
     NetworkGlobalState globalState;
 
 
@@ -44,8 +42,7 @@ public class DeleteMessageTask extends AsyncTask<String, String, String>{
             jsoninputs.put("msg_id",msg_id);
 
             //open the conection to the server and send
-            URL url = new URL(URL_SERVER+"/delete_message");
-            result= CommonConnectionFunctions.makeHTTPResquest(url,jsoninputs);
+            result= CommonConnectionFunctions.makeHTTPResquest("delete_message", jsoninputs);
 
             //parse and get json elements, ok/nok
             JSONObject data = new JSONObject(result);

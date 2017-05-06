@@ -19,13 +19,8 @@ import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 
 public class CreateLocationTask extends AsyncTask<FullLocation, String,String>{
     private CreateLocationTaskCallBack callback;
-    //private static final String URL_SERVER = "http://requestb.in/16z80wa1";
-    private static final String URL_SERVER = "http://locmess.duckdns.org";
     NetworkGlobalState globalState;
     String errorToReturn = "";
-
-
-
 
     public CreateLocationTask(CreateLocationTaskCallBack ltcb, Context context){
         globalState = (NetworkGlobalState) context.getApplicationContext();
@@ -70,8 +65,7 @@ public class CreateLocationTask extends AsyncTask<FullLocation, String,String>{
                 jsoninputs.put("ssids",jsonSsids);
 
             //open the conection to the server and send
-            URL url = new URL(URL_SERVER+"/create_location");
-            result= CommonConnectionFunctions.makeHTTPResquest(url,jsoninputs);
+            result= CommonConnectionFunctions.makeHTTPResquest("create_location",jsoninputs);
 
             //parse and get json elements, can be an array of locations or a error message
 

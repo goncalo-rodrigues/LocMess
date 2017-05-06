@@ -16,7 +16,6 @@ import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 
 public class PostMessageTask extends AsyncTask<Void, String,String>{
     private PostMessageTaskCallBack callback;
-    private static final String URL_SERVER = "http://locmess.duckdns.org";
     NetworkGlobalState globalState;
     //Variables to send
     private String username;
@@ -88,8 +87,7 @@ public class PostMessageTask extends AsyncTask<Void, String,String>{
 
 
             //open the conection to the server and send
-            URL url = new URL(URL_SERVER+"/post_message");
-            result = CommonConnectionFunctions.makeHTTPResquest(url,jsoninputs);
+            result = CommonConnectionFunctions.makeHTTPResquest("post_message", jsoninputs);
 
             //parse and get json elements, can be an array of locations or a error message
             JSONObject data = new JSONObject(result);

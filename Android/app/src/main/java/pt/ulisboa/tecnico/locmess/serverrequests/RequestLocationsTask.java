@@ -17,7 +17,6 @@ import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 
 public class RequestLocationsTask extends AsyncTask<String, String,ArrayList<String>>{
     private RequestLocationsTaskCallBack callback;
-    private static final String URL_SERVER = "http://locmess.duckdns.org";
     NetworkGlobalState globalState;
 
 
@@ -40,9 +39,7 @@ public class RequestLocationsTask extends AsyncTask<String, String,ArrayList<Str
             jsoninputs.put("startswith", startswith);
 
             //open the conection to the server and send
-            URL url=  new URL(URL_SERVER+"/request_locations");
-
-            result = CommonConnectionFunctions.makeHTTPResquest(url, jsoninputs);
+            result = CommonConnectionFunctions.makeHTTPResquest("request_locations", jsoninputs);
 
             //parse and get json elements, can be an array of locations or a error message
             JSONObject data = new JSONObject(result);

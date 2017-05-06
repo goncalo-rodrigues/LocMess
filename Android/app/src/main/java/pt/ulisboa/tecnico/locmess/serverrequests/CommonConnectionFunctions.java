@@ -18,10 +18,12 @@ import pt.ulisboa.tecnico.locmess.Utils;
  */
 
 public class CommonConnectionFunctions {
-    public static String makeHTTPResquest(URL url, JSONObject jsoninputs) throws IOException {
-        //TODO: uncomment this
+    private static final String URL_SERVER = "https://locmess.duckdns.org/";
+
+    public static String makeHTTPResquest(String endpoint, JSONObject jsoninputs) throws IOException {
+        URL url = new URL(URL_SERVER + endpoint);
+
         HttpsURLConnection urlConnection = Utils.openHTTPSConnection(url);
-//        HttpURLConnection urlConnection= (HttpURLConnection) url.openConnection();
         urlConnection.setRequestMethod("POST");
         urlConnection.setRequestProperty("Content-Type","application/json");
         urlConnection.setConnectTimeout(10000);
