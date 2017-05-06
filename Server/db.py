@@ -1,7 +1,12 @@
 import MySQLdb
 import time
 import Crypto.Random.random
+import base64
+import array
+
 from json_creator import *
+from Crypto.Signature import PKCS1_v1_5
+from Crypto.Hash import SHA256
 
 
 class Database:
@@ -421,6 +426,34 @@ class Database:
         cursor.close()
         self.conn.commit()
         return create_json(["resp"], ["ok"])
+
+    def __b64encoded_sig(self, msg, priv_key):
+        signer = PKCS1_v1_5.new(priv_key)
+        digest = SHA256.new()
+        str_msg = msg_to_str(msg)
+        msg = bytearray()
+        msg.extend(map(ord, str_msg))
+
+        digest.update(msg)
+        sign = signer.sign(digest)
+
+        return base64.standard_b64encode(sign)
+
+    def sign_message(self, session_id, msg, priv_key):
+        cursor = self.conn.cursor()
+
+        self.__select(cursor, "Username", ["Sessions"], ["SessionID = %s"], [session_id])
+        if cursor.rowcount == 0:
+            cursor.close()
+            return create_error_json(error_session_not_found)
+
+        user = cursor.fetchone()[0]
+        cursor.close()
+
+        if msg["username"] != user:
+            return create_error_json(error_not_matching_users)
+
+        return create_json(["signed_msg"], [self.__b64encoded_sig(msg, priv_key)])
 
     def delete_msg(self, session_id, msg_id):
         cursor = self.conn.cursor()

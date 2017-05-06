@@ -41,6 +41,8 @@ public class Utils {
 
     private static SSLSocketFactory sslSocketFactory = null;
     private static int counter = 0;
+    private static Certificate ca = null;
+
     public static String buildMessageId(Context ctx, boolean centralized) {
         ByteBuffer buffer = ByteBuffer.allocate(1+128+10+4);
         buffer.put((byte) (centralized ? 0 : 1));
@@ -85,7 +87,6 @@ public class Utils {
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
         // Place the .crt file in /res/raw
         InputStream caInput = new BufferedInputStream(ctx.getResources().openRawResource(certResourceId));
-        Certificate ca;
         try {
             ca = cf.generateCertificate(caInput);
             System.out.println("ca=" + ((X509Certificate) ca).getSubjectDN());
@@ -114,6 +115,8 @@ public class Utils {
     public static SSLSocketFactory getSocketFactory() {
         return sslSocketFactory;
     }
+
+    public static Certificate getCertificate() { return ca; }
 
     public static HttpsURLConnection openHTTPSConnection (URL url) throws IOException {
         HttpsURLConnection urlConnection =

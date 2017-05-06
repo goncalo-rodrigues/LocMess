@@ -15,6 +15,7 @@ error_duplicate_msg = "The given message was duplicated."
 error_storing_msg = "There was an error when storing the message."
 error_msg_not_found = "The given message was not found."
 error_commit = "There was an error when completing the transaction."
+error_not_matching_users = "The message creator is not the same as the one trying to sign it."
 
 
 def create_dict(keys, vals):
@@ -36,6 +37,25 @@ def create_error_json(err):
 def create_msg_dict(id, username, location, start, end, content, filters):
     return create_dict(["id", "username", "location", "start_date", "end_date", "content", "filters"],
                        [id, username, location, start, end, content, filters])
+
+
+def msg_to_str(msg):
+    # {"id": "...", "username": "...", "location": "...", "start_date": XX, "end_date": YY, "content": "...",
+    #  "filters": [{"key": "...", "value": "...", "is_whitelist": T / F}, ...]}
+
+    id = msg["id"]
+    username = msg["username"]
+    location = msg["location"]
+    start_date = msg["start_date"]
+    end_date = msg["end_date"]
+    content = msg["content"]
+    filters = msg["filters"]
+    filters_str = ""
+
+    for el in filters:
+        filters_str += el["key"] + el["value"] + "1" if el["is_whitelist"] else "0"
+
+    return id + username + location + str(start_date) + str(end_date) + content + filters_str
 
 
 def is_gps(something):

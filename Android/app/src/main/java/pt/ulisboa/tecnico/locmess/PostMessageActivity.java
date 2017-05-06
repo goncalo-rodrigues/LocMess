@@ -41,6 +41,7 @@ import pt.ulisboa.tecnico.locmess.serverrequests.GetLocationInfoTask;
 import pt.ulisboa.tecnico.locmess.serverrequests.PostMessageTask;
 import pt.ulisboa.tecnico.locmess.serverrequests.RequestExistentFiltersTask;
 import pt.ulisboa.tecnico.locmess.serverrequests.RequestLocationsTask;
+import pt.ulisboa.tecnico.locmess.serverrequests.SignMessageTask;
 import pt.ulisboa.tecnico.locmess.wifidirect.WifiDirectService;
 import com.toptoche.searchablespinnerlibrary.SearchableSpinner;
 
@@ -386,6 +387,9 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
         new PostMessageTask(this,this,username,location,startD,endD,messageText,
                 whitelisted,blacklisted,id).execute();
 
+        // FIXME: Just for debugging purposes!!!
+        new SignMessageTask(this, username, location, startD, endD, messageText, whitelisted,
+                blacklisted, id).execute();
     }
 
     private void postMessageAdOc(){

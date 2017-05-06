@@ -2,19 +2,22 @@
 
 import threading
 import sys
+import os
 from db import *
 from urllib2 import urlopen
 from flask import *
 from json import *
-import os
+from Crypto.PublicKey import RSA
 
 
 app = Flask(__name__)
 db = Database()
+priv_key = None
 out = sys.stdout
 cont = True
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__)) + "/"
-out.flush()
+CERT = SCRIPT_DIR + 'cert.pem'
+KEY = SCRIPT_DIR + 'key.pem'
 
 
 @app.route("/login", methods=['POST'])
@@ -207,14 +210,18 @@ def post_message():
 
 @app.route("/sign_message", methods=['POST'])
 def sign_message():
+    global priv_key
     req = request.get_json()
 
     print("IN: " + str(req) + "\n")
     out.flush()
 
+    if priv_key is None:
+        f = open(KEY, "r")
+        priv_key = RSA.importKey(f.read())
+
     if "session_id" in req and "msg" in req and is_message(req["msg"]):
-        # TODO: Sign the message with key.pem
-        return create_json(["signed_msg"], ["!!!BASE64 BLOB!!!"])
+        return db.sign_message(req["session_id"], req["msg"], priv_key)
 
     return create_error_json(error_keys_not_in_json)
 
@@ -227,7 +234,7 @@ def delete_message():
     out.flush()
 
     if "session_id" in req and "msg_id" in req:
-        return db.delete_msg(req["session_id"], req["msg_id"])
+        return db.delete_msg(req["session_id"], req["msg_id"], )
 
     return create_error_json(error_keys_not_in_json)
 
@@ -241,7 +248,7 @@ def shutdown():
 
 def start_server():
     # HTTPS
-    context = (SCRIPT_DIR + 'cert.pem', SCRIPT_DIR + 'key.pem')
+    context = (CERT, KEY)
     app.run(host="0.0.0.0", port=443, ssl_context=context, threaded=True)
 
     # HTTP
