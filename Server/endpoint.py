@@ -6,12 +6,15 @@ from db import *
 from urllib2 import urlopen
 from flask import *
 from json import *
+import os
 
 
 app = Flask(__name__)
 db = Database()
 out = sys.stdout
 cont = True
+SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__)) + "/"
+out.flush()
 
 
 @app.route("/login", methods=['POST'])
@@ -214,6 +217,7 @@ def delete_message():
 
     return create_error_json(error_keys_not_in_json)
 
+
 @app.route("/esgarabisch", methods=['GET'])
 def shutdown():
     global cont
@@ -223,8 +227,8 @@ def shutdown():
 
 def start_server():
     # HTTPS
-    context = ('cert.pem', 'key.pem')
-    app.run(host="0.0.0.0", port=80, ssl_context=context, threaded=True)
+    context = (SCRIPT_DIR + 'cert.pem', SCRIPT_DIR + 'key.pem')
+    app.run(host="0.0.0.0", port=443, ssl_context=context, threaded=True)
 
     # HTTP
     # app.run(host="0.0.0.0", port=80, threaded=True)
