@@ -117,7 +117,7 @@ public final class LocmessContract {
                     MuleMessageTable.COLUMN_NAME_ENDDATE + " TEXT," +
                     MuleMessageTable.COLUMN_NAME_CENTRALIZED + " INTEGER DEFAULT 0," +
                     MuleMessageTable.COLUMN_NAME_HOPS + " INTEGER," +
-                    MuleMessageTable.COLUMN_NAME_SIGNATURE + "BLOB);";
+                    MuleMessageTable.COLUMN_NAME_SIGNATURE + " BLOB);";
     public static final String SQL_CREATE_MESSAGE_FILTER_TBL =
             "CREATE TABLE " + MessageFilter.TABLE_NAME + " (" +
                     MessageFilter.COLUMN_NAME_MESSAGEID + " TEXT," +
