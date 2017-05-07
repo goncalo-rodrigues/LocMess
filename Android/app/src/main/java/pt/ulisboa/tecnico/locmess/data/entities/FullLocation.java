@@ -12,6 +12,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -233,5 +234,20 @@ public class FullLocation extends Location{
     @Override
     public String toString() {
         return getJson().toString();
+    }
+
+    public String toCheckSig() {
+        String result = getLocation();
+
+        if(isGps()) {
+            DecimalFormat numberFormat = new DecimalFormat("#.000000");
+            result += numberFormat.format(latitude) + numberFormat.format(longitude) + numberFormat.format(radius);
+        } else {
+            Collections.sort(ssids);
+            for(String s : ssids)
+                result += s;
+        }
+
+        return result;
     }
 }

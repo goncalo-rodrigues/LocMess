@@ -39,21 +39,19 @@ def create_msg_dict(id, username, location, start, end, content, filters):
                        [id, username, location, start, end, content, filters])
 
 
-def msg_to_str(msg):
-    # {"id": "...", "username": "...", "location": "...", "start_date": XX, "end_date": YY, "content": "...",
-    #  "filters": [{"key": "...", "value": "...", "is_whitelist": T / F}, ...]}
+def msg_to_str(id, username, location, gps, ssids, start_date, end_date, content, filters):
+    if len(gps) > 0:
+        location += "{0:.6f}".format(gps["lat"]) + "{0:.6f}".format(gps["long"]) + "{0:.6f}".format(gps["radius"])
+    else:
+        for el in sorted(ssids):
+            location += el
 
-    id = msg["id"]
-    username = msg["username"]
-    location = msg["location"]
-    start_date = msg["start_date"]
-    end_date = msg["end_date"]
-    content = msg["content"]
-    filters = msg["filters"]
     filters_str = ""
 
     for el in filters:
         filters_str += el["key"] + el["value"] + ("1" if el["is_whitelist"] else "0")
+
+    print "------------INIT------------" + id + username + location + str(start_date) + str(end_date) + content + filters_str + "------------END------------"
 
     return id + username + location + str(start_date) + str(end_date) + content + filters_str
 

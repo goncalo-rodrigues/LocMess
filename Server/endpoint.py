@@ -129,13 +129,18 @@ def remove_location():
 
 @app.route("/get_location_info", methods=['POST'])
 def get_location_info():
+    global priv_key
     req = request.get_json()
 
     print("IN: " + str(req) + "\n")
     out.flush()
 
-    if "session_id" in req and "location" in req:
-        res = db.get_location_info(req["session_id"], req["location"])
+    if priv_key is None:
+        f = open(KEY, "r")
+        priv_key = RSA.importKey(f.read())
+
+    if "session_id" in req and "msg" in req and is_message(req["msg"]):
+        res = db.get_location_info(req["session_id"], req["msg"], priv_key)
         print("OUT: " + str(res) + "\n")
         out.flush()
         return res
@@ -204,24 +209,6 @@ def post_message():
 
     if "session_id" in req and "msg" in req and is_message(req["msg"]):
         return db.post_message(req["session_id"], req["msg"])
-
-    return create_error_json(error_keys_not_in_json)
-
-
-@app.route("/sign_message", methods=['POST'])
-def sign_message():
-    global priv_key
-    req = request.get_json()
-
-    print("IN: " + str(req) + "\n")
-    out.flush()
-
-    if priv_key is None:
-        f = open(KEY, "r")
-        priv_key = RSA.importKey(f.read())
-
-    if "session_id" in req and "msg" in req and is_message(req["msg"]):
-        return db.sign_message(req["session_id"], req["msg"], priv_key)
 
     return create_error_json(error_keys_not_in_json)
 

@@ -243,30 +243,57 @@ class Database:
         self.conn.commit()
         return create_json(["resp"], ["ok"])
 
-    def get_location_info(self, session_id, location):
+    def __b64encoded_sig(self, msg_id, msg_user, msg_loc, gps, ssids, msg_start, msg_end, msg_content, msg_filters, priv_key):
+        signer = PKCS1_v1_5.new(priv_key)
+        digest = SHA256.new()
+        str_msg = msg_to_str(msg_id, msg_user, msg_loc, gps, ssids, msg_start, msg_end, msg_content, msg_filters)
+        msg = bytearray()
+        msg.extend(map(ord, str_msg))
+
+        digest.update(msg)
+        sign = signer.sign(digest)
+
+        return base64.standard_b64encode(sign)
+
+    def get_location_info(self, session_id, msg, priv_key):
         cursor = self.conn.cursor()
+
+        # Extracting the fields from the message
+        msg_id = msg["id"]
+        msg_user = msg["username"]
+        msg_loc = msg["location"]
+        msg_start = msg["start_date"]
+        msg_end = msg["end_date"]
+        msg_content = msg["content"]
+        msg_filters = msg["filters"]
 
         gps = {}
         ssids = []
 
-        self.__select(cursor, "*", ["Sessions"], ["SessionID = %s"], [session_id])
+        self.__select(cursor, "Username", ["Sessions"], ["SessionID = %s"], [session_id])
         if cursor.rowcount == 0:
             cursor.close()
             return create_error_json(error_session_not_found)
 
-        self.__select(cursor, "*", ["Locations"], ["Name = %s"], [location])
+        user = cursor.fetchone()[0]
+
+        if msg_user != user:
+            cursor.close()
+            return create_error_json(error_not_matching_users)
+
+        self.__select(cursor, "*", ["Locations"], ["Name = %s"], [msg_loc])
         if cursor.rowcount == 0:
             cursor.close()
             return create_error_json(error_location_not_found)
 
-        self.__select(cursor, "Latitude, Longitude, Radius", ["GPS"], ["Location = %s"], [location])
+        self.__select(cursor, "Latitude, Longitude, Radius", ["GPS"], ["Location = %s"], [msg_loc])
         if cursor.rowcount != 0:
             row = cursor.fetchone()
             gps["lat"] = row[0]
             gps["long"] = row[1]
             gps["radius"] = row[2]
 
-        self.__select(cursor, "DISTINCT WifiID", ["WifiIDs"], ["Location = %s"], [location])
+        self.__select(cursor, "DISTINCT WifiID", ["WifiIDs"], ["Location = %s"], [msg_loc])
         if cursor.rowcount != 0:
             q_res = cursor.fetchall()
             for row in q_res:
@@ -274,7 +301,8 @@ class Database:
 
         cursor.close()
         self.conn.commit()
-        return create_json(["gps", "ssids"], [gps, ssids])
+        return create_json(["gps", "ssids", "signed_msg"], [gps, ssids,
+            self.__b64encoded_sig(msg_id, msg_user, msg_loc, gps, ssids, msg_start, msg_end, msg_content, msg_filters, priv_key)])
 
     def set_my_filter(self, session_id, filter):
         cursor = self.conn.cursor()
@@ -426,34 +454,6 @@ class Database:
         cursor.close()
         self.conn.commit()
         return create_json(["resp"], ["ok"])
-
-    def __b64encoded_sig(self, msg, priv_key):
-        signer = PKCS1_v1_5.new(priv_key)
-        digest = SHA256.new()
-        str_msg = msg_to_str(msg)
-        msg = bytearray()
-        msg.extend(map(ord, str_msg))
-
-        digest.update(msg)
-        sign = signer.sign(digest)
-
-        return base64.standard_b64encode(sign)
-
-    def sign_message(self, session_id, msg, priv_key):
-        cursor = self.conn.cursor()
-
-        self.__select(cursor, "Username", ["Sessions"], ["SessionID = %s"], [session_id])
-        if cursor.rowcount == 0:
-            cursor.close()
-            return create_error_json(error_session_not_found)
-
-        user = cursor.fetchone()[0]
-        cursor.close()
-
-        if msg["username"] != user:
-            return create_error_json(error_not_matching_users)
-
-        return create_json(["signed_msg"], [self.__b64encoded_sig(msg, priv_key)])
 
     def delete_msg(self, session_id, msg_id):
         cursor = self.conn.cursor()

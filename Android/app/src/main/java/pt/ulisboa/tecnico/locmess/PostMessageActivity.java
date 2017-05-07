@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.util.Log;
 import android.util.Pair;
 import android.view.Menu;
@@ -27,6 +28,11 @@ import pt.ulisboa.tecnico.locmess.data.entities.CreatedMessage;
 import pt.ulisboa.tecnico.locmess.data.entities.FullLocation;
 import pt.ulisboa.tecnico.locmess.data.entities.Message;
 
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.Signature;
+import java.security.SignatureException;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -392,7 +398,18 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
     private void postMessageAdOc(){
         //All the work id done when the callback from Async task in made
         //until then nothing can be done
-        new GetLocationInfoTask(this,this,location).execute();
+
+        ArrayList<MuleMessageFilter> filters = new ArrayList<>();
+        MuleMessageFilter mmf;
+        for(FilterAdapter.KeyValue kv : filterList){
+            mmf = new MuleMessageFilter(id, kv.key, kv.value, kv.blacklisted);
+            filters.add(mmf);
+        }
+
+        Collections.sort(filters);
+
+        new GetLocationInfoTask(this, this, username, location, startD, endD, messageText,
+                filters, id).execute();
     }
 
 //----------------------    Set the state of the screen     ----------------------------//
@@ -440,19 +457,42 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
     }
 
     @Override
-    public void OnGetLocationInfoComplete(FullLocation flocation) {
-        ArrayList<MuleMessageFilter> filters = new ArrayList<>();
-        MuleMessageFilter mmf;
-        for(FilterAdapter.KeyValue kv : filterList){
-            mmf = new MuleMessageFilter(id, kv.key, kv.value, kv.blacklisted);
-            filters.add(mmf);
+    public void OnGetLocationInfoComplete(FullLocation flocation, List<MuleMessageFilter> filters, String sig) {
+        // TODO: Make this in the background
+        // TODO: sig may be null
+        Toast t = null;
+        String msgStr = id + username + flocation.toCheckSig() + startDate.getTime().getTime() + endDate.getTime().getTime() + messageText;
+
+        for(MuleMessageFilter filter : filters)
+            msgStr += filter.getKey() + filter.getValue() + (filter.isBlackList()? "0" : "1");
+
+        try {
+            byte[] msgBytes = msgStr.getBytes("UTF-8");
+            byte[] receivedSig = Base64.decode(sig, Base64.DEFAULT);
+
+            Signature sigInst = Signature.getInstance("SHA256withRSA");
+            sigInst.initVerify(Utils.getCertificate());
+            sigInst.update(msgBytes);
+
+            Toast.makeText(this, msgStr, Toast.LENGTH_LONG).show();
+
+            t = Toast.makeText(this, "Signature verification result: " + sigInst.verify(receivedSig), Toast.LENGTH_SHORT);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        } catch (SignatureException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
         }
 
-        Collections.sort(filters);
+        t.show();
 
         // FIXME: Just for debugging purposes!!!
 //        new SignMessageTask(this, username, flocation, startD, endD, messageText, filters, id).execute();
 
+        // TODO: Add the message signature field in this!!!
         MuleMessage muleM = new MuleMessage(id, messageText, username, flocation, startD,
                 endD,filters, 0);
         muleM.save(this);

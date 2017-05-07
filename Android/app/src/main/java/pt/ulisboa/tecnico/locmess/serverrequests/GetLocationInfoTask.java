@@ -8,7 +8,11 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import pt.ulisboa.tecnico.locmess.data.entities.FullLocation;
+import pt.ulisboa.tecnico.locmess.data.entities.MuleMessageFilter;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 
 /**
@@ -18,17 +22,36 @@ import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 public class GetLocationInfoTask extends AsyncTask<Void, String, String>{
     private GetLocationInfoCallBack callback;
     NetworkGlobalState globalState;
-    private ArrayList<String> ssids = new ArrayList<>();
+
+    // Variables to send
+    private String username;
     String location;
+    private Date start_date;
+    private Date end_date;
+    private String content;
+    private List<MuleMessageFilter> filters;
+    private String messageID;
+
+    // To receive
+    private ArrayList<String> ssids = new ArrayList<>();
     Double lat;
     Double longitude;
     int radius;
+    String sig = null;
 
 
-    public GetLocationInfoTask(GetLocationInfoCallBack ltcb, Context context, String location){
+    public GetLocationInfoTask(GetLocationInfoCallBack ltcb, Context context, String username,
+                               String location, Date start_date, Date end_date, String content,
+                               List<MuleMessageFilter> filters, String messageID){
         globalState = (NetworkGlobalState) context.getApplicationContext();
         callback = ltcb;
+        this.username = username;
         this.location = location;
+        this.start_date = start_date;
+        this.end_date = end_date;
+        this.content = content;
+        this.filters = filters;
+        this.messageID = messageID;
     }
 
 
@@ -39,10 +62,29 @@ public class GetLocationInfoTask extends AsyncTask<Void, String, String>{
 
         //make the jason object to send
         JSONObject jsoninputs = new JSONObject();
+        JSONObject jsonMessage = new JSONObject();
+        JSONArray jsonFilters = new JSONArray();
 
         try {
             jsoninputs.put("session_id", globalState.getId());
-            jsoninputs.put("location",location);
+            jsonMessage.put("id",messageID);
+            jsonMessage.put("username", username);
+            jsonMessage.put("location", location);
+            jsonMessage.put("start_date", start_date.getTime());
+            jsonMessage.put("end_date", end_date.getTime());
+            jsonMessage.put("content",content);
+
+            JSONObject jsonFilter;
+            for(MuleMessageFilter filter : filters){
+                jsonFilter = new JSONObject();
+                jsonFilter.put("key",filter.getKey());
+                jsonFilter.put("value",filter.getValue());
+                jsonFilter.put("is_whitelist",!filter.isBlackList());
+                jsonFilters.put(jsonFilter);
+            }
+
+            jsonMessage.put("filters",jsonFilters);
+            jsoninputs.put("msg",jsonMessage);
 
             //open the conection to the server and send
             result= CommonConnectionFunctions.makeHTTPResquest("get_location_info", jsoninputs);
@@ -53,13 +95,17 @@ public class GetLocationInfoTask extends AsyncTask<Void, String, String>{
             if (data.opt("error") != null)
                 return data.getString("error");
 
+            boolean gotInformation = false;
+
             if (data.opt("ssids") != null) {
+                gotInformation = true;
                 JSONArray jsonSsids = data.getJSONArray("ssids");
                 for (int j = 0; j < jsonSsids.length() ; j++)
                     ssids.add(jsonSsids.getString(j));
             }
 
             if (data.opt("gps") != null) {
+                gotInformation = true;
                 JSONObject gpsJson = data.getJSONObject("gps");
                 if (gpsJson.opt("lat") != null)
                     lat = gpsJson.getDouble("lat");
@@ -68,6 +114,9 @@ public class GetLocationInfoTask extends AsyncTask<Void, String, String>{
                 if (gpsJson.opt("radius") != null)
                     radius = gpsJson.getInt("radius");
             }
+
+            if(data.opt("signed_msg") != null && gotInformation)
+                sig = data.getString("signed_msg");
 
             return "ok";
 
@@ -87,10 +136,10 @@ public class GetLocationInfoTask extends AsyncTask<Void, String, String>{
         if ("ok".equals(result)) {
             if (lat != null) {
                 FullLocation flocation = new FullLocation(location,lat,longitude,radius);
-                callback.OnGetLocationInfoComplete(flocation);
+                callback.OnGetLocationInfoComplete(flocation, filters, sig);
             } else {
                 FullLocation flocation = new FullLocation(location,ssids);
-                callback.OnGetLocationInfoComplete(flocation);
+                callback.OnGetLocationInfoComplete(flocation, filters, sig);
             }
 
         }
@@ -104,7 +153,7 @@ public class GetLocationInfoTask extends AsyncTask<Void, String, String>{
 
 
     public interface GetLocationInfoCallBack{
-        void OnGetLocationInfoComplete(FullLocation flocation);
+        void OnGetLocationInfoComplete(FullLocation flocation, List<MuleMessageFilter>filters, String sig);
         void OnGetInfoErrorResponse(String error);
         void OnNoInternetConnection();
     }
