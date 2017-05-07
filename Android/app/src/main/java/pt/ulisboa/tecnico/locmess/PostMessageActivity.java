@@ -30,6 +30,7 @@ import pt.ulisboa.tecnico.locmess.data.entities.Message;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -386,10 +387,6 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
 
         new PostMessageTask(this,this,username,location,startD,endD,messageText,
                 whitelisted,blacklisted,id).execute();
-
-        // FIXME: Just for debugging purposes!!!
-        new SignMessageTask(this, username, location, startD, endD, messageText, whitelisted,
-                blacklisted, id).execute();
     }
 
     private void postMessageAdOc(){
@@ -450,6 +447,11 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
             mmf = new MuleMessageFilter(id, kv.key, kv.value, kv.blacklisted);
             filters.add(mmf);
         }
+
+        Collections.sort(filters);
+
+        // FIXME: Just for debugging purposes!!!
+//        new SignMessageTask(this, username, flocation, startD, endD, messageText, filters, id).execute();
 
         MuleMessage muleM = new MuleMessage(id, messageText, username, flocation, startD,
                 endD,filters, 0);

@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import pt.ulisboa.tecnico.locmess.Utils;
+import pt.ulisboa.tecnico.locmess.data.entities.FullLocation;
+import pt.ulisboa.tecnico.locmess.data.entities.MuleMessage;
+import pt.ulisboa.tecnico.locmess.data.entities.MuleMessageFilter;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 
 public class SignMessageTask extends AsyncTask<Void, String,String> {
@@ -29,20 +32,19 @@ public class SignMessageTask extends AsyncTask<Void, String,String> {
     NetworkGlobalState globalState;
     //Variables to send
     private String username;
-    private String location;
+    private FullLocation location;
     private Date start_date;
     private Date end_date;
     private String content;
-    private ArrayList<Pair> whitelisted;
-    private ArrayList<Pair> blackListed;
+    private ArrayList<MuleMessageFilter> filters;
     private String messageID;
 
     // FIXME: Just for testing purposes!!!
     private Context context;
 
     public SignMessageTask(Context context, String username,
-                           String location, Date start_date, Date end_date,
-                           String content, ArrayList<Pair> whitelisted, ArrayList<Pair> blackListed,
+                           FullLocation location, Date start_date, Date end_date,
+                           String content, ArrayList<MuleMessageFilter> filters,
                            String messageID){
 
         globalState = (NetworkGlobalState) context.getApplicationContext();
@@ -52,8 +54,7 @@ public class SignMessageTask extends AsyncTask<Void, String,String> {
         this.start_date = start_date;
         this.end_date = end_date;
         this.content = content;
-        this.whitelisted = whitelisted;
-        this.blackListed = blackListed;
+        this.filters = filters;
         this.messageID = messageID;
 
         // FIXME: Just for testing purposes!!!
@@ -73,25 +74,20 @@ public class SignMessageTask extends AsyncTask<Void, String,String> {
 
             jsonMessage.put("id",messageID);
             jsonMessage.put("username", username);
+
+            //TODO: Check if we want to keep returning the JSON on toString
             jsonMessage.put("location", location);
+
             jsonMessage.put("start_date", start_date.getTime());
             jsonMessage.put("end_date", end_date.getTime());
             jsonMessage.put("content",content);
 
             JSONObject jsonFilter;
-            for(Pair filter : whitelisted){
+            for(MuleMessageFilter filter : filters){
                 jsonFilter = new JSONObject();
-                jsonFilter.put("key",filter.first);
-                jsonFilter.put("value",filter.second);
-                jsonFilter.put("is_whitelist",true);
-                jsonFilters.put(jsonFilter);
-            }
-
-            for(Pair filter : blackListed){
-                jsonFilter = new JSONObject();
-                jsonFilter.put("key",filter.first);
-                jsonFilter.put("value",filter.second);
-                jsonFilter.put("is_whitelist",false);
+                jsonFilter.put("key",filter.getKey());
+                jsonFilter.put("value",filter.getValue());
+                jsonFilter.put("is_whitelist",!filter.isBlackList());
                 jsonFilters.put(jsonFilter);
             }
 
@@ -133,11 +129,8 @@ public class SignMessageTask extends AsyncTask<Void, String,String> {
         else {
             String msgStr = messageID + username + location + start_date.getTime() + end_date.getTime() + content;
 
-            for(Pair<String, String> filter : whitelisted)
-                msgStr += filter.first + filter.second + "1";
-
-            for(Pair<String, String> filter : blackListed)
-                msgStr += filter.first + filter.second + "0";
+            for(MuleMessageFilter filter : filters)
+                msgStr += filter.getKey() + filter.getValue() + (filter.isBlackList()? "0" : "1");
 
             try {
                 byte[] msgBytes = msgStr.getBytes("UTF-8");
