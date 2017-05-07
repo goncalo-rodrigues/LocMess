@@ -19,7 +19,7 @@ import pt.ulisboa.tecnico.locmess.data.LocmessDbHelper;
  * Created by goncalo on 23-03-2017.
  */
 
-public class MuleMessageFilter {
+public class MuleMessageFilter implements Comparable<MuleMessageFilter> {
     private String messageId;
     private String key;
     private String value;
@@ -130,5 +130,24 @@ public class MuleMessageFilter {
             e.printStackTrace();
         }
         return result;
+    }
+
+    @Override
+    public int compareTo(MuleMessageFilter other) {
+        int res;
+
+        if((res = messageId.compareTo(other.getMessageId())) != 0)
+            return res;
+
+        if((res = key.compareTo(other.getKey())) != 0)
+            return res;
+
+        if((res = value.compareTo(other.getValue())) != 0)
+            return res;
+
+        int myBL = blackList? 0 : -1;
+        int otherBL = other.isBlackList()? 0 : -1;
+
+        return myBL - otherBL;
     }
 }
