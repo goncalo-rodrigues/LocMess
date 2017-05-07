@@ -51,8 +51,6 @@ def msg_to_str(id, username, location, gps, ssids, start_date, end_date, content
     for el in filters:
         filters_str += el["key"] + el["value"] + ("1" if el["is_whitelist"] else "0")
 
-    print "------------INIT------------" + id + username + location + str(start_date) + str(end_date) + content + filters_str + "------------END------------"
-
     return id + username + location + str(start_date) + str(end_date) + content + filters_str
 
 

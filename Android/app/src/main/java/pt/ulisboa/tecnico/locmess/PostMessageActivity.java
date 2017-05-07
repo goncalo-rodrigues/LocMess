@@ -20,13 +20,11 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.ScrollView;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
+
 import pt.ulisboa.tecnico.locmess.data.entities.CreatedMessage;
 import pt.ulisboa.tecnico.locmess.data.entities.FullLocation;
-import pt.ulisboa.tecnico.locmess.data.entities.Message;
 
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
@@ -48,11 +46,8 @@ import pt.ulisboa.tecnico.locmess.serverrequests.GetLocationInfoTask;
 import pt.ulisboa.tecnico.locmess.serverrequests.PostMessageTask;
 import pt.ulisboa.tecnico.locmess.serverrequests.RequestExistentFiltersTask;
 import pt.ulisboa.tecnico.locmess.serverrequests.RequestLocationsTask;
-import pt.ulisboa.tecnico.locmess.serverrequests.SignMessageTask;
 import pt.ulisboa.tecnico.locmess.wifidirect.WifiDirectService;
 import com.toptoche.searchablespinnerlibrary.SearchableSpinner;
-
-import static java.lang.Math.random;
 
 public class PostMessageActivity extends ActivityWithDrawer implements FilterAdapter.Callback, View.OnClickListener,
         TimePicker.TimePickerCallback, DatePicker.DatePickerCallback, PostMessageTask.PostMessageTaskCallBack, RequestExistentFiltersTask.RequestFiltersTaskCallBack, RequestLocationsTask.RequestLocationsTaskCallBack, GetLocationInfoTask.GetLocationInfoCallBack {
@@ -458,43 +453,10 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
 
     @Override
     public void OnGetLocationInfoComplete(FullLocation flocation, List<MuleMessageFilter> filters, String sig) {
-        // TODO: Make this in the background
         // TODO: sig may be null
-        Toast t = null;
-        String msgStr = id + username + flocation.toCheckSig() + startDate.getTime().getTime() + endDate.getTime().getTime() + messageText;
-
-        for(MuleMessageFilter filter : filters)
-            msgStr += filter.getKey() + filter.getValue() + (filter.isBlackList()? "0" : "1");
-
-        try {
-            byte[] msgBytes = msgStr.getBytes("UTF-8");
-            byte[] receivedSig = Base64.decode(sig, Base64.DEFAULT);
-
-            Signature sigInst = Signature.getInstance("SHA256withRSA");
-            sigInst.initVerify(Utils.getCertificate());
-            sigInst.update(msgBytes);
-
-            Toast.makeText(this, msgStr, Toast.LENGTH_LONG).show();
-
-            t = Toast.makeText(this, "Signature verification result: " + sigInst.verify(receivedSig), Toast.LENGTH_SHORT);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (SignatureException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-
-        t.show();
-
-        // FIXME: Just for debugging purposes!!!
-//        new SignMessageTask(this, username, flocation, startD, endD, messageText, filters, id).execute();
-
-        // TODO: Add the message signature field in this!!!
+        byte[] receivedSig = Base64.decode(sig, Base64.DEFAULT);
         MuleMessage muleM = new MuleMessage(id, messageText, username, flocation, startD,
-                endD,filters, 0);
+                endD,filters, 0, receivedSig);
         muleM.save(this);
 
         CreatedMessage messageAdOc = new CreatedMessage(id,messageText, username, location, startDate.getTime(), endDate.getTime(), false);

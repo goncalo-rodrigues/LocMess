@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.Nullable;
+import android.util.Base64;
 import android.util.JsonReader;
 import android.util.Log;
 
@@ -14,11 +15,18 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.Signature;
+import java.security.SignatureException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import pt.ulisboa.tecnico.locmess.Utils;
 import pt.ulisboa.tecnico.locmess.data.LocmessContract;
 import pt.ulisboa.tecnico.locmess.data.LocmessDbHelper;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
@@ -32,10 +40,11 @@ public class MuleMessage extends Message {
     private List<MuleMessageFilter> filters;
     private int hops = 0;
     private FullLocation fullLocation;
+    private byte[] sig;
     public static final int MAX_MULE_MESSAGES = 16;
 
-    public MuleMessage(String id, String messageText, String author, FullLocation location, Date startDate, Date endDate, List<MuleMessageFilter> filters, int hops) {
-        init(id, messageText, author, location, startDate, endDate, filters, hops);
+    public MuleMessage(String id, String messageText, String author, FullLocation location, Date startDate, Date endDate, List<MuleMessageFilter> filters, int hops, byte[] sig) {
+        init(id, messageText, author, location, startDate, endDate, filters, hops, sig);
     }
 
     @Override
@@ -52,6 +61,7 @@ public class MuleMessage extends Message {
         Date endDate = null;
         List<MuleMessageFilter> filters = new ArrayList<>();
         int hops = 0;
+        byte[] sig = null;
         reader.beginObject();
         while (reader.hasNext()) {
             String name = reader.nextName();
@@ -84,6 +94,10 @@ public class MuleMessage extends Message {
                     }
                     reader.endArray();
                     break;
+                case "signature":
+                    String b64Sig = reader.nextString();
+                    sig = Base64.decode(b64Sig, Base64.DEFAULT);
+                    break;
                 default:
                     reader.skipValue();
                     break;
@@ -95,25 +109,27 @@ public class MuleMessage extends Message {
         for (MuleMessageFilter f: filters) {
             f.setMessageId(id);
         }
-        init(id, messageText, author, location, startDate, endDate, filters, hops);
+        init(id, messageText, author, location, startDate, endDate, filters, hops, sig);
     }
 
     public MuleMessage(final Cursor cursor, Context ctx) {
         super(cursor);
         int hops_idx = cursor.getColumnIndexOrThrow(LocmessContract.MuleMessageTable.COLUMN_NAME_HOPS);
+        int sig_idx = cursor.getColumnIndexOrThrow(LocmessContract.MuleMessageTable.COLUMN_NAME_SIGNATURE);
         this.hops = cursor.getInt(hops_idx);
         this.getFullLocation(ctx);
         this.getFilters(ctx);
+        this.sig = cursor.getBlob(sig_idx);
     }
 
-    protected void init(String id, String messageText, String author, FullLocation location, Date startDate, Date endDate, List<MuleMessageFilter> filters, int hops) {
+    protected void init(String id, String messageText, String author, FullLocation location, Date startDate, Date endDate, List<MuleMessageFilter> filters, int hops, byte[] sig) {
         super.init(id, messageText, author, location.getLocation(), startDate, endDate, false);
+        Collections.sort(filters);
         this.filters = filters;
         this.hops = hops;
         this.fullLocation = location;
+        this.sig = sig;
     }
-
-
 
     // if context is not null, this method will retrieve the filters from the DB
     public List<MuleMessageFilter> getFilters(@Nullable Context ctx) {
@@ -136,6 +152,8 @@ public class MuleMessage extends Message {
             }
 
         }
+
+        Collections.sort(filters);
         return filters;
     }
 
@@ -167,6 +185,7 @@ public class MuleMessage extends Message {
         values.put(LocmessContract.MuleMessageTable.COLUMN_NAME_LOCATION, getLocation());
         values.put(LocmessContract.MuleMessageTable.COLUMN_NAME_HOPS, getHops());
         values.put(LocmessContract.MuleMessageTable.COLUMN_NAME_TIMESTAMP, (new Date()).getTime());
+        values.put(LocmessContract.MuleMessageTable.COLUMN_NAME_SIGNATURE, sig);
         try {
             db.insert(LocmessContract.MuleMessageTable.TABLE_NAME, null, values);
         } catch (SQLiteConstraintException e) {
@@ -250,6 +269,7 @@ public class MuleMessage extends Message {
             result.put("startDate", getStartDate().toString());
             result.put("endDate", getEndDate().toString());
             result.put("hops", getHops());
+            result.put("signature", Base64.encode(sig, Base64.DEFAULT));
             JSONArray filts = new JSONArray();
             for (MuleMessageFilter f : getFilters(null)) {
                 filts.put(f.getJson());
@@ -260,7 +280,6 @@ public class MuleMessage extends Message {
         }
         return result;
     }
-
 
     public FullLocation getFullLocation() {
         return fullLocation;
@@ -276,7 +295,42 @@ public class MuleMessage extends Message {
         return new ReceivedMessage(getId(), getMessageText(), getAuthor(), getLocation(), getStartDate(), getEndDate(), false);
     }
 
+    public boolean validSignature() {
+        boolean res = false;
+        String msgStr = getId() + getAuthor() + fullLocation.toCheckSig() +
+                getStartDate().getTime() + getEndDate().getTime() + getMessageText();
+
+        for(MuleMessageFilter filter : filters)
+            msgStr += filter.getKey() + filter.getValue() + (filter.isBlackList()? "0" : "1");
+
+        try {
+            byte[] msgBytes = msgStr.getBytes("UTF-8");
+
+            Signature sigInst = Signature.getInstance("SHA256withRSA");
+            sigInst.initVerify(Utils.getCertificate());
+            sigInst.update(msgBytes);
+
+            res = sigInst.verify(sig);
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        } catch (SignatureException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        return res;
+    }
+
     public boolean amIallowedToReceiveThisMessage(Context ctx) {
+        if(!validSignature()) {
+            Log.i(LOG_TAG, "Signature is not valid. Discarding message.");
+            return false;
+        }
+
         List<MuleMessageFilter> filters = getFilters(ctx);
         if (getAuthor().equals(((NetworkGlobalState) ctx.getApplicationContext()).getUsername())) return false;
         if (filters.size() == 0) return true;
