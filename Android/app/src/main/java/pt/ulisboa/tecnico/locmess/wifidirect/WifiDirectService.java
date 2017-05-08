@@ -235,6 +235,14 @@ public class WifiDirectService extends Service implements SimWifiP2pBroadcastRec
             case Request.REQUEST_MULE_MESSAGE:
                 MuleMessage m = (MuleMessage) message.getContent();
                 m.setHops(m.getHops()+1); // 1 more hop!
+
+                if(!m.validSignature()) {
+                    Log.i(LOG_TAG, "The message signature was wrong. It will not be kept.");
+                    return new Response(false);
+                }
+
+                Log.i(LOG_TAG, "Signature was valid. Making additional verifications.");
+
                 if (routingPolicy.shouldKeepMessage(m, this)) {
                     m.save(this);
                     sendMessageToEveryone(m);

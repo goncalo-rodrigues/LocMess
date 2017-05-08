@@ -40,10 +40,10 @@ public class MuleMessage extends Message {
     private List<MuleMessageFilter> filters;
     private int hops = 0;
     private FullLocation fullLocation;
-    private byte[] sig;
+    private String sig;
     public static final int MAX_MULE_MESSAGES = 16;
 
-    public MuleMessage(String id, String messageText, String author, FullLocation location, Date startDate, Date endDate, List<MuleMessageFilter> filters, int hops, byte[] sig) {
+    public MuleMessage(String id, String messageText, String author, FullLocation location, Date startDate, Date endDate, List<MuleMessageFilter> filters, int hops, String sig) {
         init(id, messageText, author, location, startDate, endDate, filters, hops, sig);
     }
 
@@ -61,7 +61,7 @@ public class MuleMessage extends Message {
         Date endDate = null;
         List<MuleMessageFilter> filters = new ArrayList<>();
         int hops = 0;
-        byte[] sig = null;
+        String sig = null;
         reader.beginObject();
         while (reader.hasNext()) {
             String name = reader.nextName();
@@ -79,10 +79,10 @@ public class MuleMessage extends Message {
                     location = new FullLocation(reader);
                     break;
                 case "startDate":
-                    startDate = new Date(reader.nextString());
+                    startDate = new Date(reader.nextLong());
                     break;
                 case "endDate":
-                    endDate = new Date(reader.nextString());
+                    endDate = new Date(reader.nextLong());
                     break;
                 case "hops":
                     hops = reader.nextInt();
@@ -95,8 +95,7 @@ public class MuleMessage extends Message {
                     reader.endArray();
                     break;
                 case "signature":
-                    String b64Sig = reader.nextString();
-                    sig = Base64.decode(b64Sig, Base64.DEFAULT);
+                    sig = reader.nextString();
                     break;
                 default:
                     reader.skipValue();
@@ -119,10 +118,10 @@ public class MuleMessage extends Message {
         this.hops = cursor.getInt(hops_idx);
         this.getFullLocation(ctx);
         this.getFilters(ctx);
-        this.sig = cursor.getBlob(sig_idx);
+        this.sig = cursor.getString(sig_idx);
     }
 
-    protected void init(String id, String messageText, String author, FullLocation location, Date startDate, Date endDate, List<MuleMessageFilter> filters, int hops, byte[] sig) {
+    protected void init(String id, String messageText, String author, FullLocation location, Date startDate, Date endDate, List<MuleMessageFilter> filters, int hops, String sig) {
         super.init(id, messageText, author, location.getLocation(), startDate, endDate, false);
         Collections.sort(filters);
         this.filters = filters;
@@ -266,10 +265,10 @@ public class MuleMessage extends Message {
             result.put("messageText", getMessageText());
             result.put("author", getAuthor());
             result.put("location", fullLocation.getJson());
-            result.put("startDate", getStartDate().toString());
-            result.put("endDate", getEndDate().toString());
+            result.put("startDate", getStartDate().getTime());
+            result.put("endDate", getEndDate().getTime());
             result.put("hops", getHops());
-            result.put("signature", Base64.encode(sig, Base64.DEFAULT));
+            result.put("signature", sig);
             JSONArray filts = new JSONArray();
             for (MuleMessageFilter f : getFilters(null)) {
                 filts.put(f.getJson());
@@ -305,13 +304,13 @@ public class MuleMessage extends Message {
 
         try {
             byte[] msgBytes = msgStr.getBytes("UTF-8");
+            byte[] binSig = Base64.decode(sig, Base64.DEFAULT);
 
             Signature sigInst = Signature.getInstance("SHA256withRSA");
             sigInst.initVerify(Utils.getCertificate());
             sigInst.update(msgBytes);
 
-            res = sigInst.verify(sig);
-
+            res = sigInst.verify(binSig);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         } catch (InvalidKeyException e) {
@@ -326,11 +325,6 @@ public class MuleMessage extends Message {
     }
 
     public boolean amIallowedToReceiveThisMessage(Context ctx) {
-        if(!validSignature()) {
-            Log.i(LOG_TAG, "Signature is not valid. Discarding message.");
-            return false;
-        }
-
         List<MuleMessageFilter> filters = getFilters(ctx);
         if (getAuthor().equals(((NetworkGlobalState) ctx.getApplicationContext()).getUsername())) return false;
         if (filters.size() == 0) return true;

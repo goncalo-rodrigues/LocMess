@@ -401,6 +401,10 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
             filters.add(mmf);
         }
 
+        // Takes out the millis
+        startD.setTime(startD.getTime() - startD.getTime() % 1000);
+        endD.setTime(endD.getTime() - endD.getTime() % 1000);
+
         Collections.sort(filters);
 
         new GetLocationInfoTask(this, this, username, location, startD, endD, messageText,
@@ -454,9 +458,8 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
     @Override
     public void OnGetLocationInfoComplete(FullLocation flocation, List<MuleMessageFilter> filters, String sig) {
         // TODO: sig may be null
-        byte[] receivedSig = Base64.decode(sig, Base64.DEFAULT);
         MuleMessage muleM = new MuleMessage(id, messageText, username, flocation, startD,
-                endD,filters, 0, receivedSig);
+                endD,filters, 0, sig);
         muleM.save(this);
 
         CreatedMessage messageAdOc = new CreatedMessage(id,messageText, username, location, startDate.getTime(), endDate.getTime(), false);
