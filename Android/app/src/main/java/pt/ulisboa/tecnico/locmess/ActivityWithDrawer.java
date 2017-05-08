@@ -189,7 +189,7 @@ public abstract class ActivityWithDrawer extends AppCompatActivity implements Dr
 //                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 intent.addFlags(FLAG_ACTIVITY_NO_ANIMATION);
                 startActivity(intent);
-                finish();
+//                finish();
                 overridePendingTransition(0, 0);
                 break;
             case 1:
@@ -205,13 +205,15 @@ public abstract class ActivityWithDrawer extends AppCompatActivity implements Dr
 //                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 intent.addFlags(FLAG_ACTIVITY_NO_ANIMATION);
                 startActivity(intent);
-                finish();
+//                finish();
                 overridePendingTransition(0, 0);
                 break;
             case 3:
                 intent = new Intent(this, MapsActivity.class);
+                intent.addFlags(FLAG_ACTIVITY_NO_ANIMATION);
                 startActivity(intent);
-                finish();
+//                finish();
+                overridePendingTransition(0, 0);
                 break;
         }
 
