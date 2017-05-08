@@ -16,6 +16,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.NumberPicker;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,13 +26,18 @@ import java.util.List;
 
 import pt.ulisboa.tecnico.locmess.adapters.KeyValueAdapter;
 import pt.ulisboa.tecnico.locmess.data.CustomCursorLoader;
+import pt.ulisboa.tecnico.locmess.data.entities.Location;
 import pt.ulisboa.tecnico.locmess.data.entities.ProfileKeyValue;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 import pt.ulisboa.tecnico.locmess.serverrequests.RemoveMyFilterTask;
 import pt.ulisboa.tecnico.locmess.serverrequests.RequestExistentFiltersTask;
 import pt.ulisboa.tecnico.locmess.serverrequests.SetMyFilterTask;
 
-public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapter.Callback, View.OnClickListener, LoaderManager.LoaderCallbacks<Cursor>,RequestExistentFiltersTask.RequestFiltersTaskCallBack, SetMyFilterTask.SetMyFilterTaskCallBack, RemoveMyFilterTask.SetMyFilterTaskCallBack {
+public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapter.Callback,
+        View.OnClickListener, LoaderManager.LoaderCallbacks<Cursor>,
+        RequestExistentFiltersTask.RequestFiltersTaskCallBack,
+        SetMyFilterTask.SetMyFilterTaskCallBack, RemoveMyFilterTask.SetMyFilterTaskCallBack,
+        NumberPicker.OnValueChangeListener {
 
     private static final String LOG_TAG = ProfileActivity.class.getSimpleName();
     private KeyValueAdapter keyValueAdapter;
@@ -47,6 +53,7 @@ public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapt
     private ImageButton mAddBt;
     private Cursor keyValues;
     ProgressBar waitingBallPb;
+    private static Thread before = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)  {
@@ -113,8 +120,17 @@ public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapt
 
         getSupportLoaderManager().initLoader(0, null, this);
 
-        super.onCreate(savedInstanceState);
+        // Number picker for selecting the max number
+        NumberPicker np = (NumberPicker) findViewById(R.id.nr_mule);
+        np.setMinValue(0);
+        np.setMaxValue(20);
+        np.setWrapSelectorWheel(true);
 
+        // TODO: Set the right MAX_NUMBER initial value!!!
+        np.setValue(10);
+        np.setOnValueChangedListener(this);
+
+        super.onCreate(savedInstanceState);
     }
 
     @Override
@@ -210,5 +226,39 @@ public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapt
         Toast.makeText(this, "No internet conection", Toast.LENGTH_SHORT).show();
         waitingBallPb.setVisibility(View.GONE);
         mAddBt.setVisibility(View.VISIBLE);
+    }
+
+    /*
+     *  Needed for Number Picker
+     */
+
+    @Override
+    public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+        if(before != null)
+            before.interrupt();
+
+        before = new Thread(new UpdateMaxMuleMsgsThread(newVal));
+        before.start();
+    }
+
+    private class UpdateMaxMuleMsgsThread implements Runnable {
+        private int n;
+
+        public UpdateMaxMuleMsgsThread(int n) {
+            this.n = n;
+        }
+
+        @Override
+        public void run() {
+            try {
+                // TODO: Update the real MAX_NUMBER, not just print a log message!!!
+
+                Thread.sleep(5000); // Sleeps 5 seconds
+                Log.i(LOG_TAG, "The max number would be updated to: " + n);
+            } catch (InterruptedException e) {
+                // It was killed by a follower thread
+                Log.i(LOG_TAG, "A newer size update appeared.");
+            }
+        }
     }
 }

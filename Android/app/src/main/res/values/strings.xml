@@ -55,4 +55,5 @@
     <string name="notification_title">New message</string>
     <string name="notification_ticker">New messages available</string>
     <string name="title_activity_maps">Map</string>
+    <string name="maximum_number_of_mule_messages">Maximum number of mule messages:</string>
 </resources>
