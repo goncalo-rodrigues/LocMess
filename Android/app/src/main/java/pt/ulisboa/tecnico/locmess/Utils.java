@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.locmess;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.IdRes;
 import android.support.annotation.RawRes;
@@ -40,13 +41,13 @@ import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 public class Utils {
 
     private static SSLSocketFactory sslSocketFactory = null;
-    private static int counter = 0;
     private static Certificate ca = null;
     public static final String PREFS_NAME = "sharedPreferences";
     public static final String NR_MULE_MSGS = "nrMuleMessages";
     public static final String SESSION = "session";
     public static final String USERNAME = "username";
     public static final String SESSION_TS = "timestamp";
+    public static final String MSG_COUNTER = "counter";
 
     public static String buildMessageId(Context ctx, boolean centralized) {
         ByteBuffer buffer = ByteBuffer.allocate(1+128+10+4);
@@ -57,8 +58,11 @@ public class Utils {
         //"EEE MMM dd HH:mm:ss zzz yyyy"
             String timestamp = String.valueOf(( (NetworkGlobalState) ctx.getApplicationContext()).getSessionTimestamp().getTime() / 1000);
             buffer.put(String.format("%10s", timestamp).replace(' ', '0').getBytes("US-ASCII"));
-            buffer.putInt(counter++);
 
+            SharedPreferences settings = ctx.getSharedPreferences(PREFS_NAME, 0);
+            int counter = settings.getInt(MSG_COUNTER, 0);
+            settings.edit().putInt(MSG_COUNTER, counter + 1).apply();
+            buffer.putInt(counter);
 
             return new String(buffer.array(), "US-ASCII");
         } catch (UnsupportedEncodingException e) {

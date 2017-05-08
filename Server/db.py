@@ -55,7 +55,8 @@ class Database:
         i = 0
         while i < length:
             try:
-                lst_rand.append(chr(class_random.getrandbits(7)).encode("utf8"))
+                #lst_rand.append(chr(class_random.getrandbits(7)).encode("utf8"))
+                lst_rand.append(chr(class_random.randint(32, 126)).encode("utf8")) # Shared preferences recognizes
                 i += 1
             except UnicodeDecodeError:
                 print "Invalid char for session_id!"
