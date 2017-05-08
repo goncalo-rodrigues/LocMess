@@ -1,12 +1,14 @@
 package pt.ulisboa.tecnico.locmess.serverrequests;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.IOException;
 import java.net.URL;
 
+import pt.ulisboa.tecnico.locmess.Utils;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 
 /**
@@ -15,11 +17,12 @@ import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 
 public class LogoutTask extends AsyncTask<Void, String, String>{
     private LogoutCallBack callback;
+    private Context context;
     NetworkGlobalState globalState;
-
 
     public LogoutTask(LogoutCallBack ltcb, Context context){
         globalState = (NetworkGlobalState) context.getApplicationContext();
+        this.context = context;
         callback = ltcb;
     }
 
@@ -56,18 +59,16 @@ public class LogoutTask extends AsyncTask<Void, String, String>{
 
     @Override
     protected void onPostExecute(String result) {
-        globalState.setUsername(null);
-
-        if (result.equals("nok")) {
-            callback.logoutErrorResponse();
-        }
-        else if (result.equals("conetionError")) {
+        if (result == null || result.equals("conetionError")) {
             callback.OnLogoutNoInternetConnection();
         }
 
+        else if (result.equals("nok")) {
+            callback.logoutErrorResponse();
+        }
+
         else {
-            globalState.setCommunication_Key(null);
-            globalState.setId(null);
+            globalState.logout();
             callback.logoutComplete();
         }
         super.onPostExecute(result);

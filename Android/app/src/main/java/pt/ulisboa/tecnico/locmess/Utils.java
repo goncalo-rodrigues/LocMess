@@ -42,6 +42,11 @@ public class Utils {
     private static SSLSocketFactory sslSocketFactory = null;
     private static int counter = 0;
     private static Certificate ca = null;
+    public static final String PREFS_NAME = "sharedPreferences";
+    public static final String NR_MULE_MSGS = "nrMuleMessages";
+    public static final String SESSION = "session";
+    public static final String USERNAME = "username";
+    public static final String SESSION_TS = "timestamp";
 
     public static String buildMessageId(Context ctx, boolean centralized) {
         ByteBuffer buffer = ByteBuffer.allocate(1+128+10+4);

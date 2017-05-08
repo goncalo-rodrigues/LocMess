@@ -2,6 +2,7 @@ package pt.ulisboa.tecnico.locmess.data.entities;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
@@ -37,19 +38,16 @@ import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 
 public class MuleMessage extends Message {
     private static final String LOG_TAG = MuleMessage.class.getSimpleName();
+    public static final int MAX_MULE_MESSAGES = 16;
+    public static final int INIT_MULE_MESSAGES = 10;
+
     private List<MuleMessageFilter> filters;
     private int hops = 0;
     private FullLocation fullLocation;
     private String sig;
-    public static final int MAX_MULE_MESSAGES = 16;
 
     public MuleMessage(String id, String messageText, String author, FullLocation location, Date startDate, Date endDate, List<MuleMessageFilter> filters, int hops, String sig) {
         init(id, messageText, author, location, startDate, endDate, filters, hops, sig);
-    }
-
-    @Override
-    public String toString() {
-        return getJson().toString();
     }
 
     public MuleMessage(JsonReader reader) throws IOException {
@@ -200,7 +198,10 @@ public class MuleMessage extends Message {
                 null, null, null, LocmessContract.MuleMessageTable.COLUMN_NAME_TIMESTAMP);
         int count = query.getCount();
         db.beginTransaction();
-        while (count > MAX_MULE_MESSAGES) {
+
+        // The max number of mule messages may change at any time
+        int max_nr = ctx.getSharedPreferences(Utils.PREFS_NAME, 0).getInt(Utils.NR_MULE_MSGS, INIT_MULE_MESSAGES);
+        while (count > max_nr) {
             query.moveToNext();
             String id = query.getString(query.getColumnIndex(LocmessContract.MuleMessageTable.COLUMN_NAME_ID));
             db.delete(LocmessContract.MuleMessageTable.TABLE_NAME, LocmessContract.MuleMessageTable.COLUMN_NAME_ID + " = ?", new String[] {id});
@@ -368,5 +369,8 @@ public class MuleMessage extends Message {
         return exists;
     }
 
-
+    @Override
+    public String toString() {
+        return getJson().toString();
+    }
 }

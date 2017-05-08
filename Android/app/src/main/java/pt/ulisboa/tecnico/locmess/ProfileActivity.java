@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.locmess;
 
+import android.content.SharedPreferences;
 import android.support.v4.app.LoaderManager;
 import android.content.Context;
 import android.content.CursorLoader;
@@ -27,6 +28,7 @@ import java.util.List;
 import pt.ulisboa.tecnico.locmess.adapters.KeyValueAdapter;
 import pt.ulisboa.tecnico.locmess.data.CustomCursorLoader;
 import pt.ulisboa.tecnico.locmess.data.entities.Location;
+import pt.ulisboa.tecnico.locmess.data.entities.MuleMessage;
 import pt.ulisboa.tecnico.locmess.data.entities.ProfileKeyValue;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 import pt.ulisboa.tecnico.locmess.serverrequests.RemoveMyFilterTask;
@@ -54,10 +56,11 @@ public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapt
     private Cursor keyValues;
     ProgressBar waitingBallPb;
     private static Thread before = null;
+    private SharedPreferences settings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)  {
-
+        settings = getSharedPreferences(Utils.PREFS_NAME, 0);
         setContentView(R.layout.activity_profile);
 
 //        keyValueList.add(new KeyValueAdapter.KeyValue("keeeey", "valueee"));
@@ -123,11 +126,9 @@ public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapt
         // Number picker for selecting the max number
         NumberPicker np = (NumberPicker) findViewById(R.id.nr_mule);
         np.setMinValue(0);
-        np.setMaxValue(20);
+        np.setMaxValue(MuleMessage.MAX_MULE_MESSAGES);
         np.setWrapSelectorWheel(true);
-
-        // TODO: Set the right MAX_NUMBER initial value!!!
-        np.setValue(10);
+        np.setValue(settings.getInt(Utils.NR_MULE_MSGS, MuleMessage.INIT_MULE_MESSAGES));
         np.setOnValueChangedListener(this);
 
         super.onCreate(savedInstanceState);
@@ -251,10 +252,9 @@ public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapt
         @Override
         public void run() {
             try {
-                // TODO: Update the real MAX_NUMBER, not just print a log message!!!
-
                 Thread.sleep(5000); // Sleeps 5 seconds
-                Log.i(LOG_TAG, "The max number would be updated to: " + n);
+                settings.edit().putInt(Utils.NR_MULE_MSGS, n).apply();
+                Log.i(LOG_TAG, "The max number was updated to: " + n);
             } catch (InterruptedException e) {
                 // It was killed by a follower thread
                 Log.i(LOG_TAG, "A newer size update appeared.");

@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.locmess;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import pt.ulisboa.tecnico.locmess.data.LocmessDbHelper;
+import pt.ulisboa.tecnico.locmess.data.entities.MuleMessage;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 import pt.ulisboa.tecnico.locmess.serverrequests.LoginTask;
 import pt.ulisboa.tecnico.locmess.serverrequests.LogoutTask;
@@ -53,6 +55,7 @@ public class LoginActivity extends AppCompatActivity implements LoginTask.LoginT
         waitingBallPb.setVisibility(View.GONE);
         loginBt.setVisibility(View.VISIBLE);
         loginResquested = false;
+
         //TODO some logic may be needed here
         //this is the method that will be caled when the reponse from the server is received
         Toast.makeText(this, "Loged in,server answer:"+id, Toast.LENGTH_LONG).show();
