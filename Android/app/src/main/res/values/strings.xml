@@ -56,4 +56,7 @@
     <string name="notification_ticker">New messages available</string>
     <string name="title_activity_maps">Map</string>
     <string name="maximum_number_of_mule_messages">Maximum number of mule messages:</string>
+    <string name="gps_network_not_enabled">Gps is not enabled. Would you like to enable it?</string>
+    <string name="open_location_settings">Yes</string>
+    <string name="cancel">Cancel</string>
 </resources>

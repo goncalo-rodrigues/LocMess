@@ -1,10 +1,12 @@
 package pt.ulisboa.tecnico.locmess;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -18,6 +20,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Messenger;
+import android.provider.Settings;
 import android.support.annotation.IntDef;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -133,6 +136,7 @@ public class PeriodicLocationService extends Service implements LocationListener
             try {
                 mLocationManager.requestLocationUpdates(
                         LocationManager.GPS_PROVIDER, minTimeMs, minDistance, this);
+                checkIfGpsEnabled();
                 Location location = getLastKnownLocation();
                 onLocationChanged(location);
                 isRequestingLocation = true;
@@ -142,7 +146,8 @@ public class PeriodicLocationService extends Service implements LocationListener
                 // It should not happen, hopefully
             }
         } else {
-            Log.e(LOG_TAG, "GPS permissions not enabled!");
+            if (!permGranted)
+                Log.e(LOG_TAG, "GPS permissions not enabled!");
         }
 
     }
@@ -201,6 +206,27 @@ public class PeriodicLocationService extends Service implements LocationListener
 
     @Override
     public void onProviderDisabled(String provider) {
+
+    }
+
+    private void checkIfGpsEnabled() {
+        LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        boolean gps_enabled = false;
+        boolean network_enabled = false;
+
+        try {
+            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch(Exception ex) {}
+
+        try {
+            network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        } catch(Exception ex) {}
+
+        if (!gps_enabled) {
+            Intent myIntent = new Intent( Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            myIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(myIntent);
+        }
 
     }
 
