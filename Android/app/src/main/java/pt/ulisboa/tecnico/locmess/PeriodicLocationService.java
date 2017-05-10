@@ -82,7 +82,6 @@ public class PeriodicLocationService extends Service implements LocationListener
 
     private Runnable runnable = new Runnable(){
         public void run() {
-
             sendToServer();
             handler.postDelayed(runnable, interval);
         }
