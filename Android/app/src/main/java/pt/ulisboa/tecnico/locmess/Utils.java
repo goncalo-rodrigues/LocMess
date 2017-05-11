@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.IdRes;
 import android.support.annotation.RawRes;
+import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
@@ -24,6 +25,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Date;
+import java.util.Random;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -42,6 +44,11 @@ public class Utils {
 
     private static SSLSocketFactory sslSocketFactory = null;
     private static Certificate ca = null;
+    private static byte[] rand = null;
+
+    private static final int RAND_SIZE = 128;
+    private static final int N_CHARS = 95;
+    private static final int START = 32;
     public static final String PREFS_NAME = "sharedPreferences";
     public static final String NR_MULE_MSGS = "nrMuleMessages";
     public static final String SESSION = "session";
@@ -52,8 +59,12 @@ public class Utils {
     public static String buildMessageId(Context ctx, boolean centralized) {
         ByteBuffer buffer = ByteBuffer.allocate(1+128+10+4);
         buffer.put((byte) (centralized ? 0 : 1));
-        byte[] session_id =( (NetworkGlobalState) ctx.getApplicationContext()).getId().getBytes();
-        buffer.put(session_id);
+
+        if(rand == null)
+            makeRandom();
+
+        buffer.put(rand);
+
         try {
         //"EEE MMM dd HH:mm:ss zzz yyyy"
             String timestamp = String.valueOf(( (NetworkGlobalState) ctx.getApplicationContext()).getSessionTimestamp().getTime() / 1000);
@@ -69,6 +80,14 @@ public class Utils {
             e.printStackTrace();
         }
         return new String(buffer.array());
+    }
+
+    public static void makeRandom() {
+        Random random = new Random();
+        rand = new byte[RAND_SIZE];
+
+        for(int i = 0; i < RAND_SIZE; i++)
+            rand[i] = (byte) (random.nextInt(N_CHARS) + START);
     }
 
     public static void clearDatabase(Context ctx){

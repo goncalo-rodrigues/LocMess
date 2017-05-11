@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
+
+import pt.ulisboa.tecnico.locmess.Utils;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 
 
@@ -111,11 +113,15 @@ public class PostMessageTask extends AsyncTask<Void, String,String>{
     @Override
     protected void onPostExecute(String result) {
         //TODO see the possible errors and handle them
-        if (result.equals("nok"))
+        if (result.equals("nok")) {
             callback.onErrorResponse();
+            Utils.makeRandom();
+        }
 
-        else if (result.equals("conetionError"))
+        else if (result.equals("conetionError")) {
             callback.OnNoInternetConnection();
+            Utils.makeRandom();
+        }
 
         else
             callback.PostMessageComplete();
