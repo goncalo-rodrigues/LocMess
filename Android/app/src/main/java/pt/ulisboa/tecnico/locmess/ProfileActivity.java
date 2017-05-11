@@ -255,6 +255,7 @@ public class ProfileActivity extends ActivityWithDrawer implements KeyValueAdapt
                 Thread.sleep(5000); // Sleeps 5 seconds
                 settings.edit().putInt(Utils.NR_MULE_MSGS, n).apply();
                 Log.i(LOG_TAG, "The max number was updated to: " + n);
+                MuleMessage.deleteExtraMessages(ProfileActivity.this);
             } catch (InterruptedException e) {
                 // It was killed by a follower thread
                 Log.i(LOG_TAG, "A newer size update appeared.");

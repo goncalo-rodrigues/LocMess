@@ -43,12 +43,14 @@
             android:windowSoftInputMode="stateAlwaysHidden" />
         <activity android:name=".NewLocationActivity" />
 
-        <service android:name=".wifidirect.WifiDirectService" />
+        <service android:name=".wifidirect.WifiDirectService"
+            android:stopWithTask="true"/>
         <service android:name="pt.inesc.termite.wifidirect.service.SimWifiP2pService" />
         <service
             android:name=".PeriodicLocationService"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="true"
+            android:stopWithTask="true"/>
 
         <receiver
             android:name=".AlarmReceiver"

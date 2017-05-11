@@ -194,10 +194,21 @@ public class MuleMessage extends Message {
         }
 
         deleteUseless(ctx);
+        deleteExtraMessages(ctx);
+
+        db.close();
+
+
+    }
+
+    public static void deleteExtraMessages(Context ctx) {
+        LocmessDbHelper helper = new LocmessDbHelper(ctx);
+        SQLiteDatabase db = helper.getWritableDatabase();
+        db.beginTransaction();
         Cursor query = db.query(LocmessContract.MuleMessageTable.TABLE_NAME, null, LocmessContract.MuleMessageTable.COLUMN_NAME_HOPS + " > 0",
                 null, null, null, LocmessContract.MuleMessageTable.COLUMN_NAME_TIMESTAMP);
         int count = query.getCount();
-        db.beginTransaction();
+
 
         // The max number of mule messages may change at any time
         int max_nr = ctx.getSharedPreferences(Utils.PREFS_NAME, 0).getInt(Utils.NR_MULE_MSGS, INIT_MULE_MESSAGES);
@@ -213,8 +224,6 @@ public class MuleMessage extends Message {
         db.endTransaction();
         query.close();
         db.close();
-
-
     }
 
     public static void deleteUseless(Context ctx) {

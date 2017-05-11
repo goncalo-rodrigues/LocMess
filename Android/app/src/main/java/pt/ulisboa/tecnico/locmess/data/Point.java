@@ -69,6 +69,9 @@ public class Point {
             Point ac = c.minus(a);
             double distance = ac.sizeSquared(); // |c-a|^2
             double dotProduct = ab.dot(ac); // |ac.ab|
+            if (dotProduct < vectorSize) {
+                break;
+            }
             double proj = dotProduct*dotProduct/vectorSize; // |ac.ab|^2/|ab|^2
             double distanceToVector = distance - proj; // |ac|^2 - |ac.ab|^2/|ab|^2
             currentD = distanceToVector;
