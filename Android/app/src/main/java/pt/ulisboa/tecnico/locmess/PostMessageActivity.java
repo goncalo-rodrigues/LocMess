@@ -347,6 +347,9 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
             // action with ID action_send was selected
             case R.id.action_send:
                 if(waiting == false) {
+                    if(mLocationAtv.getSelectedItem() == null)
+                        break;
+
                     setScreenWaiting();
 
                     //Store the state that at the moment of send existed
@@ -501,6 +504,14 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
         locationListAdapter.addAll(locations);
         locationListAdapter.notifyDataSetChanged();
         Toast.makeText(this, "Received Locations"+locations.size(), Toast.LENGTH_SHORT).show();
+
+        if(locations.size() == 0) {
+            Toast t = Toast.makeText(this,
+                    R.string.no_location_recv_post_msg, Toast.LENGTH_SHORT);
+            t.show();
+            onBackPressed();
+        }
+
         setScreenNormal();
         setConectionOK();
     }

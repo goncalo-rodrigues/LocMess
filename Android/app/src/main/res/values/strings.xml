@@ -59,4 +59,5 @@
     <string name="gps_network_not_enabled">Gps is not enabled. Would you like to enable it?</string>
     <string name="open_location_settings">Yes</string>
     <string name="cancel">Cancel</string>
+    <string name="no_location_recv_post_msg">No locations to select. Please create one first.</string>
 </resources>
