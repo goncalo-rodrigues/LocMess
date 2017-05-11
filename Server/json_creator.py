@@ -87,7 +87,7 @@ def are_locations(something):
         for el in something:
             if "lat" in el and isinstance(el["lat"], float) and \
                 "long" in el and isinstance(el["long"], float) and \
-                "timestamp" in el and isinstance(el["timestamp"], long) and \
+                "timestamp" in el and isinstance(el["timestamp"], int) and \
                 "ssids" in el:
                 for ssid in el["ssids"]:
                     if not isinstance(ssid, unicode):

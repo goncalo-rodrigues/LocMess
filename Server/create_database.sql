@@ -80,6 +80,6 @@ CREATE TABLE DeliveredMessages (
 	FOREIGN KEY (MessageID) REFERENCES Messages(MessageID) ON DELETE CASCADE
 );
 
-CREATE USER 'locmess_account'@'localhost' IDENTIFIED BY 'FDvlalaland129&&';
+CREATE USER IF NOT EXISTS 'locmess_account'@'localhost' IDENTIFIED BY 'FDvlalaland129&&';
 
 GRANT SELECT,INSERT,UPDATE,DELETE ON cmu_locmess.* TO 'locmess_account'@'localhost';
