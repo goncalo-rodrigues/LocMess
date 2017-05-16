@@ -12,6 +12,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 
+import pt.ulisboa.tecnico.locmess.R;
 import pt.ulisboa.tecnico.locmess.Utils;
 import pt.ulisboa.tecnico.locmess.globalvariable.NetworkGlobalState;
 
@@ -96,6 +97,9 @@ public class PostMessageTask extends AsyncTask<Void, String,String>{
             String resp ="nok";
             if(data.opt("resp")!=null)
                 resp = data.getString("resp");
+            else if(data.opt("error") != null &&
+                    data.getString("error").equals(globalState.getString(R.string.dup_msg_error)))
+                resp = data.getString("error");
 
             return resp;
 
@@ -113,15 +117,14 @@ public class PostMessageTask extends AsyncTask<Void, String,String>{
     @Override
     protected void onPostExecute(String result) {
         //TODO see the possible errors and handle them
-        if (result.equals("nok")) {
+        if (result.equals("nok"))
             callback.onErrorResponse();
-            Utils.makeRandom();
-        }
 
-        else if (result.equals("conetionError")) {
+        else if (result.equals("conetionError"))
             callback.OnNoInternetConnection();
-            Utils.makeRandom();
-        }
+
+        else if(result.equals(globalState.getString(R.string.dup_msg_error)))
+            callback.OnDupMsgId();
 
         else
             callback.PostMessageComplete();
@@ -134,6 +137,7 @@ public class PostMessageTask extends AsyncTask<Void, String,String>{
         void PostMessageComplete();
         void onErrorResponse();
         void OnNoInternetConnection();
+        void OnDupMsgId();
     }
 
 }

@@ -459,6 +459,13 @@ public class PostMessageActivity extends ActivityWithDrawer implements FilterAda
     }
 
     @Override
+    public void OnDupMsgId() {
+        Utils.makeRandom();
+        id = Utils.buildMessageId(this, !mAdOcRadio.isChecked());
+        postMessageCentralized();
+    }
+
+    @Override
     public void OnGetLocationInfoComplete(FullLocation flocation, List<MuleMessageFilter> filters, String sig) {
         // TODO: sig may be null
         MuleMessage muleM = new MuleMessage(id, messageText, username, flocation, startD,
