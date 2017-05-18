@@ -4,6 +4,7 @@
 * Run: ./install2.sh
 
 ### To run
+* Go to Server
 * Run: sudo ./endpoint.py
 * To stop it, access the URL: https://locmess.duckdns.org/esgarabisch
 
