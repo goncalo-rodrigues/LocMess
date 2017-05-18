@@ -72,8 +72,12 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
         String text = item.getMessageText();
         String authorText = "by " + item.getAuthor();
         String locationText = "at " + item.getLocation();
-        String dateText = DateUtils.getRelativeTimeSpanString(item.getInsertDate().getTime(),
-                new Date().getTime(), 0L, DateUtils.FORMAT_ABBREV_ALL).toString();
+        String dateText = "";
+        if (mType == BaseMessageFragment.TYPE_ARG_CREATED) {
+            dateText = DateUtils.getRelativeTimeSpanString(item.getInsertDate().getTime(),
+                    new Date().getTime(), 0L, DateUtils.FORMAT_ABBREV_ALL).toString();
+        }
+
 
         // expand
         final ViewGroup itemView = (ViewGroup) holder.itemView;
