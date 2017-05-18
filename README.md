@@ -13,4 +13,4 @@
 * Start two AVDs
 
 ### To enable Wi-Fi Direct
-* Load the script on Termite-Cli on Termite
+* Load the script on Termite-Cli/scripts on Termite
