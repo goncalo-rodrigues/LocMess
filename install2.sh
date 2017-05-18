@@ -8,5 +8,8 @@ sudo pip2 install --upgrade virtualenv
 echo "Installing flask"
 sudo pip2 install Flask
 
+echo "Installing PyCrypto"
+sudo pip2 install pycrypto
+
 echo "Installing MySQL python module"
 sudo apt-get install python-mysqldb
