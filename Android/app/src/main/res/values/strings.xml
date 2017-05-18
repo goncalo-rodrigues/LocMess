@@ -60,4 +60,5 @@
     <string name="open_location_settings">Yes</string>
     <string name="cancel">Cancel</string>
     <string name="no_location_recv_post_msg">No locations to select. Please create one first.</string>
+    <string name="dup_msg_error">The given message was duplicated.</string>
 </resources>
