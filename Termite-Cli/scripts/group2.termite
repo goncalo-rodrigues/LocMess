@@ -1,10 +1,14 @@
 newdevice A
 newdevice B
+newdevice C
 list emus
 assignaddr e1
 assignaddr e2
 binddevice A e1
 binddevice B e2
+move A (C)
+commit
+wait 20
 move A (B)
 creategroup A (B)
 commit
