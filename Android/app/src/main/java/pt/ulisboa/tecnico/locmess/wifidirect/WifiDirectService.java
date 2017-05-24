@@ -251,9 +251,11 @@ public class WifiDirectService extends Service implements SimWifiP2pBroadcastRec
                 if ((getCurrentWifiLocation().isInside(m.getFullLocation()) || getCurrentGPSLocation().isInside(m.getFullLocation()) )
                         && m.amIallowedToReceiveThisMessage(this)) {
                     ReceivedMessage rm = m.toReceived();
-                    rm.save(this);
-                    NotificationsHelper.startNewMessageNotification(this);
-                    Log.i(LOG_TAG,  "Received new decentralized message " + message.toString());
+                    if (rm.save(this)) {
+                        NotificationsHelper.startNewMessageNotification(this);
+                        Log.i(LOG_TAG,  "Received new decentralized message " + message.toString());
+                    }
+
                 }
                 return new Response(true);
             default:

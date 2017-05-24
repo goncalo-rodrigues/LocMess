@@ -28,7 +28,8 @@ public class ReceivedMessage extends Message {
     }
 
     @Override
-    public void save(Context ctx) {
+    public boolean save(Context ctx) {
+        boolean success = true;
         LocmessDbHelper helper = new LocmessDbHelper(ctx);
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -42,11 +43,14 @@ public class ReceivedMessage extends Message {
         values.put(LocmessContract.MessageTable.COLUMN_NAME_TIMESTAMP, (new Date()).getTime());
         try {
             db.insert(LocmessContract.MessageTable.TABLE_NAME, null, values);
+
         } catch (SQLiteConstraintException e) {
             Log.e(LOG_TAG, e.toString());
+            success = false;
         }
 
         db.close();
+        return success;
     }
 
     @Override

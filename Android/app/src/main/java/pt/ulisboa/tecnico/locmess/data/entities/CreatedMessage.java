@@ -24,7 +24,7 @@ public class CreatedMessage extends Message {
     }
 
     @Override
-    public void save(Context ctx) {
+    public boolean save(Context ctx) {
         LocmessDbHelper helper = new LocmessDbHelper(ctx);
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -37,6 +37,7 @@ public class CreatedMessage extends Message {
         values.put(LocmessContract.CreatedMessageTable.COLUMN_NAME_CENTRALIZED, isCentralized());
         values.put(LocmessContract.CreatedMessageTable.COLUMN_NAME_TIMESTAMP, (new Date()).getTime());
         db.insert(LocmessContract.CreatedMessageTable.TABLE_NAME, null, values);
+        return true;
     }
 
     @Override

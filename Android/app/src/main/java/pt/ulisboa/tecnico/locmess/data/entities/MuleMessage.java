@@ -167,7 +167,8 @@ public class MuleMessage extends Message {
     }
 
     @Override
-    public void save(Context ctx) {
+    public boolean save(Context ctx) {
+        boolean success = true;
         if (fullLocation != null)
             fullLocation.save(ctx);
 
@@ -187,6 +188,7 @@ public class MuleMessage extends Message {
             db.insert(LocmessContract.MuleMessageTable.TABLE_NAME, null, values);
         } catch (SQLiteConstraintException e) {
             Log.e(LOG_TAG, e.toString());
+            success = false;
         }
 
         for (MuleMessageFilter f : getFilters(null)) {
@@ -198,7 +200,7 @@ public class MuleMessage extends Message {
 
         db.close();
 
-
+        return success;
     }
 
     public static void deleteExtraMessages(Context ctx) {

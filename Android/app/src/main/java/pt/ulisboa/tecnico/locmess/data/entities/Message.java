@@ -105,7 +105,7 @@ public abstract class Message {
         this.endDate = endDate;
     }
 
-    public abstract void save(Context ctx);
+    public abstract boolean save(Context ctx);
 
     public abstract void delete(Context ctx);
 

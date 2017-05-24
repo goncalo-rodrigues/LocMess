@@ -32,21 +32,25 @@
             android:textSize="16sp"
             android:layout_marginBottom="16dp"
             android:id="@+id/profile_name_tv"/>
-
-        <TextView
-            android:id="@+id/textView5"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-condensed"
-            android:text="@string/maximum_number_of_mule_messages"
-            android:layout_marginBottom="16dp" />
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/textView5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-condensed"
+                android:text="@string/maximum_number_of_mule_messages"
+                android:layout_gravity="center_vertical"/>
 
-        <android.widget.NumberPicker
-            android:id="@+id/nr_mule"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:padding="0dp" />
+            <android.widget.NumberPicker
+                android:id="@+id/nr_mule"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:padding="0dp" />
+        </LinearLayout>
+
 
         <TextView
             android:layout_width="wrap_content"
