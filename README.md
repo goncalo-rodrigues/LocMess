@@ -15,3 +15,6 @@
 
 ### To enable Wi-Fi Direct
 * Load the script on Termite-Cli/scripts on Termite
+
+
+For more information about this project, see [Report.pdf](./Report.pdf)
